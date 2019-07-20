@@ -6,7 +6,7 @@ using ZenWatch.Zendesk;
 
 namespace ZenWatch.Acceptance
 {
-    internal class CannedZendeskApi : IZApi
+    internal class CannedZendeskApi : ISharingTickets
     {
         private string file;
 

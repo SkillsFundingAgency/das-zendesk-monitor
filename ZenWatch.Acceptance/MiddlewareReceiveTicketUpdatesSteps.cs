@@ -65,7 +65,7 @@ namespace ZenWatch.Acceptance
         {
             api.UseTicket(data.Ticket);
             data.Ticket.MarkForSharing();
-            await watcher.Watch2();
+            await watcher.Watch();
         }
         
         [Then(@"the ticket is shared with the Middleware")]

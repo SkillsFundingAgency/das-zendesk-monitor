@@ -10,14 +10,14 @@ namespace ZenWatch.UnitTests
     public class When_there_is_one_ticket_to_be_shared
     {
         private readonly Middleware.IApi middleware = Substitute.For<Middleware.IApi>();
-        private readonly Zendesk.IZApi zendesk = Substitute.For<Zendesk.IZApi>();
+        private readonly Zendesk.ISharingTickets zendesk = Substitute.For<Zendesk.ISharingTickets>();
 
         [Theory, AutoMockDataAttribute]
-        public async Task Watcher_marks_ticket_as_sharing_before_sending_to_middleware([Frozen] Zendesk.IZApi zendesk, Watcher sut, Zendesk.Ticket ticket)
+        public async Task Watcher_marks_ticket_as_sharing_before_sending_to_middleware([Frozen] Zendesk.ISharingTickets zendesk, Watcher sut, Zendesk.Ticket ticket)
         {
-            zendesk.GetTicketsForSharing().Returns(Task.FromResult(new[]{ ticket}));
+            zendesk.GetTicketsForSharing().Returns(Task.FromResult(new[] { ticket }));
 
-            await sut.Watch2();
+            await sut.Watch();
 
             zendesk.Received().MarkSharing(ticket);
         }
@@ -29,7 +29,7 @@ namespace ZenWatch.UnitTests
             var ticket = Builder<Zendesk.Ticket>.CreateNew().Build();
             zendesk.GetTicketsForSharing().Returns(Task.FromResult(new[] { ticket }));
 
-            await sut.Watch2();
+            await sut.Watch();
 
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Ticket.Should().BeEquivalentTo(ticket)));
         }
@@ -41,7 +41,7 @@ namespace ZenWatch.UnitTests
             var ticket = Builder<Zendesk.Ticket>.CreateNew().Build();
             zendesk.GetTicketsForSharing().Returns(Task.FromResult(new[] { ticket }));
 
-            await sut.Watch2();
+            await sut.Watch();
 
             zendesk.Received().MarkShared(ticket);
         }
@@ -51,13 +51,9 @@ namespace ZenWatch.UnitTests
      * Watcher marks ticket as sharing before sending to middleware
      * Watcher marks ticket as shared after successfully sending to middleware
      * Watcher leaves ticket as sharing after unsuccessfully sending to middleware
-     * 
+     *
      */
-
 }
-
-
-
 
 namespace NSubstitute
 {
@@ -105,6 +101,7 @@ namespace NSubstitute
         /// <returns></returns>
         public static T That<T>(Action<T> action)
             => ArgumentMatcher.Enqueue(new AssertionMatcher<T>(action));
+
         //=> ArgumentMatcher.Enqueue(new GenericToNonGenericMatcherProxyWithDescribe<T>(new AssertionMatcher<T>(action)));
 
         private class AssertionMatcher<T> : IArgumentMatcher<T>, IDescribeNonMatches
