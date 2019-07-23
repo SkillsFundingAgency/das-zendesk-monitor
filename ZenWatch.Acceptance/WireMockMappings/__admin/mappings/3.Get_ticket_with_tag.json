@@ -1,0 +1,296 @@
+{
+  "Guid": "13ef5356-26b0-4a10-8ed9-079e0b282a3a",
+  "Title": "",
+  "Scenario": "Happy Path",
+  "WhenStateIs": "Added sharing tag",
+  "Request": {
+    "Path": {
+      "Matchers": [
+        {
+          "Name": "WildcardMatcher",
+          "Pattern": "/api/v2/tickets/363.json",
+          "IgnoreCase": false
+        }
+      ]
+    },
+    "Methods": [
+      "GET"
+    ],
+    "Body": {}
+  },
+  "Response": {
+    "StatusCode": 200,
+    "BodyAsJson": {
+      "ticket": {
+        "url": "https://esfa.zendesk.com/api/v2/tickets/363.json",
+        "id": 363,
+        "external_id": null,
+        "via": {
+          "channel": "api",
+          "source": {
+            "from": {},
+            "to": {},
+            "rel": null
+          }
+        },
+        "created_at": "2019-07-23T11:48:13Z",
+        "updated_at": "2019-07-23T11:48:13Z",
+        "type": "question",
+        "subject": "Integration testing Watcher",
+        "raw_subject": "Integration testing Watcher",
+        "description": "Created for testing",
+        "priority": "low",
+        "status": "new",
+        "recipient": null,
+        "requester_id": 361623959700,
+        "submitter_id": 361623959700,
+        "assignee_id": null,
+        "organization_id": null,
+        "group_id": 360000855979,
+        "collaborator_ids": [],
+        "follower_ids": [],
+        "email_cc_ids": [],
+        "forum_topic_id": null,
+        "problem_id": null,
+        "has_incidents": false,
+        "is_public": true,
+        "due_at": null,
+		"tags": [
+		  "pending_middleware"
+		],
+        "custom_fields": [
+          {
+            "id": 360002763800,
+            "value": null
+          },
+          {
+            "id": 360002755879,
+            "value": null
+          },
+          {
+            "id": 360002730279,
+            "value": null
+          },
+          {
+            "id": 360002600499,
+            "value": null
+          },
+          {
+            "id": 360002755899,
+            "value": null
+          },
+          {
+            "id": 360002600259,
+            "value": null
+          },
+          {
+            "id": 360002737480,
+            "value": null
+          },
+          {
+            "id": 360002737740,
+            "value": null
+          },
+          {
+            "id": 360002764880,
+            "value": null
+          },
+          {
+            "id": 360002657880,
+            "value": null
+          },
+          {
+            "id": 360002731099,
+            "value": null
+          },
+          {
+            "id": 360002603100,
+            "value": null
+          },
+          {
+            "id": 360002730339,
+            "value": null
+          },
+          {
+            "id": 360002764900,
+            "value": null
+          },
+          {
+            "id": 360002730859,
+            "value": null
+          },
+          {
+            "id": 360003093619,
+            "value": null
+          },
+          {
+            "id": 360002737780,
+            "value": null
+          },
+          {
+            "id": 360002730119,
+            "value": null
+          },
+          {
+            "id": 360002737800,
+            "value": null
+          },
+          {
+            "id": 360003101340,
+            "value": null
+          },
+          {
+            "id": 360002574239,
+            "value": null
+          },
+          {
+            "id": 360002757039,
+            "value": null
+          },
+          {
+            "id": 360002757059,
+            "value": null
+          },
+          {
+            "id": 360002763980,
+            "value": null
+          }
+        ],
+        "satisfaction_rating": {
+          "score": "unoffered"
+        },
+        "sharing_agreement_ids": [],
+        "fields": [
+          {
+            "id": 360002763800,
+            "value": null
+          },
+          {
+            "id": 360002755879,
+            "value": null
+          },
+          {
+            "id": 360002730279,
+            "value": null
+          },
+          {
+            "id": 360002600499,
+            "value": null
+          },
+          {
+            "id": 360002755899,
+            "value": null
+          },
+          {
+            "id": 360002600259,
+            "value": null
+          },
+          {
+            "id": 360002737480,
+            "value": null
+          },
+          {
+            "id": 360002737740,
+            "value": null
+          },
+          {
+            "id": 360002764880,
+            "value": null
+          },
+          {
+            "id": 360002657880,
+            "value": null
+          },
+          {
+            "id": 360002731099,
+            "value": null
+          },
+          {
+            "id": 360002603100,
+            "value": null
+          },
+          {
+            "id": 360002730339,
+            "value": null
+          },
+          {
+            "id": 360002764900,
+            "value": null
+          },
+          {
+            "id": 360002730859,
+            "value": null
+          },
+          {
+            "id": 360003093619,
+            "value": null
+          },
+          {
+            "id": 360002737780,
+            "value": null
+          },
+          {
+            "id": 360002730119,
+            "value": null
+          },
+          {
+            "id": 360002737800,
+            "value": null
+          },
+          {
+            "id": 360003101340,
+            "value": null
+          },
+          {
+            "id": 360002574239,
+            "value": null
+          },
+          {
+            "id": 360002757039,
+            "value": null
+          },
+          {
+            "id": 360002757059,
+            "value": null
+          },
+          {
+            "id": 360002763980,
+            "value": null
+          }
+        ],
+        "followup_ids": [],
+        "ticket_form_id": 360000235179,
+        "brand_id": 360000366759,
+        "satisfaction_probability": null,
+        "allow_channelback": false,
+        "allow_attachments": true
+      }
+    },
+    "Headers": {
+      "Content-Type": "application/json; charset=UTF-8",
+      "Date": "Tue, 23 Jul 2019 11:49:00 GMT",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Set-Cookie": [
+        "__cfduid=d01ef07449d4f1c0be95dd4f5fd8cb0b71563882540; expires=Wed, 22-Jul-20 11:49:00 GMT; path=/; domain=.esfa.zendesk.com; HttpOnly",
+        "__cfruid=be20b717a5bb06aebe264196cb3dc1a41e90372e-1563882540; path=/; domain=.esfa.zendesk.com; HttpOnly"
+      ],
+      "X-Zendesk-API-Version": "v2",
+      "X-Zendesk-Application-Version": "v2308-94",
+      "X-Frame-Options": "SAMEORIGIN",
+      "X-Rate-Limit": "700",
+      "X-Rate-Limit-Remaining": "699",
+      "Strict-Transport-Security": "max-age=31536000;",
+      "ETag": "W/\"3c790e6807956e70b63c0ff59bcd35df\"",
+      "Cache-Control": "must-revalidate, max-age=0, private",
+      "X-Zendesk-Origin-Server": "classic-app-server-757fbf7dcf-swjtr",
+      "X-Request-ID": "4fad6db6a83b35b8-FRA",
+      "X-Runtime": "0.306978",
+      "X-Zendesk-Request-Id": "6dcb12de6e5535bc297b",
+      "X-Content-Type-Options": "nosniff",
+      "Expect-CT": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+      "Server": "cloudflare",
+      "CF-RAY": "4fad6db6a83b35b8-LHR"
+    }
+  }
+}

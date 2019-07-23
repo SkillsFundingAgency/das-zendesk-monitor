@@ -7,23 +7,23 @@ namespace ZenWatch
 {
     public class Watcher
     {
-        private readonly Zendesk.IApi api;
-        private readonly ISharingTickets zapi;
-        private readonly Middleware.IApi mw;
+        private readonly ISharingTickets zendesk;
+        private readonly Middleware.IApi middleware;
 
-        public Watcher(Zendesk.ISharingTickets api, Middleware.IApi mw)
+        public Watcher(ISharingTickets zendesk, Middleware.IApi middleware)
         {
-            this.zapi = api;
-            this.mw = mw;
+            this.zendesk = zendesk;
+            this.middleware = middleware;
         }
 
         public async Task Watch()
         {
-            var tickets = await zapi.GetTicketsForSharing();
+            var tickets = await zendesk.GetTicketsForSharing();
             foreach (var ticket in tickets)
             {
-                zapi.MarkSharing(ticket);
-                await mw.PostEvent(new Middleware.EventWrapper { Ticket = ticket });
+                zendesk.MarkSharing(ticket);
+                await middleware.PostEvent(new Middleware.EventWrapper { Ticket = ticket });
+                zendesk.MarkShared(ticket);
             }
         }
 

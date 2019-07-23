@@ -81,18 +81,22 @@ namespace ZenWatch.Acceptance
         [Xunit.FactAttribute(DisplayName="Share ticket with middleware")]
         [Xunit.TraitAttribute("FeatureTitle", "MiddlewareReceiveTicketUpdates")]
         [Xunit.TraitAttribute("Description", "Share ticket with middleware")]
+        [Xunit.TraitAttribute("Category", "SkipWhenLiveUnitTesting")]
         public virtual void ShareTicketWithMiddleware()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Share ticket with middleware", null, ((string[])(null)));
-#line 6
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Share ticket with middleware", null, new string[] {
+                        "SkipWhenLiveUnitTesting"});
+#line 7
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
-#line 7
- testRunner.Given("a ticket exists", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 8
- testRunner.When("the ticket is marked to be shared", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.Given("a ticket exists", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 9
+ testRunner.When("the ticket is marked to be shared", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 10
  testRunner.Then("the ticket is shared with the Middleware", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 11
+ testRunner.And("the ticket is not marked to be shared", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             this.ScenarioCleanup();
         }

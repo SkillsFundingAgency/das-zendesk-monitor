@@ -12,7 +12,7 @@ namespace ZenWatch.UnitTests
         private readonly Middleware.IApi middleware = Substitute.For<Middleware.IApi>();
         private readonly Zendesk.ISharingTickets zendesk = Substitute.For<Zendesk.ISharingTickets>();
 
-        [Theory, AutoMockDataAttribute]
+        [Theory, AutoMockData]
         public async Task Watcher_marks_ticket_as_sharing_before_sending_to_middleware([Frozen] Zendesk.ISharingTickets zendesk, Watcher sut, Zendesk.Ticket ticket)
         {
             zendesk.GetTicketsForSharing().Returns(Task.FromResult(new[] { ticket }));
@@ -43,7 +43,7 @@ namespace ZenWatch.UnitTests
 
             await sut.Watch();
 
-            zendesk.Received().MarkShared(ticket);
+            await zendesk.Received().MarkShared(ticket);
         }
     }
 

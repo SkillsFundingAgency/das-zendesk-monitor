@@ -4,4 +4,9 @@
     {
         public Ticket Ticket { get; set; }
     }
+
+    public class SearchResponse
+    {
+        public Ticket[] Results { get; set; }
+    }
 }

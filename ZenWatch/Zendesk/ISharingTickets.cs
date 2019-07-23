@@ -8,6 +8,6 @@ namespace ZenWatch.Zendesk
 
         void MarkSharing(Ticket t);
 
-        void MarkShared(Ticket t);
+        Task MarkShared(Ticket t);
     }
 }
