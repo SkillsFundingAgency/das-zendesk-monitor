@@ -6,7 +6,7 @@ namespace ZenWatch.Zendesk
     {
         Task<Ticket[]> GetTicketsForSharing();
 
-        void MarkSharing(Ticket t);
+        Task MarkSharing(Ticket t);
 
         Task MarkShared(Ticket t);
     }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using ZenWatch.Zendesk;
 
 namespace ZenWatch
@@ -18,21 +16,20 @@ namespace ZenWatch
 
         public async Task Watch()
         {
-            var tickets = await zendesk.GetTicketsForSharing();
+            var tickets = await GetTicketsForSharing();
             foreach (var ticket in tickets)
             {
-                zendesk.MarkSharing(ticket);
-                await middleware.PostEvent(new Middleware.EventWrapper { Ticket = ticket });
-                zendesk.MarkShared(ticket);
+                await ShareTicket(ticket);
             }
         }
 
-        public IEnumerable<Middleware.EventWrapper> Share(Ticket[] ticketsToBeShared)
+        public Task<Ticket[]> GetTicketsForSharing() => zendesk.GetTicketsForSharing();
+
+        public async Task ShareTicket(Ticket ticket)
         {
-            return ticketsToBeShared.Select(x => new Middleware.EventWrapper
-            {
-                Ticket = x
-            });
+            await zendesk.MarkSharing(ticket);
+            await middleware.PostEvent(new Middleware.EventWrapper { Ticket = ticket });
+            await zendesk.MarkShared(ticket);
         }
     }
 }
