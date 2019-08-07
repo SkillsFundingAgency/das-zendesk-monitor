@@ -23,9 +23,15 @@ namespace ZenWatch
             }
         }
 
-        public Task<Ticket[]> GetTicketsForSharing() => zendesk.GetTicketsForSharing();
+        public Task<long[]> GetTicketsForSharing() => zendesk.GetTicketsForSharing();
 
-        public async Task ShareTicket(Ticket ticket)
+        public async Task ShareTicket(long id)
+        {
+            var ticket = await zendesk.GetTicketForSharing(id);
+            await ShareTicket(ticket);
+        }
+
+        private async Task ShareTicket(Ticket ticket)
         {
             await zendesk.MarkSharing(ticket);
             await middleware.PostEvent(new Middleware.EventWrapper { Ticket = ticket });

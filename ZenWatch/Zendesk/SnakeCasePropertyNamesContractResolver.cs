@@ -1,8 +1,4 @@
-﻿
-//using Scotch;
-using System;
-
-namespace Newtonsoft.Json.Serialization.ContractResolverExtentions
+﻿namespace Newtonsoft.Json.Serialization.ContractResolverExtentions
 {
     using System.Text.RegularExpressions;
 

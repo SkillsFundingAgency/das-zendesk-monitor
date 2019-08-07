@@ -4,7 +4,9 @@ namespace ZenWatch.Zendesk
 {
     public interface ISharingTickets
     {
-        Task<Ticket[]> GetTicketsForSharing();
+        Task<long[]> GetTicketsForSharing();
+
+        Task<Ticket> GetTicketForSharing(long id);
 
         Task MarkSharing(Ticket t);
 

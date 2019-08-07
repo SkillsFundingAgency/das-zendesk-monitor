@@ -28,13 +28,6 @@ namespace ZenWatch.Acceptance.Fakes
             }
         }
 
-        public static JsonSerializerSettings JsonSerializerSettings { get; } =
-            new JsonSerializerSettings
-            {
-                ContractResolver = new SnakeCasePropertyNamesContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore,
-            };
-
         private readonly FluentMockServer server = FluentMockServer.Start(new FluentMockServerSettings
         {
             //*
@@ -52,6 +45,7 @@ namespace ZenWatch.Acceptance.Fakes
         });
 
         private readonly IApi zendeskApi;
+        private readonly ISharingTickets sharing;
 
         public FakeZendesk()
         {
@@ -71,11 +65,8 @@ namespace ZenWatch.Acceptance.Fakes
             var byteArray = Encoding.ASCII.GetBytes("ben.arnold@digital.education.gov.uk/token:xxxxxxxxxx");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
-            zendeskApi = RestClient.For<IApi>(httpClient);//,
-                                                          //new
-                                                          //{
-                                                          //    ContentSerializer = new JsonContentSerializer(JsonSerializerSettings),
-                                                          //});
+            zendeskApi = ApiFactory.Create(httpClient);
+            sharing = new SharingTickets(zendeskApi);
         }
 
         internal async Task<Ticket> GetTicket(long id) => (await zendeskApi.GetTicket(id)).Ticket;
@@ -97,21 +88,12 @@ namespace ZenWatch.Acceptance.Fakes
             return zendeskApi.PutTicket(ticket.Id, new Empty { Ticket = ticket });
         }
 
-        public async Task<Ticket[]> /*ISharingTickets.*/GetTicketsForSharing()
-        {
-            var response = await zendeskApi.SearchTickets("tags:pending_middleware");
-            return response.Results;
-        }
+        public Task<long[]> /*ISharingTickets.*/GetTicketsForSharing() => sharing.GetTicketsForSharing();
 
-        Task ISharingTickets.MarkShared(Ticket ticket)
-        {
-            ticket.Tags.Remove("pending_middleware");
-            return zendeskApi.PutTicket(ticket.Id, new Empty { Ticket = ticket });
-        }
+        Task<Ticket> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
 
-        Task ISharingTickets.MarkSharing(Ticket t)
-        {
-            return Task.CompletedTask;
-        }
+        Task ISharingTickets.MarkShared(Ticket ticket) => sharing.MarkShared(ticket);
+
+        Task ISharingTickets.MarkSharing(Ticket t) => sharing.MarkSharing(t);
     }
 }

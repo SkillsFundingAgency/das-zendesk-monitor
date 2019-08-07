@@ -51,7 +51,7 @@ namespace ZenWatch.Acceptance
         private async Task<bool> TicketIsMarkedForSharing(long id)
         {
             var ticket = await zendesk.GetTicketsForSharing();
-            return ticket.Any(x => x.Id == id);
+            return ticket.Any(x => x == id);
         }
 
         private async Task<bool> WaitUntil(Func<Task<bool>> p, TimeSpan timeSpan, TimeSpan waitBetween)

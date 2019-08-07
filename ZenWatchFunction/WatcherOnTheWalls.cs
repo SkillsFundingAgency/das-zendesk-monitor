@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using ZenWatch;
 
@@ -12,6 +13,7 @@ namespace ZenWatchFunction
     {
         public WatcherOnTheWalls(Watcher watcher)
         {
+            this.watcher = watcher;
         }
 
         public WatcherOnTheWalls(ILogger<WatcherOnTheWalls> log)
@@ -22,17 +24,18 @@ namespace ZenWatchFunction
         public async Task<long[]> SearchForTickets()
         {
             log?.LogInformation($"Searching for tickets");
-            await Task.Delay(TimeSpan.FromSeconds(5));
-            SimulateFailure(0.2);
-            return new long[] { 1234, 2345, 3456, 4567 };
+            SimulateFailure(0.1);
+            var tickets = await watcher.GetTicketsForSharing();
+            return tickets.ToArray();
         }
 
-        public async Task ShareTicket(long id)
+        public Task ShareTicket(long id)
         {
-            var ticket = await LoadTicket(id);
-            await StartSending(ticket);
-            await PostTicket(ticket);
-            await FinishedSending(ticket);
+            return watcher.ShareTicket(id);
+            //var ticket = await LoadTicket(id);
+            //await StartSending(ticket);
+            //await PostTicket(ticket);
+            //await FinishedSending(ticket);
         }
 
         private async Task<string> LoadTicket(long id)
@@ -74,5 +77,6 @@ namespace ZenWatchFunction
 
         private static readonly Random random = new Random();
         private readonly ILogger<WatcherOnTheWalls> log;
+        private readonly Watcher watcher;
     }
 }

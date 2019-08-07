@@ -2,20 +2,36 @@ using AutoFixture.Xunit2;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NSubstitute;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using ZenWatch.Zendesk;
 
 namespace ZenWatch.UnitTests
 {
+    public abstract class FakeSharingTickets : ISharingTickets
+    {
+        public List<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+        public Task<Ticket> GetTicketForSharing(long id) => Task.FromResult(Tickets.FirstOrDefault(x => x.Id == id));
+
+        public Task<long[]> GetTicketsForSharing() => Task.FromResult(Tickets.Select(x => x.Id).ToArray());
+
+        public abstract Task MarkShared(Ticket t);
+
+        public abstract Task MarkSharing(Ticket t);
+    }
+
     public class When_there_is_one_ticket_to_be_shared
     {
         private readonly Middleware.IApi middleware = Substitute.For<Middleware.IApi>();
-        private readonly Zendesk.ISharingTickets zendesk = Substitute.For<Zendesk.ISharingTickets>();
+        private readonly FakeSharingTickets zendesk = Substitute.ForPartsOf<FakeSharingTickets>();
 
         [Theory, AutoMockData]
-        public async Task Watcher_marks_ticket_as_sharing_before_sending_to_middleware([Frozen] Zendesk.ISharingTickets zendesk, Watcher sut, Zendesk.Ticket ticket)
+        public async Task Watcher_marks_ticket_as_sharing_before_sending_to_middleware([Frozen(Matching.ImplementedInterfaces)] FakeSharingTickets zendesk, Watcher sut, Zendesk.Ticket ticket)
         {
-            zendesk.GetTicketsForSharing().Returns(Task.FromResult(new[] { ticket }));
+            zendesk.Tickets.Add(ticket);
 
             await sut.Watch();
 
@@ -27,7 +43,7 @@ namespace ZenWatch.UnitTests
         {
             var sut = new Watcher(zendesk, middleware);
             var ticket = Builder<Zendesk.Ticket>.CreateNew().Build();
-            zendesk.GetTicketsForSharing().Returns(Task.FromResult(new[] { ticket }));
+            zendesk.Tickets.Add(ticket);
 
             await sut.Watch();
 
@@ -39,7 +55,7 @@ namespace ZenWatch.UnitTests
         {
             var sut = new Watcher(zendesk, middleware);
             var ticket = Builder<Zendesk.Ticket>.CreateNew().Build();
-            zendesk.GetTicketsForSharing().Returns(Task.FromResult(new[] { ticket }));
+            zendesk.Tickets.Add(ticket);
 
             await sut.Watch();
 
