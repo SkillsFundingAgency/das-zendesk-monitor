@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization.ContractResolverExtentions;
-using Refit;
+using RestEase;
 using System;
 using System.IO;
 using System.Linq;
@@ -71,11 +71,11 @@ namespace ZenWatch.Acceptance.Fakes
             var byteArray = Encoding.ASCII.GetBytes("ben.arnold@digital.education.gov.uk/token:xxxxxxxxxx");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
-            zendeskApi = RestService.For<IApi>(httpClient,
-                new RefitSettings
-                {
-                    ContentSerializer = new JsonContentSerializer(JsonSerializerSettings),
-                });
+            zendeskApi = RestClient.For<IApi>(httpClient);//,
+                                                          //new
+                                                          //{
+                                                          //    ContentSerializer = new JsonContentSerializer(JsonSerializerSettings),
+                                                          //});
         }
 
         internal async Task<Ticket> GetTicket(long id) => (await zendeskApi.GetTicket(id)).Ticket;
@@ -92,9 +92,9 @@ namespace ZenWatch.Acceptance.Fakes
             return response.Ticket;
         }
 
-        internal async Task UpdateTicket(Ticket ticket)
+        internal Task UpdateTicket(Ticket ticket)
         {
-            await zendeskApi.PutTicket(ticket.Id, new Empty { Ticket = ticket });
+            return zendeskApi.PutTicket(ticket.Id, new Empty { Ticket = ticket });
         }
 
         public async Task<Ticket[]> /*ISharingTickets.*/GetTicketsForSharing()
@@ -103,14 +103,15 @@ namespace ZenWatch.Acceptance.Fakes
             return response.Results;
         }
 
-        async Task ISharingTickets.MarkShared(Ticket ticket)
+        Task ISharingTickets.MarkShared(Ticket ticket)
         {
             ticket.Tags.Remove("pending_middleware");
-            await zendeskApi.PutTicket(ticket.Id, new Empty { Ticket = ticket });
+            return zendeskApi.PutTicket(ticket.Id, new Empty { Ticket = ticket });
         }
 
-        void ISharingTickets.MarkSharing(Ticket t)
+        Task ISharingTickets.MarkSharing(Ticket t)
         {
+            return Task.CompletedTask;
         }
     }
 }

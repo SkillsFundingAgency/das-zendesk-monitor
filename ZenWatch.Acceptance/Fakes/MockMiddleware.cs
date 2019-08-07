@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Refit;
 using RestEase;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using WireMock.Client;
 using WireMock.RequestBuilders;
@@ -31,12 +28,12 @@ namespace ZenWatch.Acceptance
                 .Given(Request.Create().WithPath("/event").UsingAnyMethod())
                 .RespondWith(Response.Create().WithSuccess());
 
-            client = RestService.For<Middleware.IApi>(server.Urls[0]);
+            client = RestClient.For<Middleware.IApi>(server.Urls[0]);
 
             admin = RestClient.For<IFluentMockServerAdmin>(server.Urls[0]);
         }
 
-        public async Task PostEvent([Refit.Body] Middleware.EventWrapper body)
+        public async Task PostEvent([Body] Middleware.EventWrapper body)
             => await client.PostEvent(body);
 
         public async Task<IReadOnlyList<Zendesk.Ticket>> TicketEvents()

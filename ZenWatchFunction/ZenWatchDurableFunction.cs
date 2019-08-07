@@ -31,12 +31,12 @@ namespace ZenWatchFunction
         }
 
         [FunctionName("WatcherEntryPoint")]
-        public async Task Run(
+        public Task Run(
             [TimerTrigger("*/30 * * * * *", RunOnStartup = true)] TimerInfo _,
             [OrchestrationClient] DurableOrchestrationClient starter,
             ILogger log)
         {
-            await GetSingleInstance(starter, log);
+            return GetSingleInstance(starter, log);
         }
 
         private async Task<DurableOrchestrationStatus> GetSingleInstance(DurableOrchestrationClient starter, ILogger log)
@@ -66,15 +66,15 @@ namespace ZenWatchFunction
         }
 
         [FunctionName(nameof(SearchTickets))]
-        public async Task<long[]> SearchTickets([ActivityTrigger] DurableActivityContext context, ILogger log)
+        public Task<long[]> SearchTickets([ActivityTrigger] DurableActivityContext _)
         {
-            return await watcher.SearchForTickets();
+            return watcher.SearchForTickets();
         }
 
         [FunctionName(nameof(SendTicketEvent))]
-        public async Task SendTicketEvent([ActivityTrigger] long id, ILogger log)
+        public Task SendTicketEvent([ActivityTrigger] long id)
         {
-            await watcher.ShareTicket(id);
+            return watcher.ShareTicket(id);
         }
     }
 }

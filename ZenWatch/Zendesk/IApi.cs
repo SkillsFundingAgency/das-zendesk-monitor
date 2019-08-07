@@ -1,4 +1,4 @@
-﻿using Refit;
+﻿using RestEase;
 using System.Threading.Tasks;
 
 namespace ZenWatch.Zendesk

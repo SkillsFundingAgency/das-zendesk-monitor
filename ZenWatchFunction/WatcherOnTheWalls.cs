@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using ZenWatch;
 
 [assembly: FunctionsStartup(typeof(ZenWatchFunction.Startup))]
 
@@ -9,6 +10,10 @@ namespace ZenWatchFunction
 {
     public class WatcherOnTheWalls
     {
+        public WatcherOnTheWalls(Watcher watcher)
+        {
+        }
+
         public WatcherOnTheWalls(ILogger<WatcherOnTheWalls> log)
         {
             this.log = log;

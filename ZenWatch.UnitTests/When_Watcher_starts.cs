@@ -19,7 +19,7 @@ namespace ZenWatch.UnitTests
 
             await sut.Watch();
 
-            zendesk.Received().MarkSharing(ticket);
+            await zendesk.Received().MarkSharing(ticket);
         }
 
         [Fact]
