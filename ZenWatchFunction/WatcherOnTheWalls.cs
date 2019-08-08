@@ -11,13 +11,9 @@ namespace ZenWatchFunction
 {
     public class WatcherOnTheWalls
     {
-        public WatcherOnTheWalls(Watcher watcher)
+        public WatcherOnTheWalls(Watcher watcher, ILogger<WatcherOnTheWalls> log)
         {
             this.watcher = watcher;
-        }
-
-        public WatcherOnTheWalls(ILogger<WatcherOnTheWalls> log)
-        {
             this.log = log;
         }
 
@@ -26,6 +22,7 @@ namespace ZenWatchFunction
             log?.LogInformation($"Searching for tickets");
             SimulateFailure(0.1);
             var tickets = await watcher.GetTicketsForSharing();
+            log?.LogInformation($"Found {tickets.Count()}");
             return tickets.ToArray();
         }
 
