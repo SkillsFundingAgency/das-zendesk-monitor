@@ -1,5 +1,6 @@
+using AutoFixture;
+using AutoFixture.AutoNSubstitute;
 using AutoFixture.Xunit2;
-using FizzWare.NBuilder;
 using FluentAssertions;
 using NSubstitute;
 using RestEase;
@@ -26,37 +27,98 @@ namespace ZenWatch.UnitTests
 
     public class FakeZendeskApi : Zendesk.IApi
     {
-        public List<Ticket> Tickets { get; set; } = new List<Ticket>();
+        public List<Ticket> Tickets { get; } = new List<Ticket>();
 
-        public Task<TicketResponse> GetTicket([Path] long id) => Task.FromResult(new TicketResponse { Ticket = Tickets.First(x => x.Id == id) });
+        public Task<SearchResponse> SearchTickets([Query] string query)
+        {
+            var response = new SearchResponse { Results = Tickets.ToArray() };
+            return Task.FromResult(response);
+        }
+
+        public Task<TicketResponse> GetTicket([Path] long id)
+        {
+            var ticket = Tickets.First(x => x.Id == id);
+            var response = new TicketResponse { Ticket = ticket };
+            return Task.FromResult(response);
+        }
 
         public Task<TicketResponse> PostTicket([Body] Empty ticket) => Task.FromResult<TicketResponse>(null);
 
         public Task PutTicket([Path] long id, [Body] Empty ticket) => Task.CompletedTask;
-
-        public Task<SearchResponse> SearchTickets([Query] string query) => Task.FromResult(new SearchResponse { Results = Tickets.ToArray() });
     }
 
     public class When_there_is_one_ticket_to_be_shared
     {
-        private readonly Middleware.IApi middleware = Substitute.For<Middleware.IApi>();
-        private readonly FakeSharingTickets zendesk = Substitute.ForPartsOf<FakeSharingTickets>();
+        //[Theory, AutoMockData]
+        //public async Task Ticket_returned_from_search_but_not_actually_pending([Frozen(Matching.ImplementedInterfaces)] FakeZendeskApi zendesk, SharingTickets sut, Zendesk.Ticket ticket)
+        //{
+        //    zendesk.Tickets.Add(ticket);
+        //    ticket.Tags.Clear();
 
-        [Theory, AutoMockData]
-        public async Task Watcher_marks_ticket_as_sharing_before_sending_to_middleware([Frozen(Matching.ImplementedInterfaces)] FakeSharingTickets zendesk, Watcher sut, Zendesk.Ticket ticket)
+        //    var found = await sut.GetTicketsForSharing();
+
+        //    found.Should().BeEmpty();
+        //}
+
+        // Are these useful?  Maybe should mock IApi directly?
+        [Theory, AutoDataDomain]
+        public async Task Searching_uses_query_with_tag([Frozen, Substitute] IApi zendesk, Watcher sut)
+        {
+            await sut.GetTicketsForSharing();
+
+            await zendesk.Received().SearchTickets("tags:pending_middleware");
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Searching_returns_all_tickets_with_tag([Frozen, Substitute] IApi zendesk, Watcher sut, Ticket ticket)
+        {
+            ticket.Tags = new List<string> { "pending_middleware" };
+            zendesk.SearchTickets(Arg.Any<string>())
+                .Returns(Task.FromResult(new SearchResponse { Results = new[] { ticket } }));
+
+            var result = await sut.GetTicketsForSharing();
+
+            result.Should().Contain(ticket.Id);
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Searching_filters_out_tickets_returned_by_api_that_do_not_have_tag([Frozen, Substitute] IApi zendesk, Watcher sut, Ticket ticket)
+        {
+            ticket.Tags.Clear();
+            zendesk.SearchTickets(Arg.Any<string>())
+                .Returns(Task.FromResult(new SearchResponse { Results = new[] { ticket } }));
+
+            var result = await sut.GetTicketsForSharing();
+
+            result.Should().BeEmpty();
+        }
+
+        // Are these useful?  Maybe should mock IApi directly?
+        [Theory, AutoDataDomain]
+        public async Task Searching_returns_empty_list([Frozen] FakeZendeskApi zendesk, Watcher sut)
+        {
+            zendesk.Tickets.Clear();
+
+            var result = await sut.GetTicketsForSharing();
+
+            result.Should().BeEmpty();
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Watcher_marks_ticket_as_sharing_before_sending_to_middleware([Frozen] FakeZendeskApi zendesk, Watcher sut, Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
 
             await sut.Watch();
 
-            await zendesk.Received().MarkSharing(ticket);
+            zendesk.Tickets.First(x => x.Id == ticket.Id)
+                .Tags
+                .Should().NotContain("pending_middleware");
         }
 
-        [Fact]
-        public async Task Then_watcher_sends_that_ticket_to_middleware()
+        [Theory, AutoDataDomain]
+        public async Task Then_watcher_sends_that_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
         {
-            var sut = new Watcher(zendesk, middleware);
-            var ticket = Builder<Zendesk.Ticket>.CreateNew().Build();
             zendesk.Tickets.Add(ticket);
 
             await sut.Watch();
@@ -64,27 +126,39 @@ namespace ZenWatch.UnitTests
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Ticket.Should().BeEquivalentTo(ticket)));
         }
 
-        [Fact]
-        public async Task Then_watcher_marks_ticket_as_shared()
+        [Theory, AutoDataDomain]
+        public async Task Then_watcher_marks_ticket_as_shared([Frozen] FakeZendeskApi zendesk, Watcher sut, Ticket ticket)
         {
-            var sut = new Watcher(zendesk, middleware);
-            var ticket = Builder<Zendesk.Ticket>.CreateNew().Build();
             zendesk.Tickets.Add(ticket);
 
             await sut.Watch();
 
-            await zendesk.Received().MarkShared(ticket);
+            zendesk.Tickets.First(x => x.Id == ticket.Id)
+                .Tags
+                .Should().NotContain("pending_middleware")
+                .And.NotContain("sending_middleware");
         }
 
-        [Theory, AutoMockData]
-        public async Task Ticket_returned_from_search_but_not_actually_pending([Frozen(Matching.ImplementedInterfaces)] FakeZendeskApi zendesk, SharingTickets sut, Zendesk.Ticket ticket)
+        private class AutoDataDomainAttribute : AutoDataAttribute
         {
-            zendesk.Tickets.Add(ticket);
-            ticket.Tags.Clear();
+            public AutoDataDomainAttribute()
+                : base(() => Customise())
+            {
+            }
 
-            var found = await sut.GetTicketsForSharing();
+            private static IFixture Customise()
+            {
+                var fixture = new Fixture();
+                fixture.Register<IApi>(() => fixture.Create<FakeZendeskApi>());
+                fixture.Register<ISharingTickets>(() => fixture.Create<SharingTickets>());
+                fixture.Customize(new AutoNSubstituteCustomization { ConfigureMembers = true });
+                //fixture.Customize<Ticket>(x => x.Do(y => y?.Tags.Add("pending_middleware")));
+                fixture.Customize<Ticket>(x => x
+                    .Without(y => y.Tags)
+                    .Do(y => y.Tags = new List<string> { "pending_middleware" }));
 
-            found.Should().BeEmpty();
+                return fixture;
+            }
         }
     }
 
