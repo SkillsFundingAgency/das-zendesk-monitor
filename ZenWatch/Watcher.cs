@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using ZenWatch.Zendesk;
 
 namespace ZenWatch
@@ -14,7 +15,8 @@ namespace ZenWatch
             this.middleware = middleware;
         }
 
-        public async Task Watch()
+        [Obsolete]
+        private async Task Watch()
         {
             var tickets = await GetTicketsForSharing();
             foreach (var ticket in tickets)
@@ -28,7 +30,9 @@ namespace ZenWatch
         public async Task ShareTicket(long id)
         {
             var ticket = await zendesk.GetTicketForSharing(id);
-            await ShareTicket(ticket);
+
+            if (ticket.Tags.Contains("pending_middleware"))
+                await ShareTicket(ticket);
         }
 
         private async Task ShareTicket(Ticket ticket)

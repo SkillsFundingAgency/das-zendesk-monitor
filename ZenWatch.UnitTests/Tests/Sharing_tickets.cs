@@ -23,7 +23,7 @@ namespace ZenWatch.UnitTests
 
             try
             {
-                await sut.Watch();
+                await sut.ShareTicket(ticket.Id);
             }
             catch { }
 
@@ -38,7 +38,7 @@ namespace ZenWatch.UnitTests
         {
             zendesk.Tickets.Add(ticket);
 
-            await sut.Watch();
+            await sut.ShareTicket(ticket.Id);
 
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Ticket.Should().BeEquivalentTo(ticket)));
         }
@@ -48,12 +48,23 @@ namespace ZenWatch.UnitTests
         {
             zendesk.Tickets.Add(ticket);
 
-            await sut.Watch();
+            await sut.ShareTicket(ticket.Id);
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
                 .Should().NotContain("pending_middleware")
                 .And.NotContain("sending_middleware");
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Ignores_tickets_without_sharing_tags([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
+        {
+            ticket.Tags.Clear();
+            zendesk.Tickets.Add(ticket);
+
+            await sut.ShareTicket(ticket.Id);
+
+            await middleware.DidNotReceive().PostEvent(Arg.Any<Middleware.EventWrapper>());
         }
 
         public class AutoDataDomainAttribute : AutoDataAttribute

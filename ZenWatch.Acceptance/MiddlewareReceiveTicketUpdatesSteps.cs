@@ -45,7 +45,7 @@ namespace ZenWatch.Acceptance
             await WaitUntil(() => TicketIsMarkedForSharing(data.Ticket.Id), TimeSpan.FromMinutes(10), TimeSpan.FromSeconds(20));
 
             // Doesn't really belong in "When", but has to happen before the "Thens"
-            await watcher.Watch();
+            //await watcher.Watch();
         }
 
         private async Task<bool> TicketIsMarkedForSharing(long id)
