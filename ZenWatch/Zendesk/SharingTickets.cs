@@ -21,20 +21,23 @@ namespace ZenWatch.Zendesk
         public async Task<long[]> GetTicketsForSharing()
         {
             var response = await api.SearchTickets("tags:pending_middleware");
-            return response.Results
+            return response?.Results?
                 .Where(x => x.Tags.Contains("pending_middleware"))
-                .Select(x => x.Id).ToArray();
-        }
-
-        public Task MarkShared(Ticket t)
-        {
-            t.Tags.Remove("pending_middleware");
-            return api.PutTicket(t.Id, new Empty { Ticket = t });
+                .Select(x => x.Id).ToArray()
+                ?? new long[] { };
         }
 
         public Task MarkSharing(Ticket t)
         {
-            return Task.CompletedTask;
+            t.Tags.Remove("pending_middleware");
+            t.Tags.Add("sending_middleware");
+            return api.PutTicket(t.Id, new Empty { Ticket = t });
+        }
+
+        public Task MarkShared(Ticket t)
+        {
+            t.Tags.Remove("sending_middleware");
+            return api.PutTicket(t.Id, new Empty { Ticket = t });
         }
     }
 }

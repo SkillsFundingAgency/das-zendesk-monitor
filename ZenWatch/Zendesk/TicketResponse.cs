@@ -8,5 +8,8 @@
     public class SearchResponse
     {
         public Ticket[] Results { get; set; }
+
+        public static SearchResponse Create(params Ticket[] tickets)
+            => new SearchResponse { Results = tickets };
     }
 }
