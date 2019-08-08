@@ -43,6 +43,18 @@ namespace ZenWatch.UnitTests
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Ticket.Should().BeEquivalentTo(ticket)));
         }
 
+        [Theory(Skip = "for now"), AutoDataDomain]
+        public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
+        {
+            ticket.Tags.Remove("pending_middleware");
+            ticket.Tags.Add("sending_middleware");
+            zendesk.Tickets.Add(ticket);
+
+            await sut.ShareTicket(ticket.Id);
+
+            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Ticket.Should().BeEquivalentTo(ticket)));
+        }
+
         [Theory, AutoDataDomain]
         public async Task Marks_ticket_as_shared([Frozen] FakeZendeskApi zendesk, Watcher sut, Ticket ticket)
         {
