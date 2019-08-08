@@ -21,7 +21,9 @@ namespace ZenWatch.Zendesk
         public async Task<long[]> GetTicketsForSharing()
         {
             var response = await api.SearchTickets("tags:pending_middleware");
-            return response.Results.Select(x => x.Id).ToArray();
+            return response.Results
+                .Where(x => x.Tags.Contains("pending_middleware"))
+                .Select(x => x.Id).ToArray();
         }
 
         public Task MarkShared(Ticket t)

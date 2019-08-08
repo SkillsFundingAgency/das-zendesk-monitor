@@ -2,6 +2,7 @@ using AutoFixture.Xunit2;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using NSubstitute;
+using RestEase;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,6 +22,19 @@ namespace ZenWatch.UnitTests
         public abstract Task MarkShared(Ticket t);
 
         public abstract Task MarkSharing(Ticket t);
+    }
+
+    public class FakeZendeskApi : Zendesk.IApi
+    {
+        public List<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+        public Task<TicketResponse> GetTicket([Path] long id) => Task.FromResult(new TicketResponse { Ticket = Tickets.First(x => x.Id == id) });
+
+        public Task<TicketResponse> PostTicket([Body] Empty ticket) => Task.FromResult<TicketResponse>(null);
+
+        public Task PutTicket([Path] long id, [Body] Empty ticket) => Task.CompletedTask;
+
+        public Task<SearchResponse> SearchTickets([Query] string query) => Task.FromResult(new SearchResponse { Results = Tickets.ToArray() });
     }
 
     public class When_there_is_one_ticket_to_be_shared
@@ -60,6 +74,17 @@ namespace ZenWatch.UnitTests
             await sut.Watch();
 
             await zendesk.Received().MarkShared(ticket);
+        }
+
+        [Theory, AutoMockData]
+        public async Task Ticket_returned_from_search_but_not_actually_pending([Frozen(Matching.ImplementedInterfaces)] FakeZendeskApi zendesk, SharingTickets sut, Zendesk.Ticket ticket)
+        {
+            zendesk.Tickets.Add(ticket);
+            ticket.Tags.Clear();
+
+            var found = await sut.GetTicketsForSharing();
+
+            found.Should().BeEmpty();
         }
     }
 
