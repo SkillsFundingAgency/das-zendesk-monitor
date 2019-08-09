@@ -5,6 +5,7 @@ using ZD = ZenWatch.Zendesk;
 using MW = ZenWatch.Middleware;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
+using System;
 
 [assembly: FunctionsStartup(typeof(ZenWatchFunction.Startup))]
 
@@ -24,10 +25,14 @@ namespace ZenWatchFunction
 
                 var all = config.GetChildren().Select(x => x.Key);
 
-                return new ZD.ApiFactoryFactory("esfa", config["Zendesk::ApiUser"], config["Zendesk::ApiKey"]);
+                return new ZD.ApiFactoryFactory(config["Zendesk::Instance"], config["Zendesk::ApiUser"], config["Zendesk::ApiKey"]);
             });
             builder.Services.AddTransient(s => s.GetRequiredService<ZD.ApiFactoryFactory>().CreateApi());
-            builder.Services.AddTransient(_ => MW.ApiFactory.Create("f731-452e-ac7c"));
+            builder.Services.AddTransient(s =>
+            {
+                var config = s.GetRequiredService<IConfiguration>();
+                return MW.ApiFactory.Create(new Uri(config["Middleware::Url"]));
+            });
         }
     }
 }

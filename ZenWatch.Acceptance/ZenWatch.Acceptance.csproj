@@ -37,6 +37,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="appSettings.local.json">
+      <DependentUpon>appSettings.json</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="MiddlewareReceiveTicketUpdates.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>MiddlewareReceiveTicketUpdates.feature.cs</LastGenOutput>

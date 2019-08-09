@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -21,32 +23,36 @@ namespace ZenWatchFunction
             this.watcher = watcher;
         }
 
-        public async Task<HttpResponseMessage> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")]HttpRequestMessage req,
+        [FunctionName("ClientFunction")]
+        public static async Task<HttpResponseMessage> HttpStart(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")]HttpRequest request,
             [OrchestrationClient]DurableOrchestrationClient starter,
             ILogger log)
         {
-            var instance = await GetSingleInstance(starter, log);
-            return starter.CreateCheckStatusResponse(req, instance.InstanceId);
+            var ids = request.Query["id"].Select(x => long.Parse(x)).ToArray();
+            log.LogInformation("Sharing ticket {id}", ids);
+
+            var instanceId = await starter.StartNewAsync(nameof(ShareListedTickets), new TicketsToShare(ids));
+            return starter.CreateCheckStatusResponse(request, instanceId);
         }
 
         [FunctionName("WatcherEntryPoint")]
-        public Task Run(
-            [TimerTrigger("*/30 * * * * *", RunOnStartup = true)] TimerInfo _,
+        public static Task Run(
+            [TimerTrigger("* */30 * * * *")] TimerInfo _,
             [OrchestrationClient] DurableOrchestrationClient starter,
             ILogger log)
         {
             return GetSingleInstance(starter, log);
         }
 
-        private async Task<DurableOrchestrationStatus> GetSingleInstance(DurableOrchestrationClient starter, ILogger log)
+        private static async Task<DurableOrchestrationStatus> GetSingleInstance(DurableOrchestrationClient starter, ILogger log)
         {
             var instance = await starter.GetStatusAsync(WatcherInstance);
 
             if (instance?.OrchestrationIsRunning() != true)
             {
                 log.LogDebug("Starting Watcher orchestration");
-                await starter.StartNewAsync(nameof(ShareTickets), WatcherInstance, null);
+                //await starter.StartNewAsync(nameof(ShareTickets), WatcherInstance, null);
             }
             else
             {
@@ -56,12 +62,20 @@ namespace ZenWatchFunction
             return instance;
         }
 
-        [FunctionName(nameof(ShareTickets))]
-        public async Task ShareTickets([OrchestrationTrigger] DurableOrchestrationContext context)
+        [FunctionName(nameof(ShareAllTickets))]
+        public static async Task ShareAllTickets([OrchestrationTrigger] DurableOrchestrationContext context)
         {
             var tickets = await context.CallActivityAsync<long[]>(nameof(SearchTickets), null);
 
-            foreach (var ticket in tickets)
+            await context.CallActivityAsync(nameof(ShareListedTickets), new TicketsToShare(tickets));
+        }
+
+        [FunctionName(nameof(ShareListedTickets))]
+        public static async Task ShareListedTickets([OrchestrationTrigger] DurableOrchestrationContext context)
+        {
+            var tickets = context.GetInput<TicketsToShare>();
+
+            foreach (var ticket in tickets.Ids)
                 await context.CallActivityWithRetryAsync(nameof(SendTicketEvent), retry, ticket);
         }
 
@@ -75,6 +89,16 @@ namespace ZenWatchFunction
         public Task SendTicketEvent([ActivityTrigger] long id)
         {
             return watcher.ShareTicket(id);
+        }
+
+        private class TicketsToShare
+        {
+            public TicketsToShare(params long[] ids)
+            {
+                Ids = ids;
+            }
+
+            public long[] Ids { get; }
         }
     }
 }

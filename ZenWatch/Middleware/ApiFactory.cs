@@ -1,14 +1,13 @@
 ﻿using RestEase;
+using System;
 using System.Net.Http;
 
 namespace ZenWatch.Middleware
 {
     public class ApiFactory
     {
-        public static IApi Create(string instanceName)
-        {
-            var client = new RestClient($"https://posthere.io/{instanceName}");
-            return client.For<IApi>();
-        }
+        public static IApi Create(string instanceName) => Create($"https://posthere.io/{instanceName}");
+
+        public static IApi Create(Uri uri) => new RestClient(uri).For<IApi>();
     }
 }

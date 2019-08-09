@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization.ContractResolverExtentions;
 using RestEase;
 using System;
@@ -49,10 +50,19 @@ namespace ZenWatch.Acceptance.Fakes
 
         public FakeZendesk()
         {
+            var conf = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile("appsettings.local.json", optional: true)
+                .Build();
+
+            var instance = conf.GetValue<string>("Zendesk:Instance");
+            var user = conf.GetValue<string>("Zendesk:ApiUser");
+            var token = conf.GetValue<string>("Zendesk:ApiKey");
+
             /*
             var url = server.Urls.First();
             /*/
-            var url = "https://esfa.zendesk.com";
+            var url = $"https://{instance}.zendesk.com";
             /**/
 
             var httpClient = new HttpClient();
@@ -62,7 +72,7 @@ namespace ZenWatch.Acceptance.Fakes
                 NoCache = true
             };
 
-            var byteArray = Encoding.ASCII.GetBytes("ben.arnold@digital.education.gov.uk/token:xxxxxxxxxx");
+            var byteArray = Encoding.ASCII.GetBytes($"{user}/token:{token}");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
             zendeskApi = ApiFactory.Create(httpClient);
