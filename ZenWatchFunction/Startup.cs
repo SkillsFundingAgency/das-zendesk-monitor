@@ -15,7 +15,7 @@ namespace ZenWatchFunction
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddTransient<WatcherOnTheWalls>();
+            builder.Services.AddTransient<DurableWatcher>();
             builder.Services.AddTransient<Watcher>();
             builder.Services.AddTransient<ZD.SharingTickets>();
             builder.Services.AddTransient<ZD.ISharingTickets>(s => s.GetRequiredService<ZD.SharingTickets>());

@@ -16,12 +16,6 @@ namespace ZenWatchFunction
     {
         private static readonly string WatcherInstance = "{8B2772F1-0A07-4D64-BEBE-1402520C0BD0}";
         private static readonly RetryOptions retry = new RetryOptions(TimeSpan.FromSeconds(1), 5);
-        private readonly WatcherOnTheWalls watcher;
-
-        public WatcherOrchestration(WatcherOnTheWalls watcher)
-        {
-            this.watcher = watcher;
-        }
 
         [FunctionName("ClientFunction")]
         public static async Task<HttpResponseMessage> HttpStart(
@@ -32,7 +26,7 @@ namespace ZenWatchFunction
             var ids = request.Query["id"].Select(x => long.Parse(x)).ToArray();
             log.LogInformation("Sharing ticket {id}", ids);
 
-            var instanceId = await starter.StartNewAsync(nameof(ShareListedTickets), new TicketsToShare(ids));
+            var instanceId = await starter.StartNewAsync(nameof(ShareListedTickets), ids);
             return starter.CreateCheckStatusResponse(request, instanceId);
         }
 
@@ -65,40 +59,18 @@ namespace ZenWatchFunction
         [FunctionName(nameof(ShareAllTickets))]
         public static async Task ShareAllTickets([OrchestrationTrigger] DurableOrchestrationContext context)
         {
-            var tickets = await context.CallActivityAsync<long[]>(nameof(SearchTickets), null);
+            var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), null);
 
-            await context.CallActivityAsync(nameof(ShareListedTickets), new TicketsToShare(tickets));
+            await context.CallActivityAsync(nameof(ShareListedTickets), tickets);
         }
 
         [FunctionName(nameof(ShareListedTickets))]
         public static async Task ShareListedTickets([OrchestrationTrigger] DurableOrchestrationContext context)
         {
-            var tickets = context.GetInput<TicketsToShare>();
+            var tickets = context.GetInput<long[]>();
 
-            foreach (var ticket in tickets.Ids)
-                await context.CallActivityWithRetryAsync(nameof(SendTicketEvent), retry, ticket);
-        }
-
-        [FunctionName(nameof(SearchTickets))]
-        public Task<long[]> SearchTickets([ActivityTrigger] DurableActivityContext _)
-        {
-            return watcher.SearchForTickets();
-        }
-
-        [FunctionName(nameof(SendTicketEvent))]
-        public Task SendTicketEvent([ActivityTrigger] long id)
-        {
-            return watcher.ShareTicket(id);
-        }
-
-        private class TicketsToShare
-        {
-            public TicketsToShare(params long[] ids)
-            {
-                Ids = ids;
-            }
-
-            public long[] Ids { get; }
+            foreach (var ticket in tickets)
+                await context.CallActivityWithRetryAsync(nameof(DurableWatcher.ShareTicket), retry, ticket);
         }
     }
 }
