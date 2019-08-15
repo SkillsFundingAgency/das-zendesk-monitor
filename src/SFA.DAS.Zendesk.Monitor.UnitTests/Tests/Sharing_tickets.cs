@@ -56,7 +56,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(middlewareTicket)));
         }
 
-        [Theory(Skip = "for now"), AutoDataDomain]
+        [Theory, AutoDataDomain]
         public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
         {
             ticket.Tags.Remove("pending_middleware");
