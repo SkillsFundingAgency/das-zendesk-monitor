@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
-using System;
 
 namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
-    public class FakeZendeskApi : Zendesk.IApi
+    public class FakeZendeskApi : IApi
     {
         public List<Ticket> Tickets { get; } = new List<Ticket>();
 
@@ -26,6 +25,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
+        public Task<Comment[]> GetTicketComments(long id) => Task.FromResult(TicketComments(id).ToArray());
+
         public Task<TicketResponse> PostTicket([Body] Empty ticket) => Task.FromResult<TicketResponse>(null);
 
         public Task PutTicket([Path] long id, [Body] Empty ticket) => Task.CompletedTask;
@@ -36,22 +37,6 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         private List<Comment> TicketComments(long id) => Comments.GetOrAdd(id, () => new List<Comment>());
-
-        public Comment[] GetTicketComments(long id) => TicketComments(id).ToArray();
-    }
-
-    public static class DictionaryExtensions
-    {
-        public static T GetOrAdd<T>(this Dictionary<long, T> c, long key, Func<T> createNew)
-        {
-            if (!c.TryGetValue(key, out var ticketComments))
-            {
-                ticketComments = createNew();
-                c[key] = ticketComments;
-            }
-
-            return ticketComments;
-        }
     }
 
     /*

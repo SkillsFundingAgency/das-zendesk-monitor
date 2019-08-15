@@ -21,18 +21,18 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         public async Task<ExtendedTicket> GetTicketForSharing(long id)
         {
             var response = await api.GetTicket(id);
-            var extended = PopulateEntities(response.Ticket);
+            var extended = await PopulateEntities(response.Ticket);
             return extended;
         }
 
-        private ExtendedTicket PopulateEntities(Ticket ticket)
+        private async Task<ExtendedTicket> PopulateEntities(Ticket ticket)
         {
             var e = new ExtendedTicket
             {
                 Ticket = ticket
             };
 
-            e.Comments = api.GetTicketComments(ticket.Id);
+            e.Comments = await api.GetTicketComments(ticket.Id);
 
             return e;
         }
