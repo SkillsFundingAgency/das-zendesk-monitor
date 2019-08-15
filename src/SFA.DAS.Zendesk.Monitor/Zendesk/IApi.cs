@@ -16,5 +16,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         [Put("/tickets/{id}.json")]
         Task PutTicket([Path] long id, [Body] Empty ticket);
+        Comment[] GetTicketComments(long id);
     }
 }

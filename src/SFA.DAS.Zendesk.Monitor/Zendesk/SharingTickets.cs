@@ -3,6 +3,12 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
+    public class ExtendedTicket
+    {
+        public Ticket Ticket { get; set; }
+        public Comment[] Comments { get; set; }
+    }
+
     public class SharingTickets : ISharingTickets
     {
         private readonly IApi api;
@@ -12,10 +18,23 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             this.api = api;
         }
 
-        public async Task<Ticket> GetTicketForSharing(long id)
+        public async Task<ExtendedTicket> GetTicketForSharing(long id)
         {
             var response = await api.GetTicket(id);
-            return response.Ticket;
+            var extended = PopulateEntities(response.Ticket);
+            return extended;
+        }
+
+        private ExtendedTicket PopulateEntities(Ticket ticket)
+        {
+            var e = new ExtendedTicket
+            {
+                Ticket = ticket
+            };
+
+            e.Comments = api.GetTicketComments(ticket.Id);
+
+            return e;
         }
 
         public async Task<long[]> GetTicketsForSharing()

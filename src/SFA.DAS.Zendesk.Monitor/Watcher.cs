@@ -31,15 +31,19 @@ namespace SFA.DAS.Zendesk.Monitor
         {
             var ticket = await zendesk.GetTicketForSharing(id);
 
-            if (ticket.Tags.Contains("pending_middleware"))
+            if (ticket.Ticket.Tags.Contains("pending_middleware"))
                 await ShareTicket(ticket);
         }
 
-        private async Task ShareTicket(Ticket ticket)
+        private async Task ShareTicket(ExtendedTicket ticket)
         {
-            await zendesk.MarkSharing(ticket);
-            await middleware.PostEvent(new Middleware.EventWrapper { Ticket = ticket });
-            await zendesk.MarkShared(ticket);
+            await zendesk.MarkSharing(ticket.Ticket);
+            await middleware.PostEvent(new Middleware.EventWrapper
+            {
+                Ticket = ticket.Ticket,
+                Comments = ticket.Comments,
+            });
+            await zendesk.MarkShared(ticket.Ticket);
         }
     }
 }
