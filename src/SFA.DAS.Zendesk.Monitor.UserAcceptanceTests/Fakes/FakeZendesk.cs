@@ -86,13 +86,13 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
                 Comment = new Comment { Body = "Created for testing" },
             };
 
-            var response = await zendeskApi.PostTicket(new Empty { Ticket = ticket });
+            var response = await zendeskApi.PostTicket(ticket);
             return response.Ticket;
         }
 
         internal Task UpdateTicket(Ticket ticket)
         {
-            return zendeskApi.PutTicket(ticket.Id, new Empty { Ticket = ticket });
+            return zendeskApi.PutTicket(ticket);
         }
 
         public Task<long[]> /*ISharingTickets.*/GetTicketsForSharing() => sharing.GetTicketsForSharing();

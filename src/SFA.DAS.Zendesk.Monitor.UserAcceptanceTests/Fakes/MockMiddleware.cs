@@ -41,7 +41,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             var entries = await admin.GetRequestsAsync();
             return entries
                 .Where(x => x.Request.Url.EndsWith("/event"))
-                .Select(x => JsonConvert.DeserializeObject<Zendesk.Model.Empty>(x.Request.Body).Ticket)
+                .Select(x => JsonConvert.DeserializeObject<Zendesk.Model.TicketResponse>(x.Request.Body).Ticket)
                 .ToList();
         }
     }

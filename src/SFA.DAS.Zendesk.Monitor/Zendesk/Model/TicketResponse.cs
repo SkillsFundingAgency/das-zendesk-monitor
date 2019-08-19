@@ -9,6 +9,11 @@
         public User Requester { get; set; }
     }
 
+    public class TicketRequest
+    {
+        public Ticket Ticket { get; set; }
+    }
+
     public class CommentResponse
     {
         public Comment[] Comments { get; set; }

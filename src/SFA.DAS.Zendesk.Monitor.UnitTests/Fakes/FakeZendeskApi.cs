@@ -42,9 +42,9 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> PostTicket([Body] Empty ticket) => Task.FromResult<TicketResponse>(null);
+        public Task<TicketResponse> PostTicket([Body] TicketRequest ticket) => Task.FromResult<TicketResponse>(null);
 
-        public Task PutTicket([Path] long id, [Body] Empty ticket) => Task.CompletedTask;
+        public Task PutTicket([Path] long id, [Body] TicketRequest ticket) => Task.CompletedTask;
 
         internal void AddComments(Ticket ticket, Comment[] comments)
         {

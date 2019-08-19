@@ -37,13 +37,13 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         {
             t.Tags.Remove("pending_middleware");
             t.Tags.Add("sending_middleware");
-            return api.PutTicket(t.Id, new Empty { Ticket = t });
+            return api.PutTicket(t);
         }
 
         public Task MarkShared(Ticket t)
         {
             t.Tags.Remove("sending_middleware");
-            return api.PutTicket(t.Id, new Empty { Ticket = t });
+            return api.PutTicket(t);
         }
     }
 }
