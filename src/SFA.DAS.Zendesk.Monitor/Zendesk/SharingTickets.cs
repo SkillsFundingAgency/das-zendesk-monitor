@@ -4,13 +4,6 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
-    public class ExtendedTicket
-    {
-        public Ticket Ticket { get; set; }
-        public Comment[] Comments { get; set; }
-        public User Requester { get; set; }
-    }
-
     public class SharingTickets : ISharingTickets
     {
         private readonly IApi api;
@@ -20,10 +13,10 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             this.api = api;
         }
 
-        public async Task<ExtendedTicket> GetTicketForSharing(long id)
+        public async Task<TicketResponse> GetTicketForSharing(long id)
         {
             var response = await api.GetTicketWithSideloads(id);
-            return new ExtendedTicket
+            return new TicketResponse
             {
                 Ticket = response.Ticket,
                 Comments = (await api.GetTicketComments(id)).Comments,

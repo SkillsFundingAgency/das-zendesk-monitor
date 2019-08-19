@@ -7,7 +7,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
     {
         Task<long[]> GetTicketsForSharing();
 
-        Task<ExtendedTicket> GetTicketForSharing(long id);
+        Task<TicketResponse> GetTicketForSharing(long id);
 
         Task MarkSharing(Ticket t);
 

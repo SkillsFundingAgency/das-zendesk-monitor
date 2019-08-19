@@ -97,7 +97,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 
         public Task<long[]> /*ISharingTickets.*/GetTicketsForSharing() => sharing.GetTicketsForSharing();
 
-        Task<ExtendedTicket> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
+        Task<TicketResponse> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
 
         Task ISharingTickets.MarkShared(Ticket ticket) => sharing.MarkShared(ticket);
 

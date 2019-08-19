@@ -1,5 +1,5 @@
 ﻿using SFA.DAS.Zendesk.Monitor.Zendesk;
-using System;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor
@@ -15,16 +15,6 @@ namespace SFA.DAS.Zendesk.Monitor
             this.middleware = middleware;
         }
 
-        [Obsolete]
-        private async Task Watch()
-        {
-            var tickets = await GetTicketsForSharing();
-            foreach (var ticket in tickets)
-            {
-                await ShareTicket(ticket);
-            }
-        }
-
         public Task<long[]> GetTicketsForSharing() => zendesk.GetTicketsForSharing();
 
         public async Task ShareTicket(long id)
@@ -36,7 +26,7 @@ namespace SFA.DAS.Zendesk.Monitor
                 await ShareTicket(ticket);
         }
 
-        private async Task ShareTicket(ExtendedTicket ticket)
+        private async Task ShareTicket(TicketResponse ticket)
         {
             await zendesk.MarkSharing(ticket.Ticket);
             await middleware.PostEvent(new Middleware.EventWrapper
