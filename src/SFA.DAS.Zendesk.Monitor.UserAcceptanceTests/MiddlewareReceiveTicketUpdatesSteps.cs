@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -45,13 +45,12 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             await WaitUntil(() => TicketIsMarkedForSharing(data.Ticket.Id), TimeSpan.FromMinutes(10), TimeSpan.FromSeconds(20));
 
             // Doesn't really belong in "When", but has to happen before the "Thens"
-            //await watcher.Watch();
         }
 
         private async Task<bool> TicketIsMarkedForSharing(long id)
         {
-            var ticket = await zendesk.GetTicketsForSharing();
-            return ticket.Any(x => x == id);
+            var ticket = await watcher.GetTicketsForSharing();
+            return ticket.Contains(id);
         }
 
         private async Task<bool> WaitUntil(Func<Task<bool>> p, TimeSpan timeSpan, TimeSpan waitBetween)

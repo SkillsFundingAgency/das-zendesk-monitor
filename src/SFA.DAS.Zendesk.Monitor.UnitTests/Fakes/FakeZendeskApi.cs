@@ -25,7 +25,20 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<Comment[]> GetTicketComments(long id) => Task.FromResult(TicketComments(id).ToArray());
+        public Task<TicketResponse> GetTicket([Path] long id, params string[] sideLoad)
+        {
+            var ticket = Tickets.First(x => x.Id == id);
+            var response = new TicketResponse { Ticket = ticket };
+            if (sideLoad.Contains("comments")) response.Comments = TicketComments(id).ToArray();
+            return Task.FromResult(response);
+        }
+
+        public Task<CommentResponse> GetTicketComments(long id)
+        {
+            var comments = TicketComments(id).ToArray();
+            var response = new CommentResponse { Comments = comments };
+            return Task.FromResult(response);
+        }
 
         public Task<TicketResponse> PostTicket([Body] Empty ticket) => Task.FromResult<TicketResponse>(null);
 
