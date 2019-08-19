@@ -3,10 +3,11 @@ using AutoFixture.AutoNSubstitute;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using NSubstitute;
+using SFA.DAS.Zendesk.Monitor.Zendesk;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
-using SFA.DAS.Zendesk.Monitor.Zendesk;
 
 namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {

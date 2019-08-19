@@ -1,4 +1,5 @@
 ﻿using RestEase;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk

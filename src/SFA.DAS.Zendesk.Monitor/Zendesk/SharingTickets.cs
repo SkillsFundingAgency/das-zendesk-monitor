@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk

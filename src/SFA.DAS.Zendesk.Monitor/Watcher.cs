@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SFA.DAS.Zendesk.Monitor.Zendesk;
+using System;
 using System.Threading.Tasks;
-using SFA.DAS.Zendesk.Monitor.Zendesk;
 
 namespace SFA.DAS.Zendesk.Monitor
 {

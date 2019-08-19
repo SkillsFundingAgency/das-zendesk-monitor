@@ -36,12 +36,12 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
         public async Task PostEvent([Body] Middleware.EventWrapper body)
             => await client.PostEvent(body);
 
-        public async Task<IReadOnlyList<Zendesk.Ticket>> TicketEvents()
+        public async Task<IReadOnlyList<Zendesk.Model.Ticket>> TicketEvents()
         {
             var entries = await admin.GetRequestsAsync();
             return entries
                 .Where(x => x.Request.Url.EndsWith("/event"))
-                .Select(x => JsonConvert.DeserializeObject<Zendesk.Empty>(x.Request.Body).Ticket)
+                .Select(x => JsonConvert.DeserializeObject<Zendesk.Model.Empty>(x.Request.Body).Ticket)
                 .ToList();
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Zendesk.Monitor.Zendesk
+﻿namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 {
     public class TicketResponse
     {

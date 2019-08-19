@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization.ContractResolverExtentions;
-using RestEase;
+using SFA.DAS.Zendesk.Monitor.Zendesk;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -13,7 +11,6 @@ using System.Threading.Tasks;
 using WireMock.Handlers;
 using WireMock.Server;
 using WireMock.Settings;
-using SFA.DAS.Zendesk.Monitor.Zendesk;
 
 namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 {

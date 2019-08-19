@@ -1,8 +1,9 @@
 ﻿using RestEase;
+using SFA.DAS.Zendesk.Monitor.Zendesk;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.Zendesk.Monitor.Zendesk;
 
 namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
