@@ -1,0 +1,537 @@
+{
+  "Guid": "68843a1e-7abe-49b9-9619-ad4806c0be11",
+  "Title": "",
+  "Scenario": "Happy Path",
+  "WhenStateIs": "Happy Path Ticket Created",
+  "SetStateTo": "Added sharing tag",
+  "Request": {
+    "Path": {
+      "Matchers": [
+        {
+          "Name": "WildcardMatcher",
+          "Pattern": "/api/v2/tickets/363.json",
+          "IgnoreCase": false
+        }
+      ]
+    },
+    "Methods": [
+      "PUT"
+    ],
+    "Headers": [
+      {
+        "Name": "Content-Type",
+        "Matchers": [
+          {
+            "Name": "WildcardMatcher",
+            "Pattern": "application/json; charset=utf-8",
+            "IgnoreCase": true
+          }
+        ]
+      }
+    ],
+    "Body": {
+      "Matcher": {
+        "Name": "JsonMatcher",
+        "Pattern": {
+          "ticket": {
+            "url": "https://esfa.zendesk.com/api/v2/tickets/363.json",
+            "id": 363,
+            "via": {
+              "channel": "api",
+              "source": {
+                "from": {},
+                "to": {}
+              }
+            },
+            "created_at": "2019-07-23T12:48:13+01:00",
+            "updated_at": "2019-07-23T12:48:13+01:00",
+            "type": "question",
+            "subject": "Integration testing Watcher",
+            "raw_subject": "Integration testing Watcher",
+            "description": "Created for testing",
+            "priority": "low",
+            "status": "new",
+            "requester_id": 361623959700,
+            "submitter_id": 361623959700,
+            "group_id": 360000855979,
+            "collaborator_ids": [],
+            "follower_ids": [],
+            "email_cc_ids": [],
+            "has_incidents": false,
+            "is_public": true,
+            "tags": [
+              "pending_middleware"
+            ],
+            "custom_fields": [
+              {
+                "id": 360002763800
+              },
+              {
+                "id": 360002755879
+              },
+              {
+                "id": 360002730279
+              },
+              {
+                "id": 360002600499
+              },
+              {
+                "id": 360002755899
+              },
+              {
+                "id": 360002600259
+              },
+              {
+                "id": 360002737480
+              },
+              {
+                "id": 360002737740
+              },
+              {
+                "id": 360002764880
+              },
+              {
+                "id": 360002657880
+              },
+              {
+                "id": 360002731099
+              },
+              {
+                "id": 360002603100
+              },
+              {
+                "id": 360002730339
+              },
+              {
+                "id": 360002764900
+              },
+              {
+                "id": 360002730859
+              },
+              {
+                "id": 360003093619
+              },
+              {
+                "id": 360002737780
+              },
+              {
+                "id": 360002730119
+              },
+              {
+                "id": 360002737800
+              },
+              {
+                "id": 360003101340
+              },
+              {
+                "id": 360002574239
+              },
+              {
+                "id": 360002757039
+              },
+              {
+                "id": 360002757059
+              },
+              {
+                "id": 360002763980
+              }
+            ],
+            "satisfaction_rating": {
+              "score": "unoffered"
+            },
+            "sharing_agreement_ids": [],
+            "fields": [
+              {
+                "id": 360002763800
+              },
+              {
+                "id": 360002755879
+              },
+              {
+                "id": 360002730279
+              },
+              {
+                "id": 360002600499
+              },
+              {
+                "id": 360002755899
+              },
+              {
+                "id": 360002600259
+              },
+              {
+                "id": 360002737480
+              },
+              {
+                "id": 360002737740
+              },
+              {
+                "id": 360002764880
+              },
+              {
+                "id": 360002657880
+              },
+              {
+                "id": 360002731099
+              },
+              {
+                "id": 360002603100
+              },
+              {
+                "id": 360002730339
+              },
+              {
+                "id": 360002764900
+              },
+              {
+                "id": 360002730859
+              },
+              {
+                "id": 360003093619
+              },
+              {
+                "id": 360002737780
+              },
+              {
+                "id": 360002730119
+              },
+              {
+                "id": 360002737800
+              },
+              {
+                "id": 360003101340
+              },
+              {
+                "id": 360002574239
+              },
+              {
+                "id": 360002757039
+              },
+              {
+                "id": 360002757059
+              },
+              {
+                "id": 360002763980
+              }
+            ],
+            "followup_ids": [],
+            "ticket_form_id": 360000235179,
+            "brand_id": 360000366759,
+            "allow_channelback": false,
+            "allow_attachments": true
+          }
+        }
+      }
+    }
+  },
+  "Response": {
+    "StatusCode": 200,
+    "BodyAsJson": {
+      "ticket": {
+        "url": "https://esfa.zendesk.com/api/v2/tickets/363.json",
+        "id": 363,
+        "external_id": null,
+        "via": {
+          "channel": "api",
+          "source": {
+            "from": {},
+            "to": {},
+            "rel": null
+          }
+        },
+        "created_at": "2019-07-23T11:48:13Z",
+        "updated_at": "2019-07-23T13:19:10Z",
+        "type": "question",
+        "subject": "Integration testing Watcher",
+        "raw_subject": "Integration testing Watcher",
+        "description": "Created for testing",
+        "priority": "low",
+        "status": "new",
+        "recipient": null,
+        "requester_id": 361623959700,
+        "submitter_id": 361623959700,
+        "assignee_id": null,
+        "organization_id": null,
+        "group_id": 360000855979,
+        "collaborator_ids": [],
+        "follower_ids": [],
+        "email_cc_ids": [],
+        "forum_topic_id": null,
+        "problem_id": null,
+        "has_incidents": false,
+        "is_public": true,
+        "due_at": null,
+        "tags": [
+          "pending_middleware"
+        ],
+        "custom_fields": [
+          {
+            "id": 360002763800,
+            "value": null
+          },
+          {
+            "id": 360002755879,
+            "value": null
+          },
+          {
+            "id": 360002730279,
+            "value": null
+          },
+          {
+            "id": 360002600499,
+            "value": null
+          },
+          {
+            "id": 360002755899,
+            "value": null
+          },
+          {
+            "id": 360002600259,
+            "value": null
+          },
+          {
+            "id": 360002737480,
+            "value": null
+          },
+          {
+            "id": 360002737740,
+            "value": null
+          },
+          {
+            "id": 360002764880,
+            "value": null
+          },
+          {
+            "id": 360002657880,
+            "value": null
+          },
+          {
+            "id": 360002731099,
+            "value": null
+          },
+          {
+            "id": 360002603100,
+            "value": null
+          },
+          {
+            "id": 360002730339,
+            "value": null
+          },
+          {
+            "id": 360002764900,
+            "value": null
+          },
+          {
+            "id": 360002730859,
+            "value": null
+          },
+          {
+            "id": 360003093619,
+            "value": null
+          },
+          {
+            "id": 360002737780,
+            "value": null
+          },
+          {
+            "id": 360002730119,
+            "value": null
+          },
+          {
+            "id": 360002737800,
+            "value": null
+          },
+          {
+            "id": 360003101340,
+            "value": null
+          },
+          {
+            "id": 360002574239,
+            "value": null
+          },
+          {
+            "id": 360002757039,
+            "value": null
+          },
+          {
+            "id": 360002757059,
+            "value": null
+          },
+          {
+            "id": 360002763980,
+            "value": null
+          }
+        ],
+        "satisfaction_rating": {
+          "score": "unoffered"
+        },
+        "sharing_agreement_ids": [],
+        "fields": [
+          {
+            "id": 360002763800,
+            "value": null
+          },
+          {
+            "id": 360002755879,
+            "value": null
+          },
+          {
+            "id": 360002730279,
+            "value": null
+          },
+          {
+            "id": 360002600499,
+            "value": null
+          },
+          {
+            "id": 360002755899,
+            "value": null
+          },
+          {
+            "id": 360002600259,
+            "value": null
+          },
+          {
+            "id": 360002737480,
+            "value": null
+          },
+          {
+            "id": 360002737740,
+            "value": null
+          },
+          {
+            "id": 360002764880,
+            "value": null
+          },
+          {
+            "id": 360002657880,
+            "value": null
+          },
+          {
+            "id": 360002731099,
+            "value": null
+          },
+          {
+            "id": 360002603100,
+            "value": null
+          },
+          {
+            "id": 360002730339,
+            "value": null
+          },
+          {
+            "id": 360002764900,
+            "value": null
+          },
+          {
+            "id": 360002730859,
+            "value": null
+          },
+          {
+            "id": 360003093619,
+            "value": null
+          },
+          {
+            "id": 360002737780,
+            "value": null
+          },
+          {
+            "id": 360002730119,
+            "value": null
+          },
+          {
+            "id": 360002737800,
+            "value": null
+          },
+          {
+            "id": 360003101340,
+            "value": null
+          },
+          {
+            "id": 360002574239,
+            "value": null
+          },
+          {
+            "id": 360002757039,
+            "value": null
+          },
+          {
+            "id": 360002757059,
+            "value": null
+          },
+          {
+            "id": 360002763980,
+            "value": null
+          }
+        ],
+        "followup_ids": [],
+        "ticket_form_id": 360000235179,
+        "brand_id": 360000366759,
+        "satisfaction_probability": null,
+        "allow_channelback": false,
+        "allow_attachments": true
+      },
+      "audit": {
+        "id": 433811424760,
+        "ticket_id": 363,
+        "created_at": "2019-07-23T13:19:10Z",
+        "author_id": 361623959700,
+        "metadata": {
+          "system": {
+            "ip_address": "217.33.132.234",
+            "location": "United Kingdom",
+            "latitude": 51.496399999999994,
+            "longitude": -0.12239999999999895
+          },
+          "custom": {}
+        },
+        "events": [
+          {
+            "id": 433811424820,
+            "type": "Change",
+            "value": [
+              "pending_middleware"
+            ],
+            "field_name": "tags",
+            "previous_value": []
+          }
+        ],
+        "via": {
+          "channel": "api",
+          "source": {
+            "from": {},
+            "to": {},
+            "rel": null
+          }
+        }
+      }
+    },
+    "Headers": {
+      "Content-Type": "application/json; charset=UTF-8",
+      "Date": "Tue, 23 Jul 2019 13:19:11 GMT",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Set-Cookie": [
+        "__cfduid=d109ec549057928507cf2114df59f99fc1563887950; expires=Wed, 22-Jul-20 13:19:10 GMT; path=/; domain=.esfa.zendesk.com; HttpOnly",
+        "__cfruid=7e4ef69202bc5c771e92377977b74fe56f5ebf97-1563887951; path=/; domain=.esfa.zendesk.com; HttpOnly"
+      ],
+      "X-Zendesk-API-Version": "v2",
+      "X-Zendesk-Application-Version": "v2308-94",
+      "X-Zendesk-API-Warn": "Removed restricted keys [\"ticket.id\", \"ticket.created_at\", \"ticket.updated_at\", \"ticket.follower_ids\", \"ticket.email_cc_ids\", \"ticket.has_incidents\", \"ticket.is_public\", \"ticket.satisfaction_rating.score\", \"ticket.satisfaction_rating\", \"ticket.followup_ids\", \"ticket.allow_channelback\", \"ticket.allow_attachments\"] from parameters according to whitelist",
+      "X-Frame-Options": "SAMEORIGIN",
+      "X-Rate-Limit": "700",
+      "X-Rate-Limit-Remaining": "699",
+      "Strict-Transport-Security": "max-age=31536000;",
+      "ETag": "W/\"ad99cb016f87ee27c640ca1c1725e632\"",
+      "Cache-Control": "must-revalidate, max-age=0, private",
+      "X-Zendesk-Origin-Server": "classic-app-server-757fbf7dcf-vghhz",
+      "X-Request-ID": "4fadf1c88b21dc33-LHR",
+      "X-Runtime": "1.051698",
+      "X-Zendesk-Request-Id": "7cbb01692d54e7024651",
+      "X-Content-Type-Options": "nosniff",
+      "Expect-CT": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+      "Server": "cloudflare",
+      "CF-RAY": "4fadf1c88b21dc33-LHR"
+    }
+  }
+}
