@@ -7,6 +7,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
     {
         public Ticket Ticket { get; set; }
         public Comment[] Comments { get; set; }
+        public User Requester { get; set; }
     }
 
     public class SharingTickets : ISharingTickets
@@ -20,11 +21,12 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public async Task<ExtendedTicket> GetTicketForSharing(long id)
         {
-            var response = await api.GetTicket(id/*, "comments"*/);
+            var response = await api.GetTicketWithSideloads(id);
             return new ExtendedTicket
             {
                 Ticket = response.Ticket,
                 Comments = (await api.GetTicketComments(id)).Comments,
+                Requester = response.Requester,
             };
         }
 

@@ -57,6 +57,20 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
+        public async Task Sends_ticket_to_middleware_with_requester([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket, User reporter)
+        {
+            ticket.RequesterId = reporter.Id;
+            zendesk.Tickets.Add(ticket);
+            zendesk.Users.Add(reporter);
+
+            await sut.ShareTicket(ticket.Id);
+
+            var middlewareTicket = new Middleware.EventWrapper { Ticket = ticket, Requester = reporter };
+
+            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(middlewareTicket)));
+        }
+
+        [Theory, AutoDataDomain]
         public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
         {
             ticket.Tags.Remove("pending_middleware");

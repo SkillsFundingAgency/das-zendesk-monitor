@@ -9,7 +9,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         Task<TicketResponse> GetTicket([Path] long id);
 
         [Get("/tickets/{id}.json")]
-        Task<TicketResponse> GetTicket([Path] long id, [Query(name: "include")] params string[] sideLoad);
+        Task<TicketResponse> GetTicketWithSideloads([Path] long id);
 
         [Get("/search.json")]
         Task<SearchResponse> SearchTickets([Query] string query);

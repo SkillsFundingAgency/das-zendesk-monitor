@@ -8,6 +8,8 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
 
         public Zendesk.Comment[] Comments { get; set; } = new Zendesk.Comment[] { };
 
+        public Zendesk.User Requester { get; set; }
+
         public override string ToString()
             => JsonConvert.SerializeObject(this, Formatting.Indented);
     }

@@ -3,7 +3,10 @@
     public class TicketResponse
     {
         public Ticket Ticket { get; set; }
+
         public Comment[] Comments { get; set; }
+
+        public User Requester { get; set; }
     }
 
     public class CommentResponse

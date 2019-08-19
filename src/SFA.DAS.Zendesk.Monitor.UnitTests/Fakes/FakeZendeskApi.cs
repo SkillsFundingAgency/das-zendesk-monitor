@@ -9,6 +9,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
     public class FakeZendeskApi : IApi
     {
         public List<Ticket> Tickets { get; } = new List<Ticket>();
+        public List<User> Users { get; set; } = new List<User>();
 
         public Dictionary<long, List<Comment>> Comments { get; } = new Dictionary<long, List<Comment>>();
 
@@ -25,11 +26,11 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> GetTicket([Path] long id, params string[] sideLoad)
+        public Task<TicketResponse> GetTicketWithSideloads([Path] long id)
         {
             var ticket = Tickets.First(x => x.Id == id);
             var response = new TicketResponse { Ticket = ticket };
-            if (sideLoad.Contains("comments")) response.Comments = TicketComments(id).ToArray();
+            response.Requester = Users.FirstOrDefault(x => x.Id == response.Ticket.RequesterId);
             return Task.FromResult(response);
         }
 

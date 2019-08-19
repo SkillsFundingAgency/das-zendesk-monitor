@@ -43,6 +43,7 @@ namespace SFA.DAS.Zendesk.Monitor
             {
                 Ticket = ticket.Ticket,
                 Comments = ticket.Comments,
+                Requester = ticket.Requester,
             });
             await zendesk.MarkShared(ticket.Ticket);
         }
