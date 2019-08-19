@@ -43,7 +43,20 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Ticket.Should().BeEquivalentTo(ticket)));
         }
 
-        [Theory(Skip = "for now"), AutoDataDomain]
+        [Theory, AutoDataDomain]
+        public async Task Sends_ticket_to_middleware_with_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket, Comment[] comments)
+        {
+            zendesk.Tickets.Add(ticket);
+            zendesk.AddComments(ticket, comments);
+
+            await sut.ShareTicket(ticket.Id);
+
+            var middlewareTicket = new Middleware.EventWrapper { Ticket = ticket, Comments = comments };
+
+            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(middlewareTicket)));
+        }
+
+        [Theory, AutoDataDomain]
         public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
         {
             ticket.Tags.Remove("pending_middleware");
@@ -79,7 +92,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await middleware.DidNotReceive().PostEvent(Arg.Any<Middleware.EventWrapper>());
         }
 
-        public class AutoDataDomainAttribute : AutoDataAttribute
+        private class AutoDataDomainAttribute : AutoDataAttribute
         {
             public AutoDataDomainAttribute() : base(() => Customise())
             {

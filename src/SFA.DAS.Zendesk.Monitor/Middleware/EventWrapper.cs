@@ -6,6 +6,8 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
     {
         public Zendesk.Ticket Ticket { get; set; }
 
+        public Zendesk.Comment[] Comments { get; set; } = new Zendesk.Comment[] { };
+
         public override string ToString()
             => JsonConvert.SerializeObject(this, Formatting.Indented);
     }
