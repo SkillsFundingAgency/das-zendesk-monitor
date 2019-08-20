@@ -25,13 +25,13 @@ namespace ZenWatchFunction
 
                 var all = config.GetChildren().Select(x => x.Key);
 
-                return new ZD.ApiFactoryFactory(config["Zendesk::Instance"], config["Zendesk::ApiUser"], config["Zendesk::ApiKey"]);
+                return new ZD.ApiFactoryFactory(new Uri(config["Zendesk:Url"]), config["Zendesk:ApiUser"], config["Zendesk:ApiKey"]);
             });
             builder.Services.AddTransient(s => s.GetRequiredService<ZD.ApiFactoryFactory>().CreateApi());
             builder.Services.AddTransient(s =>
             {
                 var config = s.GetRequiredService<IConfiguration>();
-                return MW.ApiFactory.Create(new Uri(config["Middleware::Url"]));
+                return MW.ApiFactory.Create(new Uri(config["Middleware:Url"]));
             });
         }
     }
