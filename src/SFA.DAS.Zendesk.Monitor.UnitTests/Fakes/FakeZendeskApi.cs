@@ -1,14 +1,16 @@
 ﻿using RestEase;
+using SFA.DAS.Zendesk.Monitor.Zendesk;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.Zendesk.Monitor.Zendesk;
 
 namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public class FakeZendeskApi : IApi
     {
         public List<Ticket> Tickets { get; } = new List<Ticket>();
+        public List<User> Users { get; set; } = new List<User>();
 
         public Dictionary<long, List<Comment>> Comments { get; } = new Dictionary<long, List<Comment>>();
 
@@ -25,11 +27,16 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> GetTicket([Path] long id, params string[] sideLoad)
+        public Task<TicketResponse> GetTicketWithSideloads([Path] long id, [Query(name: "include")] params string[] sideLoad)
         {
             var ticket = Tickets.First(x => x.Id == id);
             var response = new TicketResponse { Ticket = ticket };
-            if (sideLoad.Contains("comments")) response.Comments = TicketComments(id).ToArray();
+
+            var users = new List<User>();
+            if (sideLoad.Contains("users"))
+                users.AddRange(Users.Where(x => x.Id == response.Ticket.RequesterId));
+            response.Users = users.ToArray();
+
             return Task.FromResult(response);
         }
 
@@ -40,9 +47,9 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> PostTicket([Body] Empty ticket) => Task.FromResult<TicketResponse>(null);
+        public Task<TicketResponse> PostTicket([Body] TicketRequest ticket) => Task.FromResult<TicketResponse>(null);
 
-        public Task PutTicket([Path] long id, [Body] Empty ticket) => Task.CompletedTask;
+        public Task PutTicket([Path] long id, [Body] TicketRequest ticket) => Task.CompletedTask;
 
         internal void AddComments(Ticket ticket, Comment[] comments)
         {

@@ -1,14 +1,9 @@
-﻿using System.Linq;
+﻿using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
-    public class ExtendedTicket
-    {
-        public Ticket Ticket { get; set; }
-        public Comment[] Comments { get; set; }
-    }
-
     public class SharingTickets : ISharingTickets
     {
         private readonly IApi api;
@@ -18,14 +13,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             this.api = api;
         }
 
-        public async Task<ExtendedTicket> GetTicketForSharing(long id)
+        public async Task<TicketResponse> GetTicketForSharing(long id)
         {
-            var response = await api.GetTicket(id/*, "comments"*/);
-            return new ExtendedTicket
-            {
-                Ticket = response.Ticket,
-                Comments = (await api.GetTicketComments(id)).Comments,
-            };
+            var response = await api.GetTicketWithRequiredSideloads(id);
+            response.Comments = (await api.GetTicketComments(id)).Comments;
+            return response;
         }
 
         public async Task<long[]> GetTicketsForSharing()
@@ -41,13 +33,13 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         {
             t.Tags.Remove("pending_middleware");
             t.Tags.Add("sending_middleware");
-            return api.PutTicket(t.Id, new Empty { Ticket = t });
+            return api.PutTicket(t);
         }
 
         public Task MarkShared(Ticket t)
         {
             t.Tags.Remove("sending_middleware");
-            return api.PutTicket(t.Id, new Empty { Ticket = t });
+            return api.PutTicket(t);
         }
     }
 }

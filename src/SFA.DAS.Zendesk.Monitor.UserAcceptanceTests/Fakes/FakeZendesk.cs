@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization.ContractResolverExtentions;
-using RestEase;
+using SFA.DAS.Zendesk.Monitor.Zendesk;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -13,7 +11,6 @@ using System.Threading.Tasks;
 using WireMock.Handlers;
 using WireMock.Server;
 using WireMock.Settings;
-using SFA.DAS.Zendesk.Monitor.Zendesk;
 
 namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 {
@@ -89,18 +86,18 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
                 Comment = new Comment { Body = "Created for testing" },
             };
 
-            var response = await zendeskApi.PostTicket(new Empty { Ticket = ticket });
+            var response = await zendeskApi.PostTicket(ticket);
             return response.Ticket;
         }
 
         internal Task UpdateTicket(Ticket ticket)
         {
-            return zendeskApi.PutTicket(ticket.Id, new Empty { Ticket = ticket });
+            return zendeskApi.PutTicket(ticket);
         }
 
         public Task<long[]> /*ISharingTickets.*/GetTicketsForSharing() => sharing.GetTicketsForSharing();
 
-        Task<ExtendedTicket> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
+        Task<TicketResponse> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
 
         Task ISharingTickets.MarkShared(Ticket ticket) => sharing.MarkShared(ticket);
 

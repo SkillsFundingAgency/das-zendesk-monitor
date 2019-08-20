@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
@@ -6,7 +7,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
     {
         Task<long[]> GetTicketsForSharing();
 
-        Task<ExtendedTicket> GetTicketForSharing(long id);
+        Task<TicketResponse> GetTicketForSharing(long id);
 
         Task MarkSharing(Ticket t);
 
