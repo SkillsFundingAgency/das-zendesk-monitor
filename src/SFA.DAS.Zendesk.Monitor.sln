@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Zendesk.Monitor.Use
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Zendesk.Monitor.UnitTests", "SFA.DAS.Zendesk.Monitor.UnitTests\SFA.DAS.Zendesk.Monitor.UnitTests.csproj", "{FF0041DA-5838-42E7-9D54-626170D17FEB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Zendesk.Monitor.Function", "SFA.DAS.Zendesk.Monitor.Function\SFA.DAS.Zendesk.Monitor.Function.csproj", "{8DAC2D89-01B4-4D5C-ABA1-13DDBD0060D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Zendesk.Monitor.Function", "SFA.DAS.Zendesk.Monitor.Function\SFA.DAS.Zendesk.Monitor.Function.csproj", "{8DAC2D89-01B4-4D5C-ABA1-13DDBD0060D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

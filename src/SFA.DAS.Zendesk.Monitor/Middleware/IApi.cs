@@ -7,5 +7,8 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
     {
         [Post("/event")]
         Task PostEvent([Body] EventWrapper body);
+
+        [Post("/event")]
+        Task PostEvent([Body] EW2 body);
     }
 }
