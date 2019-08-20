@@ -35,6 +35,7 @@ namespace SFA.DAS.Zendesk.Monitor
                 Ticket = ticket.Ticket,
                 Comments = ticket.Comments,
                 Requester = ticket.Users?.FirstOrDefault(x => x.Id == ticket.Ticket.RequesterId),
+                Organization = ticket.Organizations?.FirstOrDefault(x => x.Id == ticket.Ticket.OrganizationId),
             });
             await zendesk.MarkShared(ticket.Ticket);
         }

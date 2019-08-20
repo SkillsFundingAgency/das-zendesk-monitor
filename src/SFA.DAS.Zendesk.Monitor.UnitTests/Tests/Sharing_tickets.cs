@@ -72,6 +72,20 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
+        public async Task Sends_ticket_to_middleware_with_organisation([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket, Organisation org)
+        {
+            ticket.OrganizationId = org.Id;
+            zendesk.Tickets.Add(ticket);
+            zendesk.Organisations.Add(org);
+
+            await sut.ShareTicket(ticket.Id);
+
+            var middlewareTicket = new Middleware.EventWrapper { Ticket = ticket, Organization = org };
+
+            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(middlewareTicket)));
+        }
+
+        [Theory, AutoDataDomain]
         public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
         {
             ticket.Tags.Remove("pending_middleware");

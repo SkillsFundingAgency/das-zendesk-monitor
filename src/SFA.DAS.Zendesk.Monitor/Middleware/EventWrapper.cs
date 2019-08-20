@@ -10,6 +10,8 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
 
         public Zendesk.Model.User Requester { get; set; }
 
+        public Zendesk.Model.Organisation Organization { get; set; }
+
         public override string ToString()
             => JsonConvert.SerializeObject(this, Formatting.Indented);
     }

@@ -10,7 +10,10 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
     public class FakeZendeskApi : IApi
     {
         public List<Ticket> Tickets { get; } = new List<Ticket>();
+
         public List<User> Users { get; set; } = new List<User>();
+
+        public List<Organisation> Organisations { get; set; } = new List<Organisation>();
 
         public Dictionary<long, List<Comment>> Comments { get; } = new Dictionary<long, List<Comment>>();
 
@@ -36,6 +39,11 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             if (sideLoad.Contains("users"))
                 users.AddRange(Users.Where(x => x.Id == response.Ticket.RequesterId));
             response.Users = users.ToArray();
+
+            var orgs = new List<Organisation>();
+            if (sideLoad.Contains("organizations"))
+                orgs.AddRange(Organisations.Where(x => x.Id == response.Ticket.OrganizationId));
+            response.Organizations = orgs.ToArray();
 
             return Task.FromResult(response);
         }

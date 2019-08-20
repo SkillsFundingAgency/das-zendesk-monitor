@@ -39,7 +39,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 
         public object AssigneeId { get; set; }
 
-        public object OrganizationId { get; set; }
+        public long? OrganizationId { get; set; }
 
         public long? GroupId { get; set; }
 
