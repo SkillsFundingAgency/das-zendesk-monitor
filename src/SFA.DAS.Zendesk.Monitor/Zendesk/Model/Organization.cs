@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 {
-    public partial class Organisation
+    public partial class Organization
     {
         public Uri Url { get; set; }
 

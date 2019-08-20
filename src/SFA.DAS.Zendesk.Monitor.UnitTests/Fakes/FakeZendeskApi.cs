@@ -1,6 +1,7 @@
 ﻿using RestEase;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,11 +14,11 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
         public List<User> Users { get; set; } = new List<User>();
 
-        public List<Organisation> Organisations { get; set; } = new List<Organisation>();
+        public List<Organization> Organizations { get; set; } = new List<Organization>();
 
         public Dictionary<long, List<Comment>> Comments { get; } = new Dictionary<long, List<Comment>>();
 
-        public Task<SearchResponse> SearchTickets([Query] string query)
+        public Task<SearchResponse> SearchTickets(string query)
         {
             var response = new SearchResponse { Results = Tickets.ToArray() };
             return Task.FromResult(response);
@@ -30,22 +31,22 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> GetTicketWithSideloads([Path] long id, [Query(name: "include")] params string[] sideLoad)
+        public Task<TicketResponse> GetTicketWithSideloads(long id, params string[] include)
         {
             var ticket = Tickets.First(x => x.Id == id);
             var response = new TicketResponse { Ticket = ticket };
 
-            var users = new List<User>();
-            if (sideLoad.Contains("users"))
-                users.AddRange(Users.Where(x => x.Id == response.Ticket.RequesterId));
-            response.Users = users.ToArray();
-
-            var orgs = new List<Organisation>();
-            if (sideLoad.Contains("organizations"))
-                orgs.AddRange(Organisations.Where(x => x.Id == response.Ticket.OrganizationId));
-            response.Organizations = orgs.ToArray();
+            response.Users = SideLoad(Users, x => x.Id == response.Ticket.RequesterId, include);
+            response.Organizations = SideLoad(Organizations, x => x.Id == response.Ticket.OrganizationId, include);
 
             return Task.FromResult(response);
+        }
+
+        private T[] SideLoad<T>(List<T> resources, Func<T, bool> p, string[] include)
+        {
+            var name = $"{typeof(T).Name}s".ToLower();
+            if (!include.Contains(name)) return new T[] { };
+            return resources.Where(p).ToArray();
         }
 
         public Task<CommentResponse> GetTicketComments(long id)

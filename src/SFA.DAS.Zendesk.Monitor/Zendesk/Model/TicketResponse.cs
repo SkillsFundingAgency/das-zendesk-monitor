@@ -8,7 +8,7 @@
 
         public User[] Users { get; set; }
 
-        public Organisation[] Organizations { get; set; }
+        public Organization[] Organizations { get; set; }
     }
 
     public class TicketRequest
