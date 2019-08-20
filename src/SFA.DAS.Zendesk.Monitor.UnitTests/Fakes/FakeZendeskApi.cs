@@ -27,11 +27,16 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> GetTicketWithSideloads([Path] long id)
+        public Task<TicketResponse> GetTicketWithSideloads([Path] long id, [Query(name: "include")] params string[] sideLoad)
         {
             var ticket = Tickets.First(x => x.Id == id);
             var response = new TicketResponse { Ticket = ticket };
-            response.Requester = Users.FirstOrDefault(x => x.Id == response.Ticket.RequesterId);
+
+            var users = new List<User>();
+            if (sideLoad.Contains("users"))
+                users.AddRange(Users.Where(x => x.Id == response.Ticket.RequesterId));
+            response.Users = users.ToArray();
+
             return Task.FromResult(response);
         }
 

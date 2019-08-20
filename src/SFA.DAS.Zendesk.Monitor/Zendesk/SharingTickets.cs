@@ -15,13 +15,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public async Task<TicketResponse> GetTicketForSharing(long id)
         {
-            var response = await api.GetTicketWithSideloads(id);
-            return new TicketResponse
-            {
-                Ticket = response.Ticket,
-                Comments = (await api.GetTicketComments(id)).Comments,
-                Requester = response.Requester,
-            };
+            var response = await api.GetTicketWithRequiredSideloads(id);
+            response.Comments = (await api.GetTicketComments(id)).Comments;
+            return response;
         }
 
         public async Task<long[]> GetTicketsForSharing()

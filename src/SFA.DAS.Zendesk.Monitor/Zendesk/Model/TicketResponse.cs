@@ -6,7 +6,7 @@
 
         public Comment[] Comments { get; set; }
 
-        public User Requester { get; set; }
+        public User[] Users { get; set; }
     }
 
     public class TicketRequest

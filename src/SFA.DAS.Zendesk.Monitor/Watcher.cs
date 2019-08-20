@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor
@@ -33,7 +34,7 @@ namespace SFA.DAS.Zendesk.Monitor
             {
                 Ticket = ticket.Ticket,
                 Comments = ticket.Comments,
-                Requester = ticket.Requester,
+                Requester = ticket.Users?.FirstOrDefault(x => x.Id == ticket.Ticket.RequesterId),
             });
             await zendesk.MarkShared(ticket.Ticket);
         }
