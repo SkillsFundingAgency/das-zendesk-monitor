@@ -155,7 +155,7 @@
         }
     ],
     "outputs": {
-        "WorkerDatamartFunctionAppName": {
+        "WorkerFunctionAppName": {
             "type": "string",
             "value": "[variables('workerFunctionAppName')]"
         }
