@@ -4,6 +4,7 @@
 	So that I can distribute the updates to other systems
 
 @SkipWhenLiveUnitTesting
+@ignore
 Scenario: Share ticket with middleware
 	Given a ticket exists
 	When the ticket is marked to be shared 
