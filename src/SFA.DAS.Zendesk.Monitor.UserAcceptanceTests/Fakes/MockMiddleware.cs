@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using RestEase;
+using SFA.DAS.Zendesk.Monitor.Middleware;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,8 +34,11 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             admin = RestClient.For<IFluentMockServerAdmin>(server.Urls[0]);
         }
 
-        public async Task PostEvent([Body] Middleware.EventWrapper body)
-            => await client.PostEvent(body);
+        public Task PostEvent([Body] Middleware.EventWrapper body)
+            => client.PostEvent(body);
+
+        public Task PostEvent([Body] EW2 body)
+            => client.PostEvent(body);
 
         public async Task<IReadOnlyList<Zendesk.Model.Ticket>> TicketEvents()
         {

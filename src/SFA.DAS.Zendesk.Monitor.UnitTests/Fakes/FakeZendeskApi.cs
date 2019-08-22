@@ -31,7 +31,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> GetTicketWithSideloads(long id, params string[] include)
+        public Task<TicketResponse> GetTicketWithSideloads(long id, SideLoads include)
         {
             var ticket = Tickets.First(x => x.Id == id);
             var response = new TicketResponse { Ticket = ticket };
@@ -42,10 +42,10 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        private T[] SideLoad<T>(List<T> resources, Func<T, bool> p, string[] include)
+        private T[] SideLoad<T>(List<T> resources, Func<T, bool> p, SideLoads include)
         {
             var name = $"{typeof(T).Name}s".ToLower();
-            if (!include.Contains(name)) return new T[] { };
+            if (!include.ToString().Contains(name)) return new T[] { };
             return resources.Where(p).ToArray();
         }
 

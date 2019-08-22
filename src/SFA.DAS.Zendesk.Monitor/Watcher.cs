@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Zendesk.Monitor.Zendesk;
+﻿using AutoMapper;
+using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,6 +38,13 @@ namespace SFA.DAS.Zendesk.Monitor
                 Requester = ticket.Users?.FirstOrDefault(x => x.Id == ticket.Ticket.RequesterId),
                 Organization = ticket.Organizations?.FirstOrDefault(x => x.Id == ticket.Ticket.OrganizationId),
             });
+
+            var am = new MapperConfiguration(cfg => cfg.CreateMap<Ticket, Middleware.EventWrapper2>()).CreateMapper();
+            var we2 = am.Map<Middleware.EventWrapper2>(ticket.Ticket);
+            we2.Comments = ticket.Comments;
+            we2.Requester = ticket.Users?.FirstOrDefault(x => x.Id == ticket.Ticket.RequesterId);
+            we2.Organization = ticket.Organizations?.FirstOrDefault(x => x.Id == ticket.Ticket.OrganizationId);
+            await middleware.PostEvent(new Middleware.EW2 { Ticket = we2 });
             await zendesk.MarkShared(ticket.Ticket);
         }
     }
