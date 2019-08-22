@@ -17,7 +17,7 @@ pool:
   name: 'Continuous Integration 02 - SSD - 160ACU'
 
 steps:
-- task: gittools.gitversion-preview.gitversion-task.GitVersion@5
+- task: gittools.gitversion.gitversion-task.GitVersion@4
   displayName: GitVersion
   inputs:
     updateAssemblyInfo: true
