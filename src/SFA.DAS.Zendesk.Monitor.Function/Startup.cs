@@ -6,6 +6,7 @@ using MW = SFA.DAS.Zendesk.Monitor.Middleware;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System;
+using Microsoft.Extensions.Logging;
 
 [assembly: FunctionsStartup(typeof(ZenWatchFunction.Startup))]
 
@@ -22,17 +23,20 @@ namespace ZenWatchFunction
             builder.Services.AddSingleton(s =>
             {
                 var config = s.GetRequiredService<IConfiguration>();
+                var logger = s.GetRequiredService<ILogger<LoggingHttpClientHandler>>();
 
                 var all = config.GetChildren().Select(x => x.Key);
 
-                return new ZD.ApiFactoryFactory(new Uri(config["Zendesk:Url"]), config["Zendesk:ApiUser"], config["Zendesk:ApiKey"]);
+                return new ZD.ApiFactory(new Uri(config["Zendesk:Url"]), config["Zendesk:ApiUser"], config["Zendesk:ApiKey"], logger);
             });
-            builder.Services.AddTransient(s => s.GetRequiredService<ZD.ApiFactoryFactory>().CreateApi());
+            builder.Services.AddTransient(s => s.GetRequiredService<ZD.ApiFactory>().CreateApi());
             builder.Services.AddTransient(s =>
             {
                 var config = s.GetRequiredService<IConfiguration>();
-                return MW.ApiFactory.Create(new Uri(config["Middleware:Url"]));
+                var logger = s.GetRequiredService<ILogger<LoggingHttpClientHandler>>();
+                return new MW.ApiFactory(new Uri(config["Middleware:Url"]), logger);
             });
+            builder.Services.AddTransient(s => s.GetRequiredService<MW.ApiFactory>().Create());
         }
     }
 }

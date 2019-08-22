@@ -72,7 +72,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             var byteArray = Encoding.ASCII.GetBytes($"{user}/token:{token}");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
-            zendeskApi = ApiFactory.Create(httpClient);
+            zendeskApi = ApiFactory.CreateApi(httpClient);
             sharing = new SharingTickets(zendeskApi);
         }
 

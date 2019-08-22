@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization.ContractResolverExtentions;
 using RestEase;
 using System;
@@ -8,31 +9,28 @@ using System.Text;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
-    public class ApiFactoryFactory
+    public class ApiFactory
     {
         private readonly HttpClient httpClient;
 
-        public ApiFactoryFactory(string instanceName, string user, string password)
-            : this(new Uri($"https://{instanceName}.zendesk.com/api/v2/"), user, password)
-        {
-        }
-
-        public ApiFactoryFactory(Uri url, string user, string password)
+        public ApiFactory(Uri url, string user, string password, ILogger<LoggingHttpClientHandler> logger)
         {
             if (!url.AbsolutePath.Contains("api/v2"))
                 url = new Uri(url, "api/v2");
 
             var authentication = Encoding.ASCII.GetBytes($"{user}:{password}");
 
-            httpClient = new HttpClient();
+            httpClient = new HttpClient(new LoggingHttpClientHandler(logger));
             httpClient.BaseAddress = url;
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authentication));
         }
 
-        public IApi CreateApi() => ApiFactory.Create(httpClient);
+        public IApi CreateApi() => new RestClient(httpClient).CreateApi();
+
+        public static IApi CreateApi(HttpClient client) => new RestClient(client).CreateApi();
     }
 
-    public static class ApiFactory
+    public static class ApiFactoryExtensions
     {
         private static JsonSerializerSettings serialiser = new JsonSerializerSettings
         {
@@ -40,17 +38,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             NullValueHandling = NullValueHandling.Ignore,
         };
 
-        public static IApi Create(HttpClient client)
-        {
-            return new RestClient(client).CreateApi();
-        }
-
-        public static IApi Create(string instanceName, string user, string password)
-        {
-            return new RestClient($"https://{instanceName}.zendesk.com/api/v2/").CreateApi();
-        }
-
-        private static IApi CreateApi(this RestClient client)
+        public static IApi CreateApi(this RestClient client)
         {
             client.JsonSerializerSettings = serialiser;
             return client.For<IApi>();
