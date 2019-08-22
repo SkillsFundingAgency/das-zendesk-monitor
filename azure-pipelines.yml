@@ -1,0 +1,64 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - "*"
+
+pr: none
+
+workspace:
+    clean: all
+
+variables:
+  buildConfiguration: 'release'
+  buildPlatform: 'anycpu'
+
+pool:
+  name: 'Continuous Integration 02 - SSD - 160ACU'
+
+steps:
+- task: gittools.gitversion-preview.gitversion-task.GitVersion@5
+  displayName: GitVersion
+  inputs:
+    updateAssemblyInfo: true
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: 'src/**/*.csproj'
+    noCache: true
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: 'src/**/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --no-restore'
+    
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    projects: '**/*.UnitTests.csproj'
+    arguments: '--configuration $(buildConfiguration) --no-build'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish Function App'
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: 'src/SFA.DAS.Zendesk.Monitor.Function/SFA.DAS.Zendesk.Monitor.Function.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+  inputs:
+    Contents: |
+     azure/**
+    TargetFolder: '$(build.artifactstagingdirectory)/publish'
+    OverWrite: true
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)/publish'
