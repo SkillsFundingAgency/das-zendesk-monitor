@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public SharingTickets(IApi api)
         {
-            this.api = api;
+            this.api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
         public async Task<TicketResponse> GetTicketForSharing(long id)

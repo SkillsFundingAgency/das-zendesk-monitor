@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,8 +14,8 @@ namespace SFA.DAS.Zendesk.Monitor
 
         public Watcher(ISharingTickets zendesk, Middleware.IApi middleware)
         {
-            this.zendesk = zendesk;
-            this.middleware = middleware;
+            this.zendesk = zendesk ?? throw new ArgumentNullException(nameof(zendesk));
+            this.middleware = middleware ?? throw new ArgumentNullException(nameof(middleware));
         }
 
         public Task<long[]> GetTicketsForSharing() => zendesk.GetTicketsForSharing();
