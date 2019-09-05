@@ -46,7 +46,7 @@ namespace ZenWatchFunction
             if (instance?.OrchestrationIsRunning() != true)
             {
                 log.LogDebug("Starting Watcher orchestration");
-                //await starter.StartNewAsync(nameof(ShareTickets), WatcherInstance, null);
+                await starter.StartNewAsync(nameof(ShareAllTickets), WatcherInstance, null);
             }
             else
             {
