@@ -21,8 +21,20 @@
         },
         "configurationStorageConnectionString": {
             "type": "securestring"
+        },
+        "ZenDeskUrl": {
+            "type": "securestring"
+        },
+        "ApiUser": {
+            "type": "string"
+        },
+        "ApiKey": {
+            "type": "string"
+        },
+        "MiddlewareUrl":{
+            "type": "string"
         }
-    },
+    }
     "variables": {
         "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
@@ -143,7 +155,24 @@
                             {
                                 "name": "ConfigurationStorageConnectionString",
                                 "value": "[parameters('configurationStorageConnectionString')]"
-                            }
+                            },
+                            {
+                                "name": "Zendesk:Url",
+                                "value": "[parameters('ZenDeskUrl')]"
+                            },
+                            {
+                                "name": "Zendesk:ApiUser",
+                                "value": "[parameters('ApiUser')]"
+                            },
+                            {
+                                "name": "Zendesk:ApiKey",
+                                "value":  "[parameters('ApiKey')]"
+                            },
+                            {
+                                "name": "Middleware:Url ",
+                                "value":  "[parameters('MiddlewareUrl')]"
+                            },
+                             
                         ]
                     }
                 }
