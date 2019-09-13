@@ -34,7 +34,7 @@
         "MiddlewareUrl":{
             "type": "string"
         }
-    }
+    },
     "variables": {
         "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
@@ -171,9 +171,17 @@
                             {
                                 "name": "Middleware:Url ",
                                 "value":  "[parameters('MiddlewareUrl')]"
-                            },
-                             
-                        ]
+                            }
+                        ],
+                        "appServiceConnectionStrings": {
+                            "value": [
+                                {
+                                    "name": "Redis",
+                                    "connectionString": "[parameters('loggingRedisConnectionString')]",
+                                    "type": "Custom"
+                                }
+                            ]
+                        }
                     }
                 }
             },
