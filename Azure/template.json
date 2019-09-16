@@ -31,7 +31,7 @@
         "ApiKey": {
             "type": "securestring"
         },
-        "MiddlewareUrl":{
+        "MiddlewareUrl": {
             "type": "string"
         }
     },
@@ -166,25 +166,25 @@
                             },
                             {
                                 "name": "Zendesk:ApiKey",
-                                "value":  "[parameters('ApiKey')]"
+                                "value": "[parameters('ApiKey')]"
                             },
                             {
                                 "name": "Middleware:Url ",
-                                "value":  "[parameters('MiddlewareUrl')]"
+                                "value": "[parameters('MiddlewareUrl')]"
                             }
                         ]
                     },
-                        "appServiceConnectionStrings": {
-                            "value": [
-                                {
-                                    "name": "Redis",
-                                    "connectionString": "[parameters('loggingRedisConnectionString')]",
-                                    "type": "Custom"
-                                }
-                            ]
-                        }
+                    "appServiceConnectionStrings": {
+                        "value": [
+                            {
+                                "name": "Redis",
+                                "connectionString": "[parameters('loggingRedisConnectionString')]",
+                                "type": "Custom"
+                            }
+                        ]
                     }
-                },
+                }
+            },
             "dependsOn": [
                 "worker-app-service-plan",
                 "storage-account"
