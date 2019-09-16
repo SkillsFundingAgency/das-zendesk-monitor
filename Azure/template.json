@@ -26,10 +26,10 @@
             "type": "string"
         },
         "ApiUser": {
-            "type": "securestring"
+            "type": "string"
         },
         "ApiKey": {
-            "type": "string"
+            "type": "securestring"
         },
         "MiddlewareUrl":{
             "type": "string"
