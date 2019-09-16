@@ -21,6 +21,18 @@
         },
         "configurationStorageConnectionString": {
             "type": "securestring"
+        },
+        "ZenDeskUrl": {
+            "type": "string"
+        },
+        "ApiUser": {
+            "type": "string"
+        },
+        "ApiKey": {
+            "type": "securestring"
+        },
+        "MiddlewareUrl":{
+            "type": "string"
         }
     },
     "variables": {
@@ -143,8 +155,33 @@
                             {
                                 "name": "ConfigurationStorageConnectionString",
                                 "value": "[parameters('configurationStorageConnectionString')]"
+                            },
+                            {
+                                "name": "Zendesk:Url",
+                                "value": "[parameters('ZenDeskUrl')]"
+                            },
+                            {
+                                "name": "Zendesk:ApiUser",
+                                "value": "[parameters('ApiUser')]"
+                            },
+                            {
+                                "name": "Zendesk:ApiKey",
+                                "value":  "[parameters('ApiKey')]"
+                            },
+                            {
+                                "name": "Middleware:Url ",
+                                "value":  "[parameters('MiddlewareUrl')]"
                             }
-                        ]
+                        ],
+                        "appServiceConnectionStrings": {
+                            "value": [
+                                {
+                                    "name": "Redis",
+                                    "connectionString": "[parameters('loggingRedisConnectionString')]",
+                                    "type": "Custom"
+                                }
+                            ]
+                        }
                     }
                 }
             },
