@@ -23,10 +23,10 @@
             "type": "securestring"
         },
         "ZenDeskUrl": {
-            "type": "securestring"
+            "type": "string"
         },
         "ApiUser": {
-            "type": "string"
+            "type": "securestring"
         },
         "ApiKey": {
             "type": "string"
