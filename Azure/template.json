@@ -172,7 +172,8 @@
                                 "name": "Middleware:Url ",
                                 "value":  "[parameters('MiddlewareUrl')]"
                             }
-                        ],
+                        ]
+                    },
                         "appServiceConnectionStrings": {
                             "value": [
                                 {
@@ -183,8 +184,7 @@
                             ]
                         }
                     }
-                }
-            },
+                },
             "dependsOn": [
                 "worker-app-service-plan",
                 "storage-account"
