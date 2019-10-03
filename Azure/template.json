@@ -33,6 +33,12 @@
         },
         "MiddlewareUrl": {
             "type": "string"
+        },
+        "MiddlewareSubscriptionKey": {
+            "type": "string"
+        },
+        "MiddlewareApiBasicAuth": {
+            "type": "securestring"
         }
     },
     "variables": {
@@ -171,6 +177,14 @@
                             {
                                 "name": "Middleware:Url ",
                                 "value": "[parameters('MiddlewareUrl')]"
+                            },
+                            {
+                                "name": "Middleware:SubscriptionKey ",
+                                "value": "[parameters('MiddlewareSubscriptionKey')]"
+                            },
+                            {
+                              "name": "Middleware:ApiBasicAuth",
+                              "value": "[parameters('MiddlewareApiBasicAuth')]"
                             }
                         ]
                     },

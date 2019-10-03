@@ -5,10 +5,13 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
 {
     public interface IApi
     {
-        [Delete("/ticket?subscription-key=1af517e259e34af59a8f0bbb12a9c28f")]
+        [Query("subscription-key")]
+        string SubscriptionKey { get; set; }
+
+        [Delete("/ticket")]
         Task PostEvent([Body] EventWrapper body);
 
-        [Delete("/ticket?subscription-key=1af517e259e34af59a8f0bbb12a9c28f")]
+        [Delete("/ticket")]
         Task PostEvent([Body] EW2 body);
     }
 }

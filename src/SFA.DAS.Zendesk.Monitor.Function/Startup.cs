@@ -1,12 +1,12 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.Zendesk.Monitor;
-using ZD = SFA.DAS.Zendesk.Monitor.Zendesk;
-using MW = SFA.DAS.Zendesk.Monitor.Middleware;
 using Microsoft.Extensions.Configuration;
-using System.Linq;
-using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Zendesk.Monitor;
+using System;
+using System.Linq;
+using MW = SFA.DAS.Zendesk.Monitor.Middleware;
+using ZD = SFA.DAS.Zendesk.Monitor.Zendesk;
 
 [assembly: FunctionsStartup(typeof(ZenWatchFunction.Startup))]
 
@@ -34,7 +34,7 @@ namespace ZenWatchFunction
             {
                 var config = s.GetRequiredService<IConfiguration>();
                 var logger = s.GetRequiredService<ILogger<LoggingHttpClientHandler>>();
-                return new MW.ApiFactory(new Uri(config["Middleware:Url"]), config["Middleware:ApiBasicAuth"], logger);
+                return new MW.ApiFactory(new Uri(config["Middleware:Url"]), config["Middleware:SubscriptionKey"], config["Middleware:ApiBasicAuth"], logger);
             });
             builder.Services.AddTransient(s => s.GetRequiredService<MW.ApiFactory>().Create());
         }
