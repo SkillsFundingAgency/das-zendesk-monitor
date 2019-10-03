@@ -34,7 +34,7 @@ namespace ZenWatchFunction
             {
                 var config = s.GetRequiredService<IConfiguration>();
                 var logger = s.GetRequiredService<ILogger<LoggingHttpClientHandler>>();
-                return new MW.ApiFactory(new Uri(config["Middleware:Url"]), logger);
+                return new MW.ApiFactory(new Uri(config["Middleware:Url"]), config["Middleware:ApiBasicAuth"], logger);
             });
             builder.Services.AddTransient(s => s.GetRequiredService<MW.ApiFactory>().Create());
         }

@@ -4,6 +4,7 @@ using Newtonsoft.Json.Serialization.ContractResolverExtentions;
 using RestEase;
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace SFA.DAS.Zendesk.Monitor.Middleware
 {
@@ -12,7 +13,7 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
         private readonly ILogger<LoggingHttpClientHandler> logger;
         private readonly HttpClient httpClient;
 
-        public ApiFactory(Uri url, ILogger<LoggingHttpClientHandler> logger)
+        public ApiFactory(Uri url, string basicAuth, ILogger<LoggingHttpClientHandler> logger)
         {
             this.logger = logger;
 
@@ -20,6 +21,8 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
             {
                 BaseAddress = url
             };
+
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
         }
 
         public IApi Create() => new RestClient(httpClient).CreateApi();
