@@ -34,6 +34,8 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             admin = RestClient.For<IFluentMockServerAdmin>(server.Urls[0]);
         }
 
+        public string SubscriptionKey { get; set; }
+
         public Task PostEvent([Body] Middleware.EventWrapper body)
             => client.PostEvent(body);
 
