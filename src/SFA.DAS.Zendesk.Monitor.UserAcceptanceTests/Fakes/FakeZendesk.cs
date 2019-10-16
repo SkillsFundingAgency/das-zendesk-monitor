@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using LanguageExt;
+using Microsoft.Extensions.Configuration;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
@@ -97,7 +98,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 
         public Task<long[]> /*ISharingTickets.*/GetTicketsForSharing() => sharing.GetTicketsForSharing();
 
-        Task<TicketResponse> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
+        Task<Option<TicketResponse>> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
 
         Task ISharingTickets.MarkShared(Ticket ticket) => sharing.MarkShared(ticket);
 

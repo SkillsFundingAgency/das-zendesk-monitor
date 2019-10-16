@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+﻿using LanguageExt;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,16 +15,19 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             this.api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
-        public async Task<TicketResponse> GetTicketForSharing(long id)
+        public async Task<Option<TicketResponse>> GetTicketForSharing(long id)
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
+
+            if (!response.Ticket.Tags.Intersect(new[] { "pending_middleware", "sending_middleware" }).Any()) return default;
+
             response.Comments = (await api.GetTicketComments(id)).Comments;
             return response;
         }
 
         public async Task<long[]> GetTicketsForSharing()
         {
-            var response = await api.SearchTickets("tags:pending_middleware");
+            var response = await api.SearchTickets("tags:pending_middleware tags:sending_middleware");
             return response?.Results?
                 .Where(x => x.Tags.Contains("pending_middleware"))
                 .Select(x => x.Id).ToArray()
