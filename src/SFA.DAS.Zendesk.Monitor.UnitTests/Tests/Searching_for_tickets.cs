@@ -13,18 +13,27 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public class Searching_for_tickets
     {
-        [Theory, AutoDomainData]
-        public async Task Queries_for_tag([Frozen] IApi zendesk, Watcher sut)
+        public static object[] Tags = new[]
+        {
+            new[] { "pending_middleware" },
+            new[] { "sending_middleware" },
+        };
+
+        [Theory]
+        [MemberAutoDomainData(nameof(Tags))]
+        public async Task Queries_for_tag(string tagName, [Frozen] IApi zendesk, Watcher sut)
         {
             await sut.GetTicketsForSharing();
 
-            await zendesk.Received().SearchTickets("tags:pending_middleware");
+            await zendesk.Received().SearchTickets(
+                Verify.That<string>(x => x.Should().Contain($"tags:{tagName}")));
         }
 
-        [Theory, AutoDomainData]
-        public async Task Returns_all_tickets_with_tag([Frozen] IApi zendesk, Watcher sut, Ticket ticket)
+        [Theory]
+        [MemberAutoDomainData(nameof(Tags))]
+        public async Task Returns_all_tickets_with_tag(string tagName, [Frozen] IApi zendesk, Watcher sut, Ticket ticket)
         {
-            ticket.Tags = new List<string> { "pending_middleware" };
+            ticket.Tags = new List<string> { tagName };
             zendesk.SearchTickets(Arg.Any<string>())
                 .Returns(SearchResponse.Create(ticket));
 
@@ -91,6 +100,14 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 fixture.Register<ISharingTickets>(() => fixture.Create<SharingTickets>());
                 fixture.Customize(new AutoNSubstituteCustomization { ConfigureMembers = true });
                 return fixture;
+            }
+        }
+ 
+        public class MemberAutoDomainDataAttribute : MemberAutoDataAttribute
+        {
+            public MemberAutoDomainDataAttribute(string memberName, params object[] parameters)
+                : base(new AutoDomainDataAttribute(), memberName, parameters)
+            {
             }
         }
     }

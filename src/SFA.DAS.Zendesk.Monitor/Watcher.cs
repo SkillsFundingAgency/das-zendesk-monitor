@@ -24,9 +24,7 @@ namespace SFA.DAS.Zendesk.Monitor
         {
             var ticket = await zendesk.GetTicketForSharing(id);
 
-            if (ticket.Ticket.Tags.Contains("pending_middleware") ||
-                ticket.Ticket.Tags.Contains("sending_middleware"))
-                await ShareTicket(ticket);
+            await ticket.IfSomeAsync(ShareTicket);
         }
 
         private async Task ShareTicket(TicketResponse ticket)

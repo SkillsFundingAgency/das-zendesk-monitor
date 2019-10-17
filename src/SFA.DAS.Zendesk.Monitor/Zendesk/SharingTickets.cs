@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+﻿using LanguageExt;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,15 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
     public class SharingTickets : ISharingTickets
     {
+        const string pendingTag = "pending_middleware";
+        const string sendingTag = "sending_middleware";
+
+        private readonly string[] Tags = new[]
+        {
+            pendingTag, 
+            sendingTag,
+        };
+
         private readonly IApi api;
 
         public SharingTickets(IApi api)
@@ -14,32 +24,41 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             this.api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
-        public async Task<TicketResponse> GetTicketForSharing(long id)
+        public async Task<Option<TicketResponse>> GetTicketForSharing(long id)
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
+
+            if (!TicketContainsSharingTag(response.Ticket)) return default;
+
             response.Comments = (await api.GetTicketComments(id)).Comments;
             return response;
         }
 
+        private bool TicketContainsSharingTag(Ticket ticket)
+        {
+            return ticket.Tags.Intersect(Tags).Any();
+        }
+
         public async Task<long[]> GetTicketsForSharing()
         {
-            var response = await api.SearchTickets("tags:pending_middleware");
+            var search = string.Join(" ", Tags.Select(x => $"tags:{x}"));
+            var response = await api.SearchTickets(search);
             return response?.Results?
-                .Where(x => x.Tags.Contains("pending_middleware"))
+                .Where(TicketContainsSharingTag)
                 .Select(x => x.Id).ToArray()
                 ?? new long[] { };
         }
 
         public Task MarkSharing(Ticket t)
         {
-            t.Tags.Remove("pending_middleware");
-            t.Tags.Add("sending_middleware");
+            t.Tags.Remove(pendingTag);
+            t.Tags.Add(sendingTag);
             return api.PutTicket(t);
         }
 
         public Task MarkShared(Ticket t)
         {
-            t.Tags.Remove("sending_middleware");
+            t.Tags.Remove(sendingTag);
             return api.PutTicket(t);
         }
     }
