@@ -3,10 +3,10 @@ using AutoFixture.AutoNSubstitute;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using NSubstitute;
+using SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixture;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -16,7 +16,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
     public class Sharing_tickets
     {
         [Theory, AutoDataDomain]
-        public async Task Marks_ticket_as_sharing_before_sending_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
+        public async Task Marks_ticket_as_sharing_before_sending_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
             middleware.When(x => x.PostEvent(Arg.Any<Middleware.EventWrapper>()))
@@ -35,7 +35,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
+        public async Task Sends_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
 
@@ -48,7 +48,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware_with_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket, Comment[] comments)
+        public async Task Sends_ticket_to_middleware_with_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket, Comment[] comments)
         {
             zendesk.Tickets.Add(ticket);
             zendesk.AddComments(ticket, comments);
@@ -63,7 +63,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware_with_requester([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket, User reporter)
+        public async Task Sends_ticket_to_middleware_with_requester([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket, User reporter)
         {
             ticket.RequesterId = reporter.Id;
             zendesk.Tickets.Add(ticket);
@@ -79,7 +79,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware_with_organisation([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket, Organization org)
+        public async Task Sends_ticket_to_middleware_with_organisation([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket, Organization org)
         {
             ticket.OrganizationId = org.Id;
             zendesk.Tickets.Add(ticket);
@@ -95,7 +95,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
+        public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket)
         {
             ticket.Tags.Remove("pending_middleware");
             ticket.Tags.Add("sending_middleware");
@@ -110,7 +110,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Marks_ticket_as_shared([Frozen] FakeZendeskApi zendesk, Watcher sut, Ticket ticket)
+        public async Task Marks_ticket_as_shared([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
 
@@ -145,9 +145,6 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 var fixture = new Fixture();
                 fixture.Register<IApi>(() => fixture.Create<FakeZendeskApi>());
                 fixture.Register<ISharingTickets>(() => fixture.Create<SharingTickets>());
-                fixture.Customize<Ticket>(x => x
-                    .Without(y => y.Tags)
-                    .Do(y => y.Tags = new List<string> { "pending_middleware" }));
                 fixture.Customize(new AutoNSubstituteCustomization { ConfigureMembers = true });
                 return fixture;
             }
