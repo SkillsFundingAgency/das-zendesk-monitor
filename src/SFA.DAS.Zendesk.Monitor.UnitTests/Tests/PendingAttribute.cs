@@ -7,9 +7,22 @@ using System.Reflection;
 
 namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixture
 {
+    public enum As
+    {
+        Solved,
+        Escalated,
+    }
+
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class PendingAttribute : CustomizeAttribute
     {
+        private As solved;
+
+        public PendingAttribute(As solved)
+        {
+            this.solved = solved;
+        }
+
         public override ICustomization GetCustomization(ParameterInfo parameter)
         {
             if (parameter.ParameterType != typeof(Ticket))

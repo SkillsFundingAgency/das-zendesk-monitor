@@ -16,7 +16,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
     public class Sharing_tickets
     {
         [Theory, AutoDataDomain]
-        public async Task Marks_ticket_as_sharing_before_sending_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket)
+        public async Task Marks_ticket_as_sharing_before_sending_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
             middleware.When(x => x.SolveTicket(Arg.Any<Middleware.EventWrapper>()))
@@ -35,7 +35,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket)
+        public async Task Sends_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
 
@@ -59,7 +59,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware_with_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket, Comment[] comments)
+        public async Task Sends_ticket_to_middleware_with_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket, Comment[] comments)
         {
             zendesk.Tickets.Add(ticket);
             zendesk.AddComments(ticket, comments);
@@ -84,7 +84,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware_with_requester([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket, User reporter)
+        public async Task Sends_ticket_to_middleware_with_requester([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket, User reporter)
         {
             ticket.RequesterId = reporter.Id;
             zendesk.Tickets.Add(ticket);
@@ -119,7 +119,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware_with_organisation([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket, Organization org)
+        public async Task Sends_ticket_to_middleware_with_organisation([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket, Organization org)
         {
             ticket.OrganizationId = org.Id;
             zendesk.Tickets.Add(ticket);
@@ -152,7 +152,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket)
+        public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket)
         {
             ticket.Tags.Remove("pending_middleware");
             ticket.Tags.Add("sending_middleware");
@@ -166,7 +166,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Marks_ticket_as_shared([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending] Ticket ticket)
+        public async Task Marks_ticket_as_shared([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending(As.Solved)] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
 
