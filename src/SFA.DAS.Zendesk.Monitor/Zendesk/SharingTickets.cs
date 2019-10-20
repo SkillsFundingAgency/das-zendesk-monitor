@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,24 +38,36 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
 
-            if (!TicketContainsSharingTag(response.Ticket)) return default;
+            return await 
+                GetReasonForSharing(response.Ticket)
+                .ToAsync()
+                .MapAsync(FillOutResponse)
+                .ToOption();
 
-            response.Comments = (await api.GetTicketComments(id)).Comments;
 
-            foreach (var t in response.Ticket.Tags)
+            async Task<(TicketResponse, SharingReason x)> FillOutResponse(SharingReason reason)
             {
-                var reason = t.Split('_').LastOrDefault() ?? "";
-                if(Enum.TryParse<SharingReason>(reason, true, out var r))
-                    return (response, r);
+                response.Comments = (await api.GetTicketComments(response.Ticket.Id)).Comments;
+                return (response, reason);
             }
-
-            return (response, SharingReason.Solved);
         }
 
-        private bool TicketContainsSharingTag(Ticket ticket)
+        private Option<SharingReason> GetReasonForSharing(Ticket ticket)
         {
-            return ticket.Tags.Intersect(Tags).Any();
+            return GetSharingTagsInTicket(ticket)
+                .Select(SegmentAfterLastUnderscore)
+                .Select(TryParseReason)
+                .FirstOrDefault();
+
+            string SegmentAfterLastUnderscore(string tag) =>
+                tag.Split('_').LastOrDefault() ?? "";
+
+            Option<SharingReason> TryParseReason(string reason) =>
+                Enum.TryParse<SharingReason>(reason, true, out var r) ? Option<SharingReason>.Some(r) : default;
         }
+
+        private IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
+            ticket.Tags.Intersect(Tags);
 
         public async Task<long[]> GetTicketsForSharing()
         {
@@ -65,6 +78,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                 .Select(x => x.Id).ToArray()
                 ?? new long[] { };
         }
+
+        private bool TicketContainsSharingTag(Ticket ticket) =>
+            GetSharingTagsInTicket(ticket).Any();
 
         public Task MarkSharing(Ticket t)
         {
