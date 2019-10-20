@@ -31,7 +31,7 @@ namespace SFA.DAS.Zendesk.Monitor
 
         private async Task ShareTicket((Zendesk.Model.TicketResponse ticket, SharingReason reason) share)
         {
-            await zendesk.MarkSharing(share.ticket.Ticket);
+            await zendesk.MarkSharing(share.ticket.Ticket, share.reason);
 
             var wrap = MapperConfig.Map<Middleware.EventWrapper>(share.ticket);
 

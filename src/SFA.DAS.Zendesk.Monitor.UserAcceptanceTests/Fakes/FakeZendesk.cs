@@ -100,8 +100,8 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 
         Task<Option<(TicketResponse, SharingReason)>> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
 
-        Task ISharingTickets.MarkShared(Ticket ticket) => sharing.MarkShared(ticket);
+        Task ISharingTickets.MarkShared(Ticket ticket, SharingReason reason) => sharing.MarkShared(ticket, reason);
 
-        Task ISharingTickets.MarkSharing(Ticket t) => sharing.MarkSharing(t);
+        Task ISharingTickets.MarkSharing(Ticket t, SharingReason reason) => sharing.MarkSharing(t, reason);
     }
 }

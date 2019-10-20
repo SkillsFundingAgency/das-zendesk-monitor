@@ -17,6 +17,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         {
             new[] { "pending_middleware_solved" },
             new[] { "sending_middleware_solved" },
+            new[] { "pending_middleware_escalated" },
+            new[] { "sending_middleware_escalated" },
         };
 
         [Theory]

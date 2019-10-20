@@ -30,8 +30,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
-                .Should().NotContain("pending_middleware")
-                .And.Contain("sending_middleware");
+                .Should().NotContain("pending_middleware_solved")
+                .And.Contain("sending_middleware_solved");
         }
 
         [Theory, AutoDataDomain]
@@ -186,8 +186,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
-                .Should().NotContain("pending_middleware")
-                .And.NotContain("sending_middleware");
+                .Should().NotContain("pending_middleware_solved")
+                .And.NotContain("sending_middleware_solved");
         }
 
         [Theory, AutoDataDomain]
