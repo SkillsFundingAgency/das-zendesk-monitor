@@ -15,8 +15,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
     {
         public static object[] Tags = new[]
         {
-            new[] { "pending_middleware" },
-            new[] { "sending_middleware" },
+            new[] { "pending_middleware_solved" },
+            new[] { "sending_middleware_solved" },
         };
 
         [Theory]

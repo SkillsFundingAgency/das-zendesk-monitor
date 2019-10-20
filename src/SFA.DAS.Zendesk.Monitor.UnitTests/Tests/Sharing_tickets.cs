@@ -59,6 +59,18 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
+        public async Task Sends_ticket_to_correct_endpoint([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Escalated)] Ticket ticket)
+        {
+            zendesk.Tickets.Add(ticket);
+
+            await sut.ShareTicket(ticket.Id);
+
+            await middleware.Received().EscalateTicket(
+                Verify.That<Middleware.EventWrapper>(x =>
+                    x.Should().BeEquivalentTo(new { Ticket = new { ticket.Id } })));
+        }
+
+        [Theory, AutoDataDomain]
         public async Task Sends_ticket_to_middleware_with_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket, Comment[] comments)
         {
             zendesk.Tickets.Add(ticket);

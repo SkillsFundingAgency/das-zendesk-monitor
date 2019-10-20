@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
+    public enum SharingReason
+    {
+        Unknown,
+        Solved,
+        Escalated,
+    }
+
     public class SharingTickets : ISharingTickets
     {
         const string pendingTag = "pending_middleware";
@@ -13,8 +20,10 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         private readonly string[] Tags = new[]
         {
-            pendingTag, 
-            sendingTag,
+            $"{pendingTag}_{SharingReason.Solved.ToString().ToLower()}", 
+            $"{sendingTag}_{SharingReason.Solved.ToString().ToLower()}", 
+            $"{pendingTag}_{SharingReason.Escalated.ToString().ToLower()}", 
+            $"{sendingTag}_{SharingReason.Escalated.ToString().ToLower()}", 
         };
 
         private readonly IApi api;
@@ -24,14 +33,22 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             this.api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
-        public async Task<Option<TicketResponse>> GetTicketForSharing(long id)
+        public async Task<Option<(TicketResponse, SharingReason)>> GetTicketForSharing(long id)
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
 
             if (!TicketContainsSharingTag(response.Ticket)) return default;
 
             response.Comments = (await api.GetTicketComments(id)).Comments;
-            return response;
+
+            foreach (var t in response.Ticket.Tags)
+            {
+                var reason = t.Split('_').LastOrDefault() ?? "";
+                if(Enum.TryParse<SharingReason>(reason, true, out var r))
+                    return (response, r);
+            }
+
+            return (response, SharingReason.Solved);
         }
 
         private bool TicketContainsSharingTag(Ticket ticket)

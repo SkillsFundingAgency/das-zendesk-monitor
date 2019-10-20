@@ -27,16 +27,23 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixture
         {
             if (parameter.ParameterType != typeof(Ticket))
                 throw new InvalidOperationException($"`{parameter.ParameterType.Name}` is not a valid type for [Pending].");
-            return new PendingTicketCustomisation();
+            return new PendingTicketCustomisation(solved);
         }
 
         private class PendingTicketCustomisation : ICustomization
         {
+            private string reason;
+
+            public PendingTicketCustomisation(As reason)
+            {
+                this.reason = reason.ToString().ToLower();
+            }
+
             public void Customize(IFixture fixture)
             {
                 fixture.Customize<Ticket>(x => x
                     .Without(y => y.Tags)
-                    .Do(y => y.Tags = new List<string> { "pending_middleware" }));
+                    .Do(y => y.Tags = new List<string> { $"pending_middleware_{reason}" }));
             }
         }
     }
