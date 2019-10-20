@@ -1,4 +1,4 @@
-using AutoFixture;
+ using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using AutoFixture.Xunit2;
 using FluentAssertions;
@@ -7,6 +7,7 @@ using SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixture;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -15,23 +16,32 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public class Sharing_tickets
     {
-        [Theory, AutoDataDomain]
-        public async Task Marks_ticket_as_sharing_before_sending_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket)
+        public static IEnumerable<object[]> Tags()
         {
+            yield return new object[] { As.Escalated };
+            yield return new object[] { As.Solved };
+        }
+
+        [Theory, MemberAutoDomainData(nameof(Tags))]
+        public async Task Marks_ticket_as_sharing_before_sending_to_middleware(As state, [Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
+        {
+            ticket.Tags.Add($"pending_middleware_{state}".ToLower());
             zendesk.Tickets.Add(ticket);
             middleware.When(x => x.SolveTicket(Arg.Any<Middleware.EventWrapper>()))
+                .Do(x => { throw new Exception("Stop test at Middleware step"); });
+            middleware.When(x => x.EscalateTicket(Arg.Any<Middleware.EventWrapper>()))
                 .Do(x => { throw new Exception("Stop test at Middleware step"); });
 
             try
             {
                 await sut.ShareTicket(ticket.Id);
             }
-            catch { }
+            catch { /* Expecting the middleware to fail */ }
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
-                .Should().NotContain("pending_middleware_solved")
-                .And.Contain("sending_middleware_solved");
+                .Should().NotContain($"pending_middleware_{state}".ToLower())
+                .And.Contain($"sending_middleware_{state}".ToLower());
         }
 
         [Theory, AutoDataDomain]
@@ -226,6 +236,14 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 fixture.Register<ISharingTickets>(() => fixture.Create<SharingTickets>());
                 fixture.Customize(new AutoNSubstituteCustomization { ConfigureMembers = true });
                 return fixture;
+            }
+        }
+
+        public class MemberAutoDomainDataAttribute : MemberAutoDataAttribute
+        {
+            public MemberAutoDomainDataAttribute(string memberName, params object[] parameters)
+                : base(new AutoDataDomainAttribute(), memberName, parameters)
+            {
             }
         }
     }
