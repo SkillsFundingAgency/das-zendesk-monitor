@@ -10,8 +10,5 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
 
         [Delete("/ticket")]
         Task PostEvent([Body] EventWrapper body);
-
-        [Delete("/ticket")]
-        Task PostEvent([Body] EW2 body);
     }
 }

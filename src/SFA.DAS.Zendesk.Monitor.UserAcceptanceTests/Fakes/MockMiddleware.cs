@@ -39,9 +39,6 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
         public Task PostEvent([Body] Middleware.EventWrapper body)
             => client.PostEvent(body);
 
-        public Task PostEvent([Body] EW2 body)
-            => client.PostEvent(body);
-
         public async Task<IReadOnlyList<Zendesk.Model.Ticket>> TicketEvents()
         {
             var entries = await admin.GetRequestsAsync();
