@@ -48,8 +48,8 @@ namespace SFA.DAS.Zendesk.Monitor
                 default:
                     throw new Exception("");
             }
-
-            await zendesk.MarkShared(share.ticket.Ticket);
+ 
+            await zendesk.MarkShared(share.ticket.Ticket, share.reason);
         }
     }
 }

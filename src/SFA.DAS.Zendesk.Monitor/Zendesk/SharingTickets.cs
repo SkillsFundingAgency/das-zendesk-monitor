@@ -16,20 +16,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
     public class SharingTickets : ISharingTickets
     {
-        const string pendingTag = "pending";
-        const string sendingTag = "sending";
-
-        private static readonly string[] Tags = new[]
-        {
-            MakeTag("pending", SharingReason.Solved),
-            MakeTag("sending", SharingReason.Solved),
-            MakeTag("pending", SharingReason.Escalated),
-            MakeTag("sending", SharingReason.Escalated),
-        };
-
-        private static string MakeTag(string state, SharingReason reason) =>
-            $"{state}_middleware_{reason.ToString().ToLower()}";
-
         private readonly IApi api;
 
         public SharingTickets(IApi api)
@@ -41,12 +27,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
 
-            return await 
-                GetReasonForSharing(response.Ticket)
+            return await
+                ReasonForSharing(response.Ticket)
                 .ToAsync()
                 .MapAsync(FillOutResponse)
                 .ToOption();
-
 
             async Task<(TicketResponse, SharingReason x)> FillOutResponse(SharingReason reason)
             {
@@ -55,7 +40,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             }
         }
 
-        private Option<SharingReason> GetReasonForSharing(Ticket ticket)
+        private Option<SharingReason> ReasonForSharing(Ticket ticket)
         {
             return GetSharingTagsInTicket(ticket)
                 .Select(SegmentAfterLastUnderscore)
@@ -70,11 +55,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         }
 
         private IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
-            ticket.Tags.Intersect(Tags);
+            ticket.Tags.Intersect(AllSharingTags);
 
         public async Task<long[]> GetTicketsForSharing()
         {
-            var search = string.Join(" ", Tags.Select(x => $"tags:{x}"));
+            var search = string.Join(" ", AllSharingTags.Select(x => $"tags:{x}"));
             var response = await api.SearchTickets(search);
             return response?.Results?
                 .Where(TicketContainsSharingTag)
@@ -87,15 +72,32 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public Task MarkSharing(Ticket t, SharingReason reason)
         {
-            t.Tags.Remove(MakeTag(pendingTag, reason));
-            t.Tags.Add(MakeTag(sendingTag, reason));
+            t.Tags.Remove(MakeTag(SharingState.Pending, reason));
+            t.Tags.Add(MakeTag(SharingState.Sending, reason));
             return api.PutTicket(t);
         }
 
         public Task MarkShared(Ticket t, SharingReason reason)
         {
-            t.Tags.Remove(MakeTag(sendingTag, reason));
+            t.Tags.Remove(MakeTag(SharingState.Sending, reason));
             return api.PutTicket(t);
         }
+
+        private enum SharingState
+        {
+            Pending,
+            Sending,
+        }
+
+        private static readonly string[] AllSharingTags = new[]
+        {
+            MakeTag(SharingState.Pending, SharingReason.Solved),
+            MakeTag(SharingState.Sending, SharingReason.Solved),
+            MakeTag(SharingState.Pending, SharingReason.Escalated),
+            MakeTag(SharingState.Sending, SharingReason.Escalated),
+        };
+
+        private static string MakeTag(SharingState state, SharingReason reason) =>
+            $"{state}_middleware_{reason}".ToLower();
     }
 }

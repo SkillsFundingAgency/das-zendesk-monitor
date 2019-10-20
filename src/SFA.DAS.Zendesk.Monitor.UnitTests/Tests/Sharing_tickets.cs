@@ -164,15 +164,27 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_previously_failed_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket)
+        public async Task Sends_previously_failed_solved_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
         {
-            ticket.Tags.Remove("pending_middleware");
-            ticket.Tags.Add("sending_middleware");
+            ticket.Tags.Add("sending_middleware_solved");
             zendesk.Tickets.Add(ticket);
 
             await sut.ShareTicket(ticket.Id);
 
             await middleware.Received().SolveTicket(
+                Verify.That<Middleware.EventWrapper>(x =>
+                    x.Should().BeEquivalentTo(new { Ticket = new { ticket.Id } })));
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Sends_previously_failed_escalated_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
+        {
+            ticket.Tags.Add("sending_middleware_escalated");
+            zendesk.Tickets.Add(ticket);
+
+            await sut.ShareTicket(ticket.Id);
+
+            await middleware.Received().EscalateTicket(
                 Verify.That<Middleware.EventWrapper>(x =>
                     x.Should().BeEquivalentTo(new { Ticket = new { ticket.Id } })));
         }
