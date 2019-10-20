@@ -34,7 +34,7 @@ namespace SFA.DAS.Zendesk.Monitor
             await zendesk.MarkSharing(ticket.Ticket);
 
             var wrap = MapperConfig.Map<Middleware.EventWrapper>(ticket);
-            await middleware.PostEvent(wrap);
+            await middleware.SolveTicket(wrap);
 
             await zendesk.MarkShared(ticket.Ticket);
         }

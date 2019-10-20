@@ -19,7 +19,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         public async Task Marks_ticket_as_sharing_before_sending_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
-            middleware.When(x => x.PostEvent(Arg.Any<Middleware.EventWrapper>()))
+            middleware.When(x => x.SolveTicket(Arg.Any<Middleware.EventWrapper>()))
                 .Do(x => { throw new Exception("Stop test at Middleware step"); });
 
             try
@@ -53,7 +53,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             };
 
-            await middleware.Received().PostEvent(
+            await middleware.Received().SolveTicket(
                 Verify.That<Middleware.EventWrapper>(x =>
                     x.Should().BeEquivalentTo(expectedTicket)));
         }
@@ -80,7 +80,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             };
 
-            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
+            await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
         [Theory, AutoDataDomain]
@@ -115,7 +115,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             };
 
-            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
+            await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
         [Theory, AutoDataDomain]
@@ -148,7 +148,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             };
 
-            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
+            await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
         [Theory, AutoDataDomain]
@@ -160,7 +160,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             await sut.ShareTicket(ticket.Id);
 
-            await middleware.Received().PostEvent(
+            await middleware.Received().SolveTicket(
                 Verify.That<Middleware.EventWrapper>(x =>
                     x.Should().BeEquivalentTo(new { Ticket = new { ticket.Id } })));
         }
@@ -186,7 +186,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             await sut.ShareTicket(ticket.Id);
 
-            await middleware.DidNotReceive().PostEvent(Arg.Any<Middleware.EventWrapper>());
+            await middleware.DidNotReceive().SolveTicket(Arg.Any<Middleware.EventWrapper>());
         }
 
         private class AutoDataDomainAttribute : AutoDataAttribute

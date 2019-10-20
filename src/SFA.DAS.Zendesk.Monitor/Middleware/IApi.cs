@@ -8,7 +8,10 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
         [Query("subscription-key")]
         string SubscriptionKey { get; set; }
 
+        [Put("/ticket?escalate=true")]
+        Task EscalateTicket([Body] EventWrapper body);
+
         [Delete("/ticket")]
-        Task PostEvent([Body] EventWrapper body);
+        Task SolveTicket([Body] EventWrapper body);
     }
 }
