@@ -6,6 +6,7 @@ using NSubstitute;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -85,6 +86,22 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             var result = await sut.GetTicketsForSharing();
 
             result.Should().BeEmpty();
+        }
+
+        [Theory, AutoDomainData]
+        public async Task Handles_results_with_null_tickets2(HttpRequestMessage msg)
+        {
+            msg.RequestUri.Should().NotBeNull();
+            var bob = msg.GetQuery("id");
+            bob.Should().BeEmpty();
+        }
+
+        [Theory, AutoDomainData]
+        public async Task Handles_results_with_null_tickets3(HttpRequestMessage msg)
+        {
+            msg.RequestUri = new System.Uri("https://bob.com/?id=12");
+            var bob = msg.GetQuery("id");
+            bob.Should().OnlyContain(x => x == "12");
         }
 
         public class AutoDomainDataAttribute : AutoDataAttribute

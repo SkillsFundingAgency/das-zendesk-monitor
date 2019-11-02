@@ -5,8 +5,10 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -26,17 +28,22 @@ namespace ZenWatchFunction
 
         [FunctionName("NotifyTicket")]
         public static async Task<HttpResponseMessage> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")]HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")]HttpRequestMessage request,
             [OrchestrationClient]DurableOrchestrationClient starter,
             ILogger log)
         {
-            var ids = request.Query["id"].Select(x => long.Parse(x)).ToList();
+            var ids = request.GetQuery("id").Select(x => long.Parse(x)).ToList();
 
-            var content = await new StreamReader(request.Body).ReadToEndAsync();
-            var ticket = JsonConvert.DeserializeObject<NotifyTicket>(content);
+            var content = await request.Content.ReadAsStringAsync();    
+            var ticket = JsonConvert.DeserializeObject<NotifyTicket>(content);      
             if(ticket?.Id != null) ids.Add(ticket.Id);
 
             log.LogInformation("NotifyTicket {ids}", ids);
+
+            if(!ids.Any())
+            {
+                return request.CreateErrorResponse(HttpStatusCode.BadRequest, "Please specify at least one `Id`");
+            }
 
             var instanceId = await starter.StartNewAsync(nameof(ShareListedTickets), ids);
             return starter.CreateCheckStatusResponse(request, instanceId);
