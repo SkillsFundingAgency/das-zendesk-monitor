@@ -41,8 +41,21 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             await sut.ShareTicket(ticket.Id);
 
-            var mwt = new { Ticket = ticket };
-            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt, c => c.Excluding(p => p.Ticket.Tags))));
+            var expectedTicket = new
+            {
+                Ticket = new
+                {
+                    ticket.Id,
+                    ticket.Status,
+                    ticket.Description,
+                    ticket.Subject,
+                    ticket.CreatedAt,
+                }
+            };
+
+            await middleware.Received().PostEvent(
+                Verify.That<Middleware.EventWrapper>(x =>
+                    x.Should().BeEquivalentTo(expectedTicket)));
         }
 
         [Theory, AutoDataDomain]
@@ -53,7 +66,20 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             await sut.ShareTicket(ticket.Id);
 
-            var mwt = new { Ticket = new { Comments = comments } };
+            var mwt = new
+            {
+                Ticket = new
+                {
+                    Comments = comments.Select(c =>
+                    new
+                    {
+                        c.Id,
+                        c.Body,
+                        c.CreatedAt,
+                    }),
+                }
+            };
+
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
@@ -66,7 +92,29 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             await sut.ShareTicket(ticket.Id);
 
-            var mwt = new { Ticket = new { Requester = reporter } };
+            var mwt = new
+            {
+                Ticket = new
+                {
+                    Requester = new
+                    {
+                        reporter.Id,
+                        reporter.Name,
+                        reporter.Email,
+                        reporter.Phone,
+                        UserFields = new
+                        {
+                            reporter.UserFields.AddressLine1,
+                            reporter.UserFields.AddressLine2,
+                            reporter.UserFields.AddressLine3,
+                            reporter.UserFields.City,
+                            reporter.UserFields.County,
+                            reporter.UserFields.Postcode,
+                        }
+                    }
+                }
+            };
+
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
@@ -79,7 +127,27 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             await sut.ShareTicket(ticket.Id);
 
-            var mwt = new { Ticket = new { Organization = org } };
+            var mwt = new
+            {
+                Ticket = new
+                {
+                    Organization = new
+                    {
+                        org.Id,
+                        org.Name,
+                        OrganizationFields = new
+                        {
+                            org.OrganizationFields.AddressLine1,
+                            org.OrganizationFields.AddressLine2,
+                            org.OrganizationFields.AddressLine3,
+                            org.OrganizationFields.City,
+                            org.OrganizationFields.County,
+                            org.OrganizationFields.Postcode,
+                        }
+                    }
+                }
+            };
+
             await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
@@ -92,8 +160,9 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             await sut.ShareTicket(ticket.Id);
 
-            var mwt = new { Ticket = ticket };
-            await middleware.Received().PostEvent(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt, c => c.Excluding(p => p.Ticket.Tags))));
+            await middleware.Received().PostEvent(
+                Verify.That<Middleware.EventWrapper>(x =>
+                    x.Should().BeEquivalentTo(new { Ticket = new { ticket.Id } })));
         }
 
         [Theory, AutoDataDomain]
