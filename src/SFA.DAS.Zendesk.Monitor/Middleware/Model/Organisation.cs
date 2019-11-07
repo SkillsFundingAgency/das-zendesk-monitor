@@ -4,6 +4,6 @@
     {
         public long Id { get; set; }
         public string Name { get; set; }
-        public OrganisationFields OrganizationFields { get; set; }
+        public OrganizationFields OrganizationFields { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 {
-    public partial class OrganisationFields
+    public class OrganizationFields
     {
         public object AccountManager { get; set; }
 
@@ -20,9 +20,9 @@
 
         public long? MainPhone { get; set; }
 
-        public string OrganisationStatus { get; set; }
+        public string OrganizationStatus { get; set; }
 
-        public string OrganisationType { get; set; }
+        public string OrganizationType { get; set; }
 
         public string Postcode { get; set; }
     }

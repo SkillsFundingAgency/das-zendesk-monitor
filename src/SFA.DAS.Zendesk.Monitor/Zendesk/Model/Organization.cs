@@ -30,6 +30,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 
         public object[] Tags { get; set; }
 
-        public OrganisationFields OrganizationFields { get; set; }
+        public OrganizationFields OrganizationFields { get; set; }
     }
 }
