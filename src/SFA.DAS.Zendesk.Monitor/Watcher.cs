@@ -29,27 +29,18 @@ namespace SFA.DAS.Zendesk.Monitor
             await ticket.IfSomeAsync(ShareTicket);
         }
 
-        private async Task ShareTicket((Zendesk.Model.TicketResponse ticket, SharingReason reason) share)
+        private async Task ShareTicket(SharedTicket share)
         {
-            await zendesk.MarkSharing(share.ticket.Ticket, share.reason);
+            await zendesk.MarkSharing(share);
 
-            var wrap = MapperConfig.Map<Middleware.EventWrapper>(share.ticket);
+            var wrap = MapperConfig.Map<Middleware.EventWrapper>(share.Response);
 
-            switch (share.reason)
-            {
-                case SharingReason.Solved:
-                    await middleware.SolveTicket(wrap);
-                    break;
-
-                case SharingReason.Escalated:
-                    await middleware.EscalateTicket(wrap);
-                    break;
-
-                default:
-                    throw new Exception("");
-            }
+            await share.Switch(
+                solved => middleware.SolveTicket(wrap),
+                escalated => middleware.EscalateTicket(wrap)
+                );
  
-            await zendesk.MarkShared(share.ticket.Ticket, share.reason);
+            await zendesk.MarkShared(share);
         }
     }
 }

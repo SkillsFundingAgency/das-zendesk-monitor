@@ -7,13 +7,6 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
-    public enum SharingReason
-    {
-        Unknown,
-        Solved,
-        Escalated,
-    }
-
     public class SharingTickets : ISharingTickets
     {
         private readonly IApi api;
@@ -23,26 +16,21 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             this.api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
-        public async Task<Option<(TicketResponse, SharingReason)>> GetTicketForSharing(long id)
+        public async Task<Option<SharedTicket>> GetTicketForSharing(long id)
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
 
-            return await
-                ReasonForSharing(response.Ticket)
-                .ToAsync()
-                .MapAsync(FillOutResponse)
-                .ToOption();
-
-            async Task<(TicketResponse, SharingReason x)> FillOutResponse(SharingReason reason)
-            {
-                response.Comments = (await api.GetTicketComments(response.Ticket.Id)).Comments;
-                return (response, reason);
-            }
+            var sharing = ReasonForSharing(response);
+            
+            await sharing.IfSomeAsync(async s 
+                => s.Response.Comments = await api.GetTicketComments(response.Ticket));
+            
+            return sharing;
         }
 
-        private Option<SharingReason> ReasonForSharing(Ticket ticket)
+        private Option<SharedTicket> ReasonForSharing(TicketResponse response)
         {
-            return GetSharingTagsInTicket(ticket)
+            return GetSharingTagsInTicket(response.Ticket)
                 .Select(SegmentAfterLastUnderscore)
                 .Select(TryParseReason)
                 .FirstOrDefault();
@@ -50,8 +38,10 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             string SegmentAfterLastUnderscore(string tag) =>
                 tag.Split('_').LastOrDefault() ?? "";
 
-            Option<SharingReason> TryParseReason(string reason) =>
-                Enum.TryParse<SharingReason>(reason, true, out var r) ? Option<SharingReason>.Some(r) : default;
+            Option<SharedTicket> TryParseReason(string reason) =>
+                Enum.TryParse<SharingReason>(reason, true, out var r) 
+                    ? new SharedTicket(r, response)
+                    : default;
         }
 
         private IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
@@ -70,14 +60,20 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         private bool TicketContainsSharingTag(Ticket ticket) =>
             GetSharingTagsInTicket(ticket).Any();
 
-        public Task MarkSharing(Ticket t, SharingReason reason)
+        public Task MarkSharing(SharedTicket share) 
+            => MarkSharing(share.Response.Ticket, share.Reason);
+        
+        private Task MarkSharing(Ticket t, SharingReason reason)
         {
             t.Tags.Remove(MakeTag(SharingState.Pending, reason));
             t.Tags.Add(MakeTag(SharingState.Sending, reason));
             return api.PutTicket(t);
         }
 
-        public Task MarkShared(Ticket t, SharingReason reason)
+        public Task MarkShared(SharedTicket share) 
+            => MarkShared(share.Response.Ticket, share.Reason);
+
+        private Task MarkShared(Ticket t, SharingReason reason)
         {
             t.Tags.Remove(MakeTag(SharingState.Sending, reason));
             return api.PutTicket(t);
