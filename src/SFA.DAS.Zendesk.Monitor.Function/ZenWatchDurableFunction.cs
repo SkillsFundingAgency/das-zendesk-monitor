@@ -30,9 +30,9 @@ namespace ZenWatchFunction
             return starter.CreateCheckStatusResponse(request, instanceId);
         }
 
-        [FunctionName("WatcherEntryPoint")]
+        [FunctionName("BackgroundTaskEntryPoint")]
         public static Task Run(
-            [TimerTrigger("* */30 * * * *")] TimerInfo _,
+            [TimerTrigger("%MonitorCronSetting%")] TimerInfo timer,
             [OrchestrationClient] DurableOrchestrationClient starter,
             ILogger log)
         {
