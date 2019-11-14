@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Linq;
 
 namespace SFA.DAS.Zendesk.Monitor
@@ -18,6 +19,7 @@ namespace SFA.DAS.Zendesk.Monitor
                 .ForMember(x => x.Comments, x => x.Ignore())
                 .ForMember(x => x.Requester, x => x.Ignore())
                 .ForMember(x => x.Organization, x => x.Ignore())
+                .ForPath(x => x.Via, x => x.MapFrom(y => TranslateVia(y)))
                 ;
 
             CreateMap<Zendesk.Model.Comment, Middleware.Model.Comments>();
@@ -33,5 +35,18 @@ namespace SFA.DAS.Zendesk.Monitor
 
         private Zendesk.Model.User FindRequester(Zendesk.Model.TicketResponse response)
             => response.Users?.FirstOrDefault(x => x.Id == response.Ticket.RequesterId);
+
+        private string TranslateVia(Ticket y)
+        {
+            switch (y.Via?.Channel)
+            {
+                case "voice": return $"Phone call ({y.Via?.Source?.Rel})";
+                case "email": return "Mail";
+                case "chat": return "Chat";
+                case "web": return "Web Form";
+                
+                default: return y.Via?.Channel.ToLower();
+            }
+        }
     }
 }

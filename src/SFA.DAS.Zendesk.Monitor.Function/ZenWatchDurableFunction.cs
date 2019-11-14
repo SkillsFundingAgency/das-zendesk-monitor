@@ -71,7 +71,9 @@ namespace ZenWatchFunction
         {
             var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), null);
 
-            await context.CallActivityAsync(nameof(ShareListedTickets), tickets);
+            foreach (var ticket in tickets)
+                await context.CallActivityWithRetryAsync(nameof(DurableWatcher.ShareTicket), retry, ticket);
+            //await context.CallActivityAsync(nameof(ShareListedTickets2), tickets);
         }
 
         [FunctionName(nameof(ShareListedTickets))]
