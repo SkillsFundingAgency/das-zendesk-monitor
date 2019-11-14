@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -34,7 +33,7 @@ namespace ZenWatchFunction
             var ticket = JsonConvert.DeserializeObject<NotifyTicket>(content);
 
             var ids = new[] { ticket.Id };
-            log.LogInformation("NotifyTicket {id}", ids);
+            log.LogDebug("NotifyTicket {id}", ids);
 
             var instanceId = await starter.StartNewAsync(nameof(ShareListedTickets), ids);
             return starter.CreateCheckStatusResponse(request, instanceId);
@@ -55,12 +54,12 @@ namespace ZenWatchFunction
 
             if (instance?.OrchestrationIsRunning() != true)
             {
-                log.LogDebug("Starting Watcher orchestration");
+                log.LogInformation("Starting Watcher orchestration");
                 await starter.StartNewAsync(nameof(ShareAllTickets), WatcherInstance, null);
             }
             else
             {
-                log.LogDebug("Watcher orchestration is already running");
+                log.LogWarning("Watcher orchestration is already running");
             }
 
             return instance;
@@ -73,7 +72,6 @@ namespace ZenWatchFunction
 
             foreach (var ticket in tickets)
                 await context.CallActivityWithRetryAsync(nameof(DurableWatcher.ShareTicket), retry, ticket);
-            //await context.CallActivityAsync(nameof(ShareListedTickets2), tickets);
         }
 
         [FunctionName(nameof(ShareListedTickets))]
