@@ -36,8 +36,11 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
 
         public string SubscriptionKey { get; set; }
 
-        public Task PostEvent([Body] Middleware.EventWrapper body)
-            => client.PostEvent(body);
+        public Task EscalateTicket([Body] EventWrapper body)
+            => client.EscalateTicket(body);
+
+        public Task SolveTicket([Body] Middleware.EventWrapper body)
+            => client.SolveTicket(body);
 
         public async Task<IReadOnlyList<Zendesk.Model.Ticket>> TicketEvents()
         {

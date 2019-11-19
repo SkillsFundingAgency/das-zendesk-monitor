@@ -19,5 +19,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public static Task<TicketResponse> GetTicketWithRequiredSideloads(this IApi api, long id)
             => api.GetTicketWithSideloads(id, RequiredSideloads);
+
+        public static async Task<Comment[]> GetTicketComments(this IApi api, Ticket ticket)
+            => (await api.GetTicketComments(ticket.Id))?.Comments;
     }
 }

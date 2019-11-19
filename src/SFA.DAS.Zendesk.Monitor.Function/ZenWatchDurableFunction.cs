@@ -3,8 +3,9 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
-using System.Linq;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -17,14 +18,23 @@ namespace ZenWatchFunction
         private static readonly string WatcherInstance = "{8B2772F1-0A07-4D64-BEBE-1402520C0BD0}";
         private static readonly RetryOptions retry = new RetryOptions(TimeSpan.FromSeconds(1), 5);
 
-        [FunctionName("ClientFunction")]
+        private class NotifyTicket
+        {
+            public long Id { get; set; }
+        }
+
+        [FunctionName("NotifyTicket")]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")]HttpRequest request,
             [OrchestrationClient]DurableOrchestrationClient starter,
             ILogger log)
         {
-            var ids = request.Query["id"].Select(x => long.Parse(x)).ToArray();
-            log.LogInformation("Sharing ticket {id}", ids);
+            using var reader = new StreamReader(request.Body);
+            var content = await reader.ReadToEndAsync();
+            var ticket = JsonConvert.DeserializeObject<NotifyTicket>(content);
+
+            var ids = new[] { ticket.Id };
+            log.LogDebug("NotifyTicket {id}", ids);
 
             var instanceId = await starter.StartNewAsync(nameof(ShareListedTickets), ids);
             return starter.CreateCheckStatusResponse(request, instanceId);
@@ -45,12 +55,12 @@ namespace ZenWatchFunction
 
             if (instance?.OrchestrationIsRunning() != true)
             {
-                log.LogDebug("Starting Watcher orchestration");
+                log.LogInformation("Starting Watcher orchestration");
                 await starter.StartNewAsync(nameof(ShareAllTickets), WatcherInstance, null);
             }
             else
             {
-                log.LogDebug("Watcher orchestration is already running");
+                log.LogWarning("Watcher orchestration is already running");
             }
 
             return instance;
@@ -61,7 +71,8 @@ namespace ZenWatchFunction
         {
             var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), null);
 
-            await context.CallActivityAsync(nameof(ShareListedTickets), tickets);
+            foreach (var ticket in tickets)
+                await context.CallActivityWithRetryAsync(nameof(DurableWatcher.ShareTicket), retry, ticket);
         }
 
         [FunctionName(nameof(ShareListedTickets))]

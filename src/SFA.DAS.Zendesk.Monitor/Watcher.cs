@@ -29,14 +29,18 @@ namespace SFA.DAS.Zendesk.Monitor
             await ticket.IfSomeAsync(ShareTicket);
         }
 
-        private async Task ShareTicket(Zendesk.Model.TicketResponse ticket)
+        private async Task ShareTicket(SharedTicket share)
         {
-            await zendesk.MarkSharing(ticket.Ticket);
+            await zendesk.MarkSharing(share);
 
-            var wrap = MapperConfig.Map<Middleware.EventWrapper>(ticket);
-            await middleware.PostEvent(wrap);
+            var wrap = MapperConfig.Map<Middleware.EventWrapper>(share.Response);
 
-            await zendesk.MarkShared(ticket.Ticket);
+            await share.Switch(
+                solved => middleware.SolveTicket(wrap),
+                escalated => middleware.EscalateTicket(wrap)
+                );
+ 
+            await zendesk.MarkShared(share);
         }
     }
 }

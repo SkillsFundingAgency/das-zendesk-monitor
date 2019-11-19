@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,15 +9,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
     public class SharingTickets : ISharingTickets
     {
-        const string pendingTag = "pending_middleware";
-        const string sendingTag = "sending_middleware";
-
-        private readonly string[] Tags = new[]
-        {
-            pendingTag, 
-            sendingTag,
-        };
-
         private readonly IApi api;
 
         public SharingTickets(IApi api)
@@ -24,24 +16,40 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             this.api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
-        public async Task<Option<TicketResponse>> GetTicketForSharing(long id)
+        public async Task<Option<SharedTicket>> GetTicketForSharing(long id)
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
 
-            if (!TicketContainsSharingTag(response.Ticket)) return default;
-
-            response.Comments = (await api.GetTicketComments(id)).Comments;
-            return response;
+            var sharing = ReasonForSharing(response);
+            
+            await sharing.IfSomeAsync(async s 
+                => s.Response.Comments = await api.GetTicketComments(response.Ticket));
+            
+            return sharing;
         }
 
-        private bool TicketContainsSharingTag(Ticket ticket)
+        private Option<SharedTicket> ReasonForSharing(TicketResponse response)
         {
-            return ticket.Tags.Intersect(Tags).Any();
+            return GetSharingTagsInTicket(response.Ticket)
+                .Select(SegmentAfterLastUnderscore)
+                .Select(TryParseReason)
+                .FirstOrDefault();
+
+            string SegmentAfterLastUnderscore(string tag) =>
+                tag.Split('_').LastOrDefault() ?? "";
+
+            Option<SharedTicket> TryParseReason(string reason) =>
+                Enum.TryParse<SharingReason>(reason, true, out var r) 
+                    ? new SharedTicket(r, response)
+                    : default;
         }
+
+        private IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
+            ticket.Tags.Intersect(AllSharingTags);
 
         public async Task<long[]> GetTicketsForSharing()
         {
-            var search = string.Join(" ", Tags.Select(x => $"tags:{x}"));
+            var search = string.Join(" ", AllSharingTags.Select(x => $"tags:{x}"));
             var response = await api.SearchTickets(search);
             return response?.Results?
                 .Where(TicketContainsSharingTag)
@@ -49,17 +57,43 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                 ?? new long[] { };
         }
 
-        public Task MarkSharing(Ticket t)
+        private bool TicketContainsSharingTag(Ticket ticket) =>
+            GetSharingTagsInTicket(ticket).Any();
+
+        public Task MarkSharing(SharedTicket share) 
+            => MarkSharing(share.Response.Ticket, share.Reason);
+        
+        private Task MarkSharing(Ticket t, SharingReason reason)
         {
-            t.Tags.Remove(pendingTag);
-            t.Tags.Add(sendingTag);
+            t.Tags.Remove(MakeTag(SharingState.Pending, reason));
+            t.Tags.Add(MakeTag(SharingState.Sending, reason));
             return api.PutTicket(t);
         }
 
-        public Task MarkShared(Ticket t)
+        public Task MarkShared(SharedTicket share) 
+            => MarkShared(share.Response.Ticket, share.Reason);
+
+        private Task MarkShared(Ticket t, SharingReason reason)
         {
-            t.Tags.Remove(sendingTag);
+            t.Tags.Remove(MakeTag(SharingState.Sending, reason));
             return api.PutTicket(t);
         }
+
+        private enum SharingState
+        {
+            Pending,
+            Sending,
+        }
+
+        private static readonly string[] AllSharingTags = new[]
+        {
+            MakeTag(SharingState.Pending, SharingReason.Solved),
+            MakeTag(SharingState.Sending, SharingReason.Solved),
+            MakeTag(SharingState.Pending, SharingReason.Escalated),
+            MakeTag(SharingState.Sending, SharingReason.Escalated),
+        };
+
+        private static string MakeTag(SharingState state, SharingReason reason) =>
+            $"{state}_middleware_{reason}".ToLower();
     }
 }

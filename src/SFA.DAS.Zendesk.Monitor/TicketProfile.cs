@@ -18,6 +18,7 @@ namespace SFA.DAS.Zendesk.Monitor
                 .ForMember(x => x.Comments, x => x.Ignore())
                 .ForMember(x => x.Requester, x => x.Ignore())
                 .ForMember(x => x.Organization, x => x.Ignore())
+                .ForPath(x => x.Via, x => x.MapFrom(y => TranslateVia(y)))
                 ;
 
             CreateMap<Zendesk.Model.Comment, Middleware.Model.Comments>();
@@ -33,5 +34,17 @@ namespace SFA.DAS.Zendesk.Monitor
 
         private Zendesk.Model.User FindRequester(Zendesk.Model.TicketResponse response)
             => response.Users?.FirstOrDefault(x => x.Id == response.Ticket.RequesterId);
+
+        private string TranslateVia(Zendesk.Model.Ticket y)
+        {
+            return y.Via?.Channel switch
+            {
+                "voice" => $"Phone call ({y.Via?.Source?.Rel})",
+                "email" => "Mail",
+                "chat" => "Chat",
+                "web" => "Web Form",
+                _ => y.Via?.Channel.ToLower(),
+            };
+        }
     }
 }
