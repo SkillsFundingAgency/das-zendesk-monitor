@@ -29,7 +29,8 @@ namespace ZenWatchFunction
             [OrchestrationClient]DurableOrchestrationClient starter,
             ILogger log)
         {
-            var content = await new StreamReader(request.Body).ReadToEndAsync();
+            using var reader = new StreamReader(request.Body);
+            var content = await reader.ReadToEndAsync();
             var ticket = JsonConvert.DeserializeObject<NotifyTicket>(content);
 
             var ids = new[] { ticket.Id };

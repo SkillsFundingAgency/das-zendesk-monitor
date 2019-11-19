@@ -12,7 +12,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         public SharedTicket(SharingReason reason, TicketResponse response)
         {
             if (reason > SharingReason.Escalated)
-                throw new ArgumentOutOfRangeException("Undeclared SharingReason found.");
+                throw new ArgumentOutOfRangeException(nameof(reason), reason, "Undeclared SharingReason found.");
 
             Reason = reason;
             Response = response;
@@ -20,17 +20,12 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public T Switch<T>(Func<bool, T> solved, Func<bool, T> escalated)
         {
-            switch(Reason)
+            return Reason switch
             {
-                case SharingReason.Solved:
-                    return solved(true);
-
-                case SharingReason.Escalated:
-                    return escalated(true);
-
-                default:
-                    throw new InvalidOperationException("Undeclared SharingReason found in Switch");
-            }
+                SharingReason.Solved => solved(true),
+                SharingReason.Escalated => escalated(true),
+                _ => throw new InvalidOperationException("Undeclared SharingReason found in Switch"),
+            };
         }
     }
 }

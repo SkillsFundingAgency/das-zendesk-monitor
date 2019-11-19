@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Linq;
 
 namespace SFA.DAS.Zendesk.Monitor
@@ -36,17 +35,16 @@ namespace SFA.DAS.Zendesk.Monitor
         private Zendesk.Model.User FindRequester(Zendesk.Model.TicketResponse response)
             => response.Users?.FirstOrDefault(x => x.Id == response.Ticket.RequesterId);
 
-        private string TranslateVia(Ticket y)
+        private string TranslateVia(Zendesk.Model.Ticket y)
         {
-            switch (y.Via?.Channel)
+            return y.Via?.Channel switch
             {
-                case "voice": return $"Phone call ({y.Via?.Source?.Rel})";
-                case "email": return "Mail";
-                case "chat": return "Chat";
-                case "web": return "Web Form";
-                
-                default: return y.Via?.Channel.ToLower();
-            }
+                "voice" => $"Phone call ({y.Via?.Source?.Rel})",
+                "email" => "Mail",
+                "chat" => "Chat",
+                "web" => "Web Form",
+                _ => y.Via?.Channel.ToLower(),
+            };
         }
     }
 }
