@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
     public class LoggingHttpClientHandler : DelegatingHandler
     {
         private readonly ILogger<LoggingHttpClientHandler> logger;

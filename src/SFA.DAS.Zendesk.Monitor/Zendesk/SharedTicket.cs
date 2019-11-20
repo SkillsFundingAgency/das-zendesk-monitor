@@ -18,7 +18,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             Response = response;
         }
 
-        public T Switch<T>(Func<bool, T> solved, Func<bool, T> escalated)
+        internal T Switch<T>(Func<bool, T> solved, Func<bool, T> escalated)
         {
             return Reason switch
             {

@@ -44,7 +44,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                     : default;
         }
 
-        private IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
+        private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
             ticket.Tags.Intersect(AllSharingTags);
 
         public async Task<long[]> GetTicketsForSharing()
@@ -54,7 +54,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             return response?.Results?
                 .Where(TicketContainsSharingTag)
                 .Select(x => x.Id).ToArray()
-                ?? new long[] { };
+                ?? Array.Empty<long>();
         }
 
         private bool TicketContainsSharingTag(Ticket ticket) =>

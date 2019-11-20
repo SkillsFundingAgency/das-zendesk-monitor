@@ -9,10 +9,12 @@ using System.Text;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "<Pending>")]
     public class ApiFactory
     {
         private readonly HttpClient httpClient;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
         public ApiFactory(Uri url, string user, string password, ILogger<LoggingHttpClientHandler> logger)
         {
             if (!url.AbsolutePath.Contains("api/v2"))
@@ -30,7 +32,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         public static IApi CreateApi(HttpClient client) => new RestClient(client).CreateApi();
     }
 
-    public static class ApiFactoryExtensions
+    internal static class ApiFactoryExtensions
     {
         public static readonly JsonSerializerSettings serialiser = new JsonSerializerSettings
         {
@@ -38,7 +40,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             NullValueHandling = NullValueHandling.Ignore,
         };
 
-        public static IApi CreateApi(this RestClient client)
+        internal static IApi CreateApi(this RestClient client)
         {
             client.JsonSerializerSettings = serialiser;
             return client.For<IApi>();

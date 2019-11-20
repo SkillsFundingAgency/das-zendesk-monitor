@@ -9,12 +9,14 @@ using System.Net.Http.Headers;
 
 namespace SFA.DAS.Zendesk.Monitor.Middleware
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "<Pending>")]
     public class ApiFactory
     {
         private readonly string subscriptionKey;
         private readonly ILogger<LoggingHttpClientHandler> logger;
         private readonly HttpClient httpClient;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
         public ApiFactory(Uri url, string subscriptionKey, string basicAuth, ILogger<LoggingHttpClientHandler> logger)
         {
             this.subscriptionKey = subscriptionKey;
@@ -36,7 +38,7 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
         }
     }
 
-    public static class ApiFactoryExtensions
+    internal static class ApiFactoryExtensions
     {
         private static readonly JsonSerializerSettings serialiser = new JsonSerializerSettings
         {
@@ -45,7 +47,7 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
             NullValueHandling = NullValueHandling.Ignore,
         };
 
-        public static IApi CreateApi(this RestClient client)
+        internal static IApi CreateApi(this RestClient client)
         {
             client.JsonSerializerSettings = serialiser;
             return client.For<IApi>();
