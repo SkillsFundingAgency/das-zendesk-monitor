@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
@@ -21,6 +22,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             => api.GetTicketWithSideloads(id, RequiredSideloads);
 
         internal static async Task<Comment[]> GetTicketComments(this IApi api, Ticket ticket)
-            => (await api.GetTicketComments(ticket.Id))?.Comments;
+            => (await api.GetTicketComments(ticket.Id))?.Comments ?? Array.Empty<Comment>();
     }
 }

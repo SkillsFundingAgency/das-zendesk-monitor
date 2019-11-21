@@ -17,6 +17,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
         public ApiFactory(Uri url, string user, string password, ILogger<LoggingHttpClientHandler> logger)
         {
+            if (url == null) throw new ArgumentNullException(nameof(url));
+
             if (!url.AbsolutePath.Contains("api/v2"))
                 url = new Uri(url, "api/v2");
 
@@ -32,7 +34,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         public static IApi CreateApi(HttpClient client) => new RestClient(client).CreateApi();
     }
 
-    internal static class ApiFactoryExtensions
+    public static class ApiFactoryExtensions
     {
         public static readonly JsonSerializerSettings serialiser = new JsonSerializerSettings
         {

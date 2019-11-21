@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
+﻿#nullable disable
+
+namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 {
     public partial class From
     {

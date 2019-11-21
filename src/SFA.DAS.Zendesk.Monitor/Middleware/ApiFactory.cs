@@ -38,7 +38,7 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
         }
     }
 
-    internal static class ApiFactoryExtensions
+    public static class ApiFactoryExtensions
     {
         private static readonly JsonSerializerSettings serialiser = new JsonSerializerSettings
         {
@@ -47,7 +47,7 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
             NullValueHandling = NullValueHandling.Ignore,
         };
 
-        internal static IApi CreateApi(this RestClient client)
+        public static IApi CreateApi(this RestClient client)
         {
             client.JsonSerializerSettings = serialiser;
             return client.For<IApi>();
