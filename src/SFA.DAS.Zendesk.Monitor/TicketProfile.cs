@@ -22,6 +22,9 @@ namespace SFA.DAS.Zendesk.Monitor
                 ;
 
             CreateMap<Zendesk.Model.Comment, Middleware.Model.Comments>();
+            CreateMap<Zendesk.Model.Attachment, Middleware.Model.Attachment>()
+                .ForMember(x => x.Url, x => x.MapFrom(y => y.ContentUrl))
+                ;
             CreateMap<Zendesk.Model.Field, Middleware.Model.CustomField>();
             CreateMap<Zendesk.Model.User, Middleware.Model.User>();
             CreateMap<Zendesk.Model.Organization, Middleware.Model.Organisation>();
