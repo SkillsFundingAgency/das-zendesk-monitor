@@ -1,10 +1,8 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using RestEase;
 using SFA.DAS.Zendesk.Monitor.Middleware;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
@@ -29,15 +27,26 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
             await api.EscalateTicket(wrapper);
 
             // Then
-            var request = handler.Requests.Should()
-                .Contain(x => x.RequestUri.ToString().Contains("/ticket/")).Which;
-            var json = await request.Content.ReadAsStringAsync();
-            json.Should().NotBeNullOrWhiteSpace();
+            handler.Requests.Should()
+                .Contain(x => x.RequestUri.ToString().Contains("/ticket/")).Which
+                .Should().HavePayloadValidatedBy(MiddlewareSchema);
+        }
 
-            var valid = JToken.Parse(json)
-                .IsValid(MiddlewareSchema, out IList<string> errors);
-            
-            errors.Should().BeEmpty();
+        [Theory, ClassData(typeof(MiddlewareSchemaTestData))]
+        public async Task ZendeskTicketMappedToEventWrapperPassesValidation(EventWrapper wrapper)
+        {
+            // Given
+            var spy = new HttpMessageHandlerSpy();
+            var api = new RestClient(new HttpClient(spy)).CreateApi();
+
+            // When
+            await api.EscalateTicket(wrapper);
+
+            // Then
+            spy.Requests.Should()
+                .Contain(x => x.RequestUri.ToString().Contains("/ticket/")).Which
+                .Should().HavePayloadValidatedBy(MiddlewareSchema);
+
         }
 
         private JSchema MiddlewareSchema =>
