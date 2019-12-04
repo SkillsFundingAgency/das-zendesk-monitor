@@ -123,7 +123,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                         c.Id,
                         Attachments = c.Attachments.Select(a => new
                         {
-                            a.FileName,
+                            Filename = a.FileName,
                             Url = a.ContentUrl,
                         }),
                     }),

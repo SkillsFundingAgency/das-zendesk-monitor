@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using System.Linq;
 
 namespace SFA.DAS.Zendesk.Monitor
@@ -23,6 +23,7 @@ namespace SFA.DAS.Zendesk.Monitor
 
             CreateMap<Zendesk.Model.Comment, Middleware.Model.Comments>();
             CreateMap<Zendesk.Model.Attachment, Middleware.Model.Attachment>()
+                .ForMember(x => x.Filename, x => x.MapFrom(y => y.FileName))
                 .ForMember(x => x.Url, x => x.MapFrom(y => y.ContentUrl))
                 ;
             CreateMap<Zendesk.Model.Field, Middleware.Model.CustomField>();

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization.ContractResolverExtentions;
 using RestEase;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
@@ -39,6 +40,7 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
     {
         private static readonly JsonSerializerSettings serialiser = new JsonSerializerSettings
         {
+            Converters = new List<JsonConverter> { new Newtonsoft.Json.Converters.StringEnumConverter() },
             ContractResolver = new SnakeCasePropertyNamesContractResolver(),
             NullValueHandling = NullValueHandling.Ignore,
         };
