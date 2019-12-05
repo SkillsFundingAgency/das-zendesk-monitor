@@ -32,6 +32,56 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
                 ticket.Organizations[0].OrganizationFields.AddressLine3 = null;
                 yield return ticket;
             }
+
+            {
+                var ticket = DefaultZendeskTicket();
+                ticket.Users[0].UserFields.AddressLine1 = null;
+                ticket.Users[0].UserFields.AddressLine2 = null;
+                ticket.Users[0].UserFields.AddressLine3 = null;
+                yield return ticket;
+            }
+
+            {
+                var minimalTicket = new TicketResponse
+                {
+                    Ticket = new Ticket
+                    {
+                        RequesterId = 1,
+                        OrganizationId = 1,
+                        Subject = "Ticket ticket ticket",
+                        Description = "...",
+                        Via = new Via
+                        {
+                            Channel = "email",
+                        }
+                    },
+                    Users = new []
+                    {
+                        new User
+                        {
+                            Id = 1,
+                            Name = "me",
+                            UserFields = new UserFields { },
+                        }
+                    },
+                    Organizations = new []
+                    {
+                        new Organization
+                        {
+                            Id = 1,
+                            Name = "BobCo",
+                            OrganizationFields = new OrganizationFields 
+                            {
+                                // TODO - this may be null / empty from Zendesk,
+                                //        but the schema mandates it's one of 
+                                //        its enum values
+                                OrganisationStatus = "active",
+                            },
+                        },
+                    },
+                };
+                yield return minimalTicket;
+            }
         }
 
         private static TicketResponse DefaultZendeskTicket()
@@ -42,8 +92,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
             ticket.Ticket.Via.Channel = "email";
 
             ticket.Ticket.OrganizationId = ticket.Organizations[0].Id;
-            ticket.Organizations[0].OrganizationFields.OrganizationType = "";
-            ticket.Organizations[0].OrganizationFields.OrganizationStatus = "active";
+            ticket.Organizations[0].OrganizationFields.OrganisationType = "";
+            ticket.Organizations[0].OrganizationFields.OrganisationStatus = "active";
 
             ticket.Ticket.RequesterId = ticket.Users[0].Id;
             ticket.Users[0].UserFields.ContactType = "";
