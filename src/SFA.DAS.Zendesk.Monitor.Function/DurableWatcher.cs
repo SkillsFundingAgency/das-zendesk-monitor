@@ -1,12 +1,9 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Threading.Tasks;
 using SFA.DAS.Zendesk.Monitor;
 using System;
-
-[assembly: FunctionsStartup(typeof(ZenWatchFunction.Startup))]
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ZenWatchFunction
 {
