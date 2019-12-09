@@ -1,43 +1,49 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-[assembly: FunctionsStartup(typeof(ZenWatchFunction.Startup))]
-
 namespace ZenWatchFunction
 {
+    internal class NotifyTicket
+    {
+        public long Id { get; set; }
+    }
+
+    internal class NotifyTicketValidator : AbstractValidator<NotifyTicket>
+    {
+        public NotifyTicketValidator()
+        {
+            RuleFor(x => x.Id).NotEmpty();
+        }
+    }
+
     public class WatcherOrchestration
     {
         private static readonly string WatcherInstance = "{8B2772F1-0A07-4D64-BEBE-1402520C0BD0}";
         private static readonly RetryOptions retry = new RetryOptions(TimeSpan.FromSeconds(1), 5);
 
-        private class NotifyTicket
-        {
-            public long Id { get; set; }
-        }
-
         [FunctionName("NotifyTicket")]
         public static async Task<HttpResponseMessage> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")]HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")]HttpRequestMessage request,
             [OrchestrationClient]DurableOrchestrationClient starter,
             ILogger log)
         {
-            using var reader = new StreamReader(request.Body);
-            var content = await reader.ReadToEndAsync();
-            var ticket = JsonConvert.DeserializeObject<NotifyTicket>(content);
+            var input = await request.GetJsonBody<NotifyTicket, NotifyTicketValidator>();
 
-            var ids = new[] { ticket.Id };
-            log.LogDebug("NotifyTicket {id}", ids);
+            return await input.Match(
+                valid => StartNotifyTicket(valid),
+                invalid => Task.FromResult(request.BadRequest(invalid)));
 
-            var instanceId = await starter.StartNewAsync(nameof(ShareListedTickets), ids);
-            return starter.CreateCheckStatusResponse(request, instanceId);
+            async Task<HttpResponseMessage> StartNotifyTicket(NotifyTicket ticket)
+            {
+                var instanceId = await starter.StartNewAsync(nameof(ShareListedTickets), new[] { ticket.Id });
+                return starter.CreateCheckStatusResponse(request, instanceId);
+            }
         }
 
         [FunctionName("BackgroundTaskEntryPoint")]
