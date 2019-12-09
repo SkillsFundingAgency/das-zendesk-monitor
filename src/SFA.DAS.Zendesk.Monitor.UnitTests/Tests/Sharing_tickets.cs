@@ -124,7 +124,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                         Attachments = c.Attachments.Select(a => new
                         {
                             a.FileName,
-                            Url = a.ContentUrl.ToString(),
+                            Url = a.ContentUrl,
                         }),
                     }),
                 }
