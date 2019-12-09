@@ -1,14 +1,10 @@
-using FluentValidation;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ZenWatchFunction
 {
-     public class WatcherOrchestration
+    public class WatcherOrchestration
     {
         private static readonly RetryOptions retry = new RetryOptions(TimeSpan.FromSeconds(1), 5);
 
@@ -16,18 +12,21 @@ namespace ZenWatchFunction
         public static async Task ShareAllTickets([OrchestrationTrigger] DurableOrchestrationContext context)
         {
             var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), null);
-
-            foreach (var ticket in tickets)
-                await context.CallActivityWithRetryAsync(nameof(DurableWatcher.ShareTicket), retry, ticket);
+            await ShareTickets(context, tickets);
         }
 
         [FunctionName(nameof(ShareListedTickets))]
         public static async Task ShareListedTickets([OrchestrationTrigger] DurableOrchestrationContext context)
         {
             var tickets = context.GetInput<long[]>();
+            await ShareTickets(context, tickets);
+        }
 
+        private static async Task ShareTickets(DurableOrchestrationContext context, long[] tickets)
+        {
             foreach (var ticket in tickets)
                 await context.CallActivityWithRetryAsync(nameof(DurableWatcher.ShareTicket), retry, ticket);
         }
     }
 }
+

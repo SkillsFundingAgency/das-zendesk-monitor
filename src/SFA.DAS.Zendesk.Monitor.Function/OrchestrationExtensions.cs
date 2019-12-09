@@ -1,7 +1,7 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
 using Microsoft.Azure.WebJobs;
-
-[assembly: FunctionsStartup(typeof(ZenWatchFunction.Startup))]
+using System.Net.Http;
 
 namespace ZenWatchFunction
 {
@@ -12,5 +12,11 @@ namespace ZenWatchFunction
 
         public static bool OrchestrationIsRunning(this OrchestrationRuntimeStatus status) =>
             status == OrchestrationRuntimeStatus.Running || status == OrchestrationRuntimeStatus.Pending;
+
+        public static HttpResponseMessage CreateCheckStatusResponse(this DurableOrchestrationClient starter, HttpRequest request, string instanceId)
+        {
+            var httpRequestMessage = new HttpRequestMessageFeature(request.HttpContext).HttpRequestMessage;
+            return starter.CreateCheckStatusResponse(httpRequestMessage, instanceId);
+        }
     }
 }
