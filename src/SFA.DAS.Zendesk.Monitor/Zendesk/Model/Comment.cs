@@ -18,7 +18,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 
         public bool? Public { get; set; }
 
-        public object[] Attachments { get; set; }
+        public Attachment[] Attachments { get; set; }
 
         public Via Via { get; set; }
 

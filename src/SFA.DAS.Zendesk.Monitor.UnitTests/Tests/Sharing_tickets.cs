@@ -106,6 +106,34 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
+        public async Task Sends_ticket_to_middleware_with_attachments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket, Comment[] comments)
+        {
+            zendesk.Tickets.Add(ticket);
+            zendesk.AddComments(ticket, comments);
+
+            await sut.ShareTicket(ticket.Id);
+
+            var expected = new
+            {
+                Ticket = new
+                {
+                    Comments = comments.Select(c =>
+                    new
+                    {
+                        c.Id,
+                        Attachments = c.Attachments.Select(a => new
+                        {
+                            a.FileName,
+                            Url = a.ContentUrl,
+                        }),
+                    }),
+                }
+            };
+
+            await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(expected)));
+        }
+
+        [Theory, AutoDataDomain]
         public async Task Sends_ticket_to_middleware_with_requester([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending(As.Solved)] Ticket ticket, User reporter)
         {
             ticket.RequesterId = reporter.Id;
