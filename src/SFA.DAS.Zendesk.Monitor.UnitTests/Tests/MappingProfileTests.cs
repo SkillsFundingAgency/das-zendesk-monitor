@@ -31,6 +31,15 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 new Via
                 {
                     Channel = "voice",
+                    Source = new Source { Rel = "voicemail", },
+                },
+                "Voice Mail"
+            },
+            new object[] 
+            { 
+                new Via
+                {
+                    Channel = "voice",
                     Source = new Source { Rel = "outbound", },
                 },
                 "Phone call (outbound)"
