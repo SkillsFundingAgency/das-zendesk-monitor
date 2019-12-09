@@ -37,12 +37,13 @@ namespace SFA.DAS.Zendesk.Monitor
 
         private string TranslateVia(Zendesk.Model.Ticket y)
         {
-            return y.Via?.Channel switch
+            return (y.Via?.Channel, y.Via?.Source?.Rel) switch
             {
-                "voice" => $"Phone call ({y.Via?.Source?.Rel})",
-                "email" => "Mail",
-                "chat" => "Chat",
-                "web" => "Web Form",
+                ("voice", "voicemail") => $"Voice Mail",
+                ("voice", _) => $"Phone call ({y.Via?.Source?.Rel})",
+                ("email", _) => "Mail",
+                ("chat", _) => "Chat",
+                ("web", _) => "Web Form",
                 _ => y.Via?.Channel.ToLower(),
             };
         }

@@ -6,6 +6,6 @@
 
         public From To { get; set; }
 
-        public object Rel { get; set; }
+        public string Rel { get; set; }
     }
 }
