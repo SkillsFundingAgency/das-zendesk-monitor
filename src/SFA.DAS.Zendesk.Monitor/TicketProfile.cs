@@ -42,7 +42,7 @@ namespace SFA.DAS.Zendesk.Monitor
         {
             return (y.Via?.Channel, y.Via?.Source?.Rel) switch
             {
-                ("voice", "voicemail") => $"Voice Mail",
+                ("voice", "voicemail") => $"Voicemail",
                 ("voice", _) => $"Phone call ({y.Via?.Source?.Rel})",
                 ("email", _) => "Mail",
                 ("chat", _) => "Chat",

@@ -33,7 +33,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     Channel = "voice",
                     Source = new Source { Rel = "voicemail", },
                 },
-                "Voice Mail"
+                "Voicemail"
             },
             new object[] 
             { 
