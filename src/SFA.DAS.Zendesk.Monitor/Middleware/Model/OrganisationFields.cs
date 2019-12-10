@@ -8,8 +8,8 @@
         public string City { get; set; }
         public string County { get; set; }
         public string Postcode { get; set; }
-        public string OrganizationType { get; set; }
+        public string OrganisationType { get; set; }
         public string MainPhone { get; set; }
-        public string OrganizationStatus { get; set; }
+        public string OrganisationStatus { get; set; }
     }
 }
