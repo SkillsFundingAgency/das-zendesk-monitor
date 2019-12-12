@@ -187,12 +187,15 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                         org.Name,
                         OrganizationFields = new
                         {
+                            MainPhone = org.OrganizationFields.MainPhone.ToString(),
                             org.OrganizationFields.AddressLine1,
                             org.OrganizationFields.AddressLine2,
                             org.OrganizationFields.AddressLine3,
                             org.OrganizationFields.City,
                             org.OrganizationFields.County,
                             org.OrganizationFields.Postcode,
+                            org.OrganizationFields.OrganisationStatus,
+                            org.OrganizationFields.OrganisationType,
                         }
                     }
                 }
