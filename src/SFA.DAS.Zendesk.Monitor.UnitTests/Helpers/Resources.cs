@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public class Resources
     {
