@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestData\zendesk.ticket.1017.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoFixture.AutoNSubstitute" Version="4.11.0" />
     <PackageReference Include="AutoFixture.Xunit2" Version="4.11.0" />
     <PackageReference Include="FluentAssertions" Version="5.7.0" />
@@ -25,5 +29,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="TestData\MiddlewareSchema-20191204.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="TestData\zendesk.ticket.1017.json" />
   </ItemGroup>
 </Project>
