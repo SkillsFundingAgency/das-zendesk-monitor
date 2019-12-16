@@ -16,6 +16,9 @@ namespace ZenWatchFunction
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+            var config = builder.Services.BuildServiceProvider()
+                .GetRequiredService<IConfiguration>();
+
             builder.Services.AddTransient<DurableWatcher>();
             builder.Services.AddTransient<Watcher>();
             builder.Services.AddTransient<ZD.SharingTickets>();
@@ -37,6 +40,7 @@ namespace ZenWatchFunction
                 return new MW.ApiFactory(new Uri(config["Middleware:Url"]), config["Middleware:SubscriptionKey"], config["Middleware:ApiBasicAuth"], logger);
             });
             builder.Services.AddTransient(s => s.GetRequiredService<MW.ApiFactory>().Create());
+            builder.Services.AddLogging(config);
         }
     }
 }
