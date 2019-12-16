@@ -1,0 +1,243 @@
+{
+  "properties": {
+    "ticket": {
+      "properties": {
+        "comments": {
+          "items": {
+            "properties": {
+              "attachments": {
+                "items": {
+                  "properties": {
+                    "filename": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "filename",
+                    "url"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "body": {
+                "type": "string"
+              },
+              "id": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "body",
+              "attachments"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "custom_fields": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "organization": {
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "organization_fields": {
+              "properties": {
+                "address_line_1": {
+                  "type": "string"
+                },
+                "address_line_2": {
+                  "type": "string"
+                },
+                "address_line_3": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "county": {
+                  "type": "string"
+                },
+                "main_phone": {
+                  "type": "string"
+                },
+                "organisation_status": {
+                  "enum": [
+                    "active",
+                    "inactive"
+                  ],
+                  "type": "string"
+                },
+                "organisation_type": {
+                  "enum": [
+                    "",
+                    "employer",
+                    "employer_provider",
+                    "epao",
+                    "training_provider",
+                    "stakeholder_/_intermediary"
+                  ],
+                  "type": "string"
+                },
+                "postcode": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "address_line_1",
+                "address_line_2",
+                "address_line_3",
+                "city",
+                "county",
+                "postcode",
+                "organisation_type",
+                "main_phone",
+                "organisation_status"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "organization_fields"
+          ],
+          "type": "object"
+        },
+        "requester": {
+          "properties": {
+            "email": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "user_fields": {
+              "properties": {
+                "address_line_1": {
+                  "type": "string"
+                },
+                "address_line_2": {
+                  "type": "string"
+                },
+                "address_line_3": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "contact_type": {
+                  "enum": [
+                    "",
+                    "citizen",
+                    "employer",
+                    "employer_provider",
+                    "epao",
+                    "stakeholder_/_intermediary",
+                    "training_provider"
+                  ],
+                  "type": "string"
+                },
+                "county": {
+                  "type": "string"
+                },
+                "postcode": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "address_line_1",
+                "address_line_2",
+                "address_line_3",
+                "city",
+                "county",
+                "postcode",
+                "contact_type"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "email",
+            "phone",
+            "user_fields"
+          ],
+          "type": "object"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "via": {
+          "enum": [
+            "Web Form",
+            "Mail",
+            "Phone call (inbound)",
+            "Phone call (outbound)",
+            "Closed Ticket",
+            "Voice Mail",
+            "Web Widget",
+            "Chat"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "organization",
+        "requester",
+        "id",
+        "description",
+        "via",
+        "subject",
+        "comments",
+        "created_at",
+        "custom_fields"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "ticket"
+  ],
+  "type": "object"
+}

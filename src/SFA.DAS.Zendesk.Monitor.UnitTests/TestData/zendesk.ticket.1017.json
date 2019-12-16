@@ -1,0 +1,283 @@
+{
+  "ticket": {
+    "url": "https://esfa1567428279.zendesk.com/api/v2/tickets/1017.json",
+    "id": 1017,
+    "external_id": null,
+    "via": {
+      "channel": "email",
+      "source": {
+        "from": {
+          "address": "shakilmahmood786@yahoo.co.uk",
+          "name": "Shakilmahmood786"
+        },
+        "to": {
+          "name": "Apprenticeship Service Support SANDBOX",
+          "address": "support@esfa1567428279.zendesk.com"
+        },
+        "rel": null
+      }
+    },
+    "created_at": "2019-12-10T15:35:49Z",
+    "updated_at": "2019-12-10T17:03:24Z",
+    "type": "question",
+    "subject": "SQRL TEST - CRM SOLVE Test",
+    "raw_subject": "SQRL TEST - CRM SOLVE Test",
+    "description": "test",
+    "priority": "low",
+    "status": "solved",
+    "recipient": "support@esfa1567428279.zendesk.com",
+    "requester_id": 363003813860,
+    "submitter_id": 363003813860,
+    "assignee_id": 362626196619,
+    "organization_id": 362277482460,
+    "group_id": 360001382300,
+    "collaborator_ids": [
+    ],
+    "follower_ids": [
+    ],
+    "email_cc_ids": [
+    ],
+    "forum_topic_id": null,
+    "problem_id": null,
+    "has_incidents": false,
+    "is_public": true,
+    "due_at": null,
+    "tags": [
+      "hmrc____government_gateway_paye_link",
+      "query"
+    ],
+    "custom_fields": [
+      {
+        "id": 360004146720,
+        "value": null
+      },
+      {
+        "id": 360004171319,
+        "value": null
+      },
+      {
+        "id": 360004171579,
+        "value": "query"
+      },
+      {
+        "id": 360004171339,
+        "value": "hmrc____government_gateway_paye_link"
+      },
+      {
+        "id": 360004897100,
+        "value": "16"
+      },
+      {
+        "id": 360004897120,
+        "value": "5"
+      },
+      {
+        "id": 360004146580,
+        "value": null
+      },
+      {
+        "id": 360004171419,
+        "value": null
+      },
+      {
+        "id": 360004171439,
+        "value": "INC01167381"
+      },
+      {
+        "id": 360004146640,
+        "value": null
+      },
+      {
+        "id": 360004171519,
+        "value": null
+      }
+    ],
+    "satisfaction_rating": {
+      "score": "offered"
+    },
+    "sharing_agreement_ids": [
+    ],
+    "fields": [
+      {
+        "id": 360004146720,
+        "value": null
+      },
+      {
+        "id": 360004171319,
+        "value": null
+      },
+      {
+        "id": 360004171579,
+        "value": "query"
+      },
+      {
+        "id": 360004171339,
+        "value": "hmrc____government_gateway_paye_link"
+      },
+      {
+        "id": 360004897100,
+        "value": "16"
+      },
+      {
+        "id": 360004897120,
+        "value": "5"
+      },
+      {
+        "id": 360004146580,
+        "value": null
+      },
+      {
+        "id": 360004171419,
+        "value": null
+      },
+      {
+        "id": 360004171439,
+        "value": "INC01167381"
+      },
+      {
+        "id": 360004146640,
+        "value": null
+      },
+      {
+        "id": 360004171519,
+        "value": null
+      }
+    ],
+    "followup_ids": [
+    ],
+    "ticket_form_id": 360000322720,
+    "brand_id": 360000656319,
+    "satisfaction_probability": null,
+    "allow_channelback": false,
+    "allow_attachments": true
+  },
+  "users": [
+    {
+      "id": 362626196619,
+      "url": "https://esfa1567428279.zendesk.com/api/v2/users/362626196619.json",
+      "name": "Shakil Mahmood",
+      "email": "shakil.mahmood@digital.education.gov.uk",
+      "created_at": "2019-09-04T19:26:12Z",
+      "updated_at": "2019-12-12T15:11:26Z",
+      "time_zone": "London",
+      "iana_time_zone": "Europe/London",
+      "phone": "01215555555",
+      "shared_phone_number": false,
+      "photo": null,
+      "locale_id": 1176,
+      "locale": "en-gb",
+      "organization_id": 362277482460,
+      "role": "admin",
+      "verified": true,
+      "external_id": null,
+      "tags": [],
+      "alias": "Shak",
+      "active": true,
+      "shared": false,
+      "shared_agent": false,
+      "last_login_at": "2019-12-12T14:05:51Z",
+      "two_factor_auth_enabled": null,
+      "signature": "Kind Regards\n\nShakil",
+      "details": "",
+      "notes": "",
+      "role_type": null,
+      "custom_role_id": null,
+      "moderator": true,
+      "ticket_restriction": null,
+      "only_private_comments": false,
+      "restricted_agent": false,
+      "suspended": false,
+      "chat_only": false,
+      "default_group_id": 360001382300,
+      "report_csv": false,
+      "user_fields": {
+        "address_line_1": "12b Baker Street",
+        "address_line_2": "Somewhere",
+        "address_line_3": "",
+        "city": "Hull",
+        "contact_type": "employer",
+        "postcode": "hu1 1uh"
+      }
+    },
+    {
+      "id": 363003813860,
+      "url": "https://esfa1567428279.zendesk.com/api/v2/users/363003813860.json",
+      "name": "Shakilmahmood786",
+      "email": "shakilmahmood786@yahoo.co.uk",
+      "created_at": "2019-09-26T10:59:35Z",
+      "updated_at": "2019-10-21T15:16:39Z",
+      "time_zone": "London",
+      "iana_time_zone": "Europe/London",
+      "phone": "+447980290005",
+      "shared_phone_number": true,
+      "photo": null,
+      "locale_id": 1176,
+      "locale": "en-gb",
+      "organization_id": 362277482460,
+      "role": "end-user",
+      "verified": false,
+      "external_id": null,
+      "tags": [],
+      "alias": "",
+      "active": true,
+      "shared": false,
+      "shared_agent": false,
+      "last_login_at": null,
+      "two_factor_auth_enabled": false,
+      "signature": null,
+      "details": "",
+      "notes": "",
+      "role_type": null,
+      "custom_role_id": null,
+      "moderator": false,
+      "ticket_restriction": "requested",
+      "only_private_comments": false,
+      "restricted_agent": true,
+      "suspended": false,
+      "chat_only": false,
+      "default_group_id": null,
+      "report_csv": false,
+      "user_fields": {
+        "address_line_1": null,
+        "address_line_2": null,
+        "address_line_3": null,
+        "city": null,
+        "contact_type": "employer",
+        "postcode": null
+      }
+    }
+  ],
+  "organizations": [
+    {
+      "url": "https://esfa1567428279.zendesk.com/api/v2/organizations/362277482460.json",
+      "id": 362277482460,
+      "name": "ShakTestOrg",
+      "shared_tickets": false,
+      "shared_comments": false,
+      "external_id": null,
+      "created_at": "2019-10-07T13:51:06Z",
+      "updated_at": "2019-12-10T16:13:58Z",
+      "domain_names": [
+      ],
+      "details": "",
+      "notes": "",
+      "group_id": null,
+      "tags": [
+      ],
+      "organization_fields": {
+        "account_manager": "Middleware OatAppEnv",
+        "account_manager_e_mail": "MiddlewareOatAppEnv@education.gov.uk",
+        "account_manager_status": null,
+        "address_line_1": "123",
+        "address_line_2": "testing street",
+        "address_line_3": "north london",
+        "city": "harringey",
+        "county": "Armagh",
+        "main_phone": "01234567890",
+        "organisation_status": "active",
+        "organisation_type": "employer",
+        "postcode": "n4 1qx"
+      }
+    }
+  ]
+}

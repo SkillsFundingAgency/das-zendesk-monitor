@@ -32,7 +32,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
     public static class ApiFactoryExtensions
     {
-        private static JsonSerializerSettings serialiser = new JsonSerializerSettings
+        public static readonly JsonSerializerSettings serialiser = new JsonSerializerSettings
         {
             ContractResolver = new SnakeCasePropertyNamesContractResolver(),
             NullValueHandling = NullValueHandling.Ignore,
