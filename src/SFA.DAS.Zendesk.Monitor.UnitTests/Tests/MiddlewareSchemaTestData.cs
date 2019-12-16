@@ -42,6 +42,12 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
             }
 
             {
+                var ticket = DefaultZendeskTicket();
+                ticket.Ticket.CustomFields[0].Value = null;
+                yield return ticket;
+            }
+
+            {
                 var minimalTicket = new TicketResponse
                 {
                     Ticket = new Ticket

@@ -1,4 +1,5 @@
 using AutoMapper;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SFA.DAS.Zendesk.Monitor
@@ -19,7 +20,9 @@ namespace SFA.DAS.Zendesk.Monitor
                 .ForMember(dest => dest.Requester, src => src.Ignore())
                 .ForMember(dest => dest.Organization, src => src.Ignore())
                 .ForPath(dest => dest.Via, src => src.MapFrom(p => TranslateVia(p)))
-                ;
+                .ForMember(dest => dest.CustomFields,
+                    src => src.MapFrom(t => CustomFieldsWithValues(t)));
+            ;
 
             CreateMap<Zendesk.Model.Comment, Middleware.Model.Comments>();
             CreateMap<Zendesk.Model.Attachment, Middleware.Model.Attachment>()
@@ -65,5 +68,8 @@ namespace SFA.DAS.Zendesk.Monitor
                 _ => y.Via?.Channel.ToLower(),
             };
         }
+
+        private static IEnumerable<Zendesk.Model.Field> CustomFieldsWithValues(Zendesk.Model.Ticket t)
+            => t.CustomFields.Where(f => f.Value != null);
     }
 }
