@@ -232,6 +232,66 @@
             "source": { "rel": "sla_target_change" },
             "current_sla_policy": "Tier 1 "
           }
+        },
+        {
+          "id": 495234969860,
+          "type": "AutomaticAnswerSend",
+          "author_id": -1,
+          "body": [
+            {
+              "article": {
+                "article_id": 360009901400,
+                "brand_id": 360000656319,
+                "locale": "en-gb",
+                "score": 0.14184415340423584,
+                "title": "Test 4 Article",
+                "url": "https://esfa1567428279.zendesk.com/api/v2/help_center/en-gb/articles/360009901400-Test-4-Article.json",
+                "html_url": "https://esfa1567428279.zendesk.com/hc/en-gb/articles/360009901400-Test-4-Article",
+                "id": 360009901400
+              },
+              "reviews": {
+                "enduser": null,
+                "agent": []
+              },
+              "viewed": false
+            },
+            {
+              "article": {
+                "article_id": 360009900280,
+                "brand_id": 360000656319,
+                "locale": "en-gb",
+                "score": 0.14327287673950195,
+                "title": "Test 6 Article",
+                "url": "https://esfa1567428279.zendesk.com/api/v2/help_center/en-gb/articles/360009900280-Test-6-Article.json",
+                "html_url": "https://esfa1567428279.zendesk.com/hc/en-gb/articles/360009900280-Test-6-Article",
+                "id": 360009900280
+              },
+              "reviews": {
+                "enduser": null,
+                "agent": []
+              },
+              "viewed": false
+            },
+            {
+              "article": {
+                "article_id": 360009897920,
+                "brand_id": 360000656319,
+                "locale": "en-gb",
+                "score": 0.1507834792137146,
+                "title": "Test 2 Article",
+                "url": "https://esfa1567428279.zendesk.com/api/v2/help_center/en-gb/articles/360009897920-Test-2-Article.json",
+                "html_url": "https://esfa1567428279.zendesk.com/hc/en-gb/articles/360009897920-Test-2-Article",
+                "id": 360009897920
+              },
+              "reviews": {
+                "enduser": null,
+                "agent": []
+              },
+              "viewed": false
+            }
+          ],
+          "public": true,
+          "audit_id": 495234969820
         }
       ],
       "via": {

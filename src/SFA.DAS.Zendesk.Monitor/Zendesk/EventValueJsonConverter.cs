@@ -43,7 +43,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         private string DeserialiseArray(JsonReader reader)
         {
-            var values = JArray.Load(reader).ToObject<IList<string>>();
+            var values = JArray.Load(reader).ToObject<IList<object>>();
             return string.Join(",", values);
         }
 
@@ -54,6 +54,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public override void WriteJson(JsonWriter writer, string value, JsonSerializer serializer)
             => throw new NotImplementedException(
-                @$"Serialisation has not neen implemented for `string` named ""Value""");
+                @$"Serialisation has not been implemented for `string` named ""Value""");
     }
 }

@@ -50,6 +50,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public string Type { get; set; }
         public Via Via { get; set; }
         public long? AuthorId { get; set; }
+        
+        [JsonConverter(typeof(EventValueJsonConverter))]
         public string Body { get; set; }
         public bool? Public { get; set; }
         public long? AuditId { get; set; }

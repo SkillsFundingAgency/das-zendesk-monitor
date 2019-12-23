@@ -33,10 +33,10 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         {
             var comments = await api.GetTicketComments(response.Response.Ticket);
             var audits = await api.GetTicketAudits(response.Response.Ticket);
-            response.Response.Comments = FilterComments(comments, audits);
+            response.Response.Comments = TaggedComments(comments, audits);
         }
 
-        private static Comment[] FilterComments(Comment[] comments, Audit[] audits)
+        private static Comment[] TaggedComments(Comment[] comments, Audit[] audits)
         {
             if (comments == null || audits == null)
                 return Array.Empty<Comment>();
@@ -49,12 +49,13 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                 .Where(e => e.Type == "Comment" && e.Public != true)
                 .Select(e => e.Id);
 
-            return comments
-                .Where(x => privateComments.Contains(x.Id))
-                .ToArray();
+            var taggedComments = comments
+                .Where(x => privateComments.Contains(x.Id));
+
+            return taggedComments.ToArray();
 
             static bool IsEscalationEvent(Event e)
-                => e.Type == "Comment" &&
+                => e.Type == "Change" &&
                    e.Value?.Contains("escalated_tag") == true;
         }
 
