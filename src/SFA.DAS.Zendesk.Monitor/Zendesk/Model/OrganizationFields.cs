@@ -23,7 +23,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 
         public object County { get; set; }
 
-        public long? MainPhone { get; set; }
+        public string MainPhone { get; set; }
 
         public string OrganisationStatus { get; set; }
 

@@ -71,9 +71,28 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     City = "harringey",
                     County = "Armagh",
                     Postcode = "n4 1qx",
-                    MainPhone = 01234567890,
+                    MainPhone = "01234567890",
                     OrganisationStatus = "active",
                     OrganisationType = "employer",
+                },
+            });
+        }
+        
+        [Fact]
+        public void Main_phone_with_alpha_characters()
+        {
+            var a = Resources.LoadAsString(
+                "SFA.DAS.Zendesk.Monitor.UnitTests.TestData.zendesk.ticket.1086.main_phone_with_alpha.json");
+
+            var j = JsonConvert.DeserializeObject<Zendesk.Model.TicketResponse>(
+                a, Zendesk.ApiFactoryExtensions.serialiser);
+
+            j.Organizations.Should().BeEquivalentTo(new
+            {
+                Name = "Org with alphabetic Main Phone field",
+                OrganizationFields = new
+                {
+                    MainPhone = "01234 567 890 and some letters",
                 },
             });
         }

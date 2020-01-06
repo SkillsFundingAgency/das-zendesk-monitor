@@ -1,0 +1,28 @@
+{
+  "ticket": {
+    "url": "https://esfa1567428279.zendesk.com/api/v2/tickets/1086.json",
+    "id": 1086,
+    "via": {
+      "channel": "web"
+    },
+    "created_at": "2020-01-06T10:37:48Z",
+    "updated_at": "2020-01-06T10:39:18Z",
+    "type": "question",
+    "subject": "Ticket for org with alphabetic Main Phone",
+    "description": "This ticket is for a user who belongs to an organistion that has letters and spaces in the Main Phone field.\n\nRef https://skillsfundingagency.atlassian.net/browse/AD-1559",
+    "status": "hold",
+    "organization_id": 364443754640
+  },
+  "organizations": [
+    {
+      "url": "https://esfa1567428279.zendesk.com/api/v2/organizations/364443754640.json",
+      "id": 364443754640,
+      "name": "Org with alphabetic Main Phone field",
+      "organization_fields": {
+        "main_phone": "01234 567 890 and some letters",
+        "organisation_type": "employer",
+        "postcode": "ab1 2cd"
+      }
+    }
+  ]
+}
