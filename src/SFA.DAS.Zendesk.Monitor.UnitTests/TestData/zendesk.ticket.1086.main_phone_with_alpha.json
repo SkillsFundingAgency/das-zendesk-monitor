@@ -13,6 +13,12 @@
     "status": "hold",
     "organization_id": 364443754640
   },
+  "users": [
+    {
+      "id": 6619,
+      "phone": "01234 666 777 and some letters"
+    }
+  ],
   "organizations": [
     {
       "url": "https://esfa1567428279.zendesk.com/api/v2/organizations/364443754640.json",

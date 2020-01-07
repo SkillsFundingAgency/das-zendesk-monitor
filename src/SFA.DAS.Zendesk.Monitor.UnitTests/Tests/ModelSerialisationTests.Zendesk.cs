@@ -87,6 +87,13 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             var j = JsonConvert.DeserializeObject<Zendesk.Model.TicketResponse>(
                 a, Zendesk.ApiFactoryExtensions.serialiser);
 
+            j.Users.Should().BeEquivalentTo(new
+            {
+                Id = 6619,
+                Phone = "01234 666 777 and some letters",
+            });
+
+
             j.Organizations.Should().BeEquivalentTo(new
             {
                 Name = "Org with alphabetic Main Phone field",
