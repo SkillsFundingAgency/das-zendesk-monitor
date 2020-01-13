@@ -47,17 +47,28 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
     public class Event
     {
         public long? Id { get; set; }
-        public TypeEnum? Type { get; set; }
+        public string Type { get; set; }
+        public Via Via { get; set; }
+        public long? AuthorId { get; set; }
         public string Body { get; set; }
         public bool? Public { get; set; }
-        public object[] Attachments { get; set; }
         public long? AuditId { get; set; }
+        public long[] Recipients { get; set; }
+        public string HtmlBody { get; set; }
+        public string PlainBody { get; set; }
+        public object[] Attachments { get; set; }
         public string Value { get; set; }
         public string FieldName { get; set; }
+        public object PreviousScheduleId { get; set; }
+        public string NewScheduleId { get; set; }
         public string PreviousValue { get; set; }
+        public string Resource { get; set; }
+        public string Subject { get; set; }
+        public string MacroTitle { get; set; }
+        public string MacroId { get; set; }
+        public bool? MacroDeleted { get; set; }
     }
     
-    public enum TypeEnum { Change, Comment, Create, External, ScheduleAssignment };
 
     //public class Metadata
     //{

@@ -10,6 +10,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         {
             Organizations = true,
             Users = true,
+            Audits = true,
         };
 
         internal static Task<TicketResponse> PostTicket(this IApi api, Ticket ticket)
@@ -23,5 +24,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         internal static async Task<Comment[]> GetTicketComments(this IApi api, Ticket ticket)
             => (await api.GetTicketComments(ticket.Id))?.Comments ?? Array.Empty<Comment>();
+
+        internal static async Task<Audit[]> GetTicketAudits(this IApi api, Ticket ticket)
+            => (await api.GetTicketAudits(ticket.Id))?.Audits ?? Array.Empty<Audit>();
     }
 }

@@ -15,8 +15,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
         public Audit AsAudit { get; }
 
-        public Event AuditTagEvent => AsAudit.Events[0];
-
+        public Event AuditTagEvent => AsAudit.Events[0]; 
+        
         public new long? Id
         {
             get => base.Id;
@@ -37,7 +37,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         {
             Public = false;
 
-            AuditTagEvent.Type = TypeEnum.Change;
+            AuditTagEvent.Type = "Change";
             AuditTagEvent.FieldName = "tags";
             AuditTagEvent.Value = "ignored_tag, escalated_tag";
             AuditTagEvent.PreviousValue = "ignored_tag";
@@ -51,7 +51,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 Body = base.Body,
                 Public = base.Public,
                 Attachments = base.Attachments,
-                Type = TypeEnum.Comment,
+                Type = "Comment",
             };
 
             var events = audit.Events;

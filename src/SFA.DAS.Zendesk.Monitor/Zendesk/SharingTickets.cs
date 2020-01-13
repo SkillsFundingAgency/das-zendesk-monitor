@@ -32,8 +32,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         private async Task LoadComments(SharedTicket response)
         {
             var comments = await api.GetTicketComments(response.Response.Ticket);
-            response.Response.Comments =
-                FilterComments(comments, response.Response.Audits);
+            var audits = await api.GetTicketAudits(response.Response.Ticket);
+            response.Response.Comments = FilterComments(comments, audits);
         }
 
         private static Comment[] FilterComments(Comment[] comments, Audit[] audits)
@@ -46,7 +46,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
             var privateComments = taggedAudits
                 .SelectMany(a => a.Events)
-                .Where(e => e.Type == TypeEnum.Comment && e.Public != true)
+                .Where(e => e.Type == "Comment" && e.Public != true)
                 .Select(e => e.Id);
 
             return comments
@@ -54,7 +54,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                 .ToArray();
 
             static bool IsEscalationEvent(Event e)
-                => e.Type == TypeEnum.Change &&
+                => e.Type == "Comment" &&
                    e.Value?.Contains("escalated_tag") == true;
         }
 

@@ -40,7 +40,6 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             response.Users = SideLoad(Users, x => x.Id == response.Ticket.RequesterId, include);
             response.Organizations = SideLoad(Organizations, x => x.Id == response.Ticket.OrganizationId, include);
-            response.Audits = TicketAudits(id).ToArray();
 
             return Task.FromResult(response);
         }
@@ -59,6 +58,13 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
+        public Task<AuditResponse> GetTicketAudits(long id)
+        {
+            var audits = TicketAudits(id).ToArray();
+            var response = new AuditResponse { Audits = audits };
+            return Task.FromResult(response);
+        }
+
         public Task<TicketResponse> PostTicket([Body] TicketRequest ticket)
             => Task.FromResult<TicketResponse>(null);
 
@@ -68,20 +74,16 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         internal void AddComments(Ticket ticket, Comment[] comments)
             => TicketComments(ticket.Id).AddRange(comments);
 
+        internal void AddComments(Ticket ticket, AuditedComment[] comments)
+        {
+            TicketComments(ticket.Id).AddRange(comments);
+            TicketAudits(ticket.Id).AddRange(comments.Select(a => a.AsAudit));
+        }
+
         private List<Comment> TicketComments(long id)
             => Comments.GetOrAdd(id, () => new List<Comment>());
-
-        internal void AddAudits(Ticket ticket, IEnumerable<Audit> audits)
-            => TicketAudits(ticket.Id).AddRange(audits);
 
         private List<Audit> TicketAudits(long id)
             => Audits.GetOrAdd(id, () => new List<Audit>());
     }
-
-    /*
-     * Watcher marks ticket as sharing before sending to middleware
-     * Watcher marks ticket as shared after successfully sending to middleware
-     * Watcher leaves ticket as sharing after unsuccessfully sending to middleware
-     *
-     */
 }

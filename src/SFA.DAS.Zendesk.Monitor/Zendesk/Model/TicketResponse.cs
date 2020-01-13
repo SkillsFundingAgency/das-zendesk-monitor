@@ -25,6 +25,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public Comment[] Comments { get; set; }
     }
 
+    public class AuditResponse
+    {
+        public Audit[] Audits { get; set; }
+    }
+
     public class SearchResponse
     {
         public Ticket[] Results { get; set; }

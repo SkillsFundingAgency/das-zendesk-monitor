@@ -69,9 +69,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
                         comment.Share();
 
                         var zendesk = fixture.Create<FakeZendeskApi>();
-                        //zendesk.Tickets.Add(ticket);
                         zendesk.AddComments(ticket, new[] { comment });
-                        zendesk.AddAudits(ticket, new[] { comment.AsAudit });
                     });
 
             public override ICustomization GetCustomization(ParameterInfo parameter)
