@@ -24,6 +24,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
             await sharing.IfSomeAsync(LoadComments);
 
+            sharing = sharing.Filter(t => t.Response.Comments.Any());
+
             return sharing;
         }
 
