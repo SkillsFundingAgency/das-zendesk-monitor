@@ -83,22 +83,61 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         [Theory, AutoDataDomain]
         public async Task Sends_ticket_to_middleware_with_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Solved] Ticket ticket, Comment[] comments)
         {
+            // Given
             zendesk.Tickets.Add(ticket);
             zendesk.AddComments(ticket, comments);
 
+            // When
             await sut.ShareTicket(ticket.Id);
 
+            // Then
             var mwt = new
             {
                 Ticket = new
                 {
-                    Comments = comments.Select(c =>
-                    new
+                    Comments = Array.Empty<Comment>(),
+                }
+            };
+
+            await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Sends_ticket_to_middleware_with_tagged_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Solved] Ticket ticket, Comment[] comments, List<Audit> audits)
+        {
+            // Given
+            var auditEventTag = audits[0].Events[0];
+            auditEventTag.Type = TypeEnum.Change;
+            auditEventTag.FieldName = "tags";
+            auditEventTag.Value = "ignored_tag, escalated_tag";
+            auditEventTag.PreviousValue = "ignored_tag";
+            
+            var auditEventComment = audits[0].Events[1];
+            auditEventComment.Body = "I am a tagged comment";
+            auditEventComment.Public = false;
+            auditEventComment.Attachments = Array.Empty<object>();
+
+            zendesk.Tickets.Add(ticket);
+            zendesk.AddComments(ticket, comments);
+            zendesk.AddAudits(ticket, audits);
+
+            // When
+            await sut.ShareTicket(ticket.Id);
+
+            // Then
+            var mwt = new
+            {
+                Ticket = new
+                {
+                    Comments = new[]
                     {
-                        c.Id,
-                        c.Body,
-                        c.CreatedAt,
-                    }),
+                        new
+                        {
+                            auditEventComment.Id,
+                            auditEventComment.Body,
+                            //c.CreatedAt,
+                        }
+                    },
                 }
             };
 

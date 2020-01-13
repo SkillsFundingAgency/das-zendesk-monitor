@@ -18,6 +18,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
         public Dictionary<long, List<Comment>> Comments { get; } = new Dictionary<long, List<Comment>>();
 
+        public Dictionary<long, List<Audit>> Audits { get; } = new Dictionary<long, List<Audit>>();
+
         public Task<SearchResponse> SearchTickets(string query)
         {
             var response = new SearchResponse { Results = Tickets.ToArray() };
@@ -38,6 +40,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             response.Users = SideLoad(Users, x => x.Id == response.Ticket.RequesterId, include);
             response.Organizations = SideLoad(Organizations, x => x.Id == response.Ticket.OrganizationId, include);
+            response.Audits = TicketAudits(id).ToArray();
 
             return Task.FromResult(response);
         }
@@ -56,16 +59,23 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> PostTicket([Body] TicketRequest ticket) => Task.FromResult<TicketResponse>(null);
+        public Task<TicketResponse> PostTicket([Body] TicketRequest ticket)
+            => Task.FromResult<TicketResponse>(null);
 
-        public Task PutTicket([Path] long id, [Body] TicketRequest ticket) => Task.CompletedTask;
+        public Task PutTicket([Path] long id, [Body] TicketRequest ticket)
+            => Task.CompletedTask;
 
         internal void AddComments(Ticket ticket, Comment[] comments)
-        {
-            TicketComments(ticket.Id).AddRange(comments);
-        }
+            => TicketComments(ticket.Id).AddRange(comments);
 
-        private List<Comment> TicketComments(long id) => Comments.GetOrAdd(id, () => new List<Comment>());
+        private List<Comment> TicketComments(long id)
+            => Comments.GetOrAdd(id, () => new List<Comment>());
+
+        internal void AddAudits(Ticket ticket, IEnumerable<Audit> audits)
+            => TicketAudits(ticket.Id).AddRange(audits);
+
+        private List<Audit> TicketAudits(long id)
+            => Audits.GetOrAdd(id, () => new List<Audit>());
     }
 
     /*

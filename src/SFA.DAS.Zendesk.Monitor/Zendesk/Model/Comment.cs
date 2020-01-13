@@ -4,7 +4,7 @@ using System;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 {
-    public partial class Comment
+    public class Comment
     {
         public long? Id { get; set; }
 
@@ -25,5 +25,56 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public Via Via { get; set; }
 
         public DateTimeOffset? CreatedAt { get; set; }
+    }
+
+    public class Audit
+    {
+        public long Id { get; set; }
+
+        public long TicketId { get; set; }
+
+        public DateTimeOffset CreatedAt { get; set; }
+
+        public long AuthorId { get; set; }
+
+        //public Metadata Metadata { get; set; }
+
+        public Event[] Events { get; set; }
+
+        public Via Via { get; set; }
+    }
+
+    public class Event
+    {
+        public long? Id { get; set; }
+        public TypeEnum? Type { get; set; }
+        public string Body { get; set; }
+        public bool? Public { get; set; }
+        public object[] Attachments { get; set; }
+        public long? AuditId { get; set; }
+        public string Value { get; set; }
+        public string FieldName { get; set; }
+        public string PreviousValue { get; set; }
+    }
+    
+    public enum TypeEnum { Change, Comment, Create, External, ScheduleAssignment };
+
+    //public class Metadata
+    //{
+    //    public SystemClass System { get; set; }
+    //    public Custom Custom { get; set; }
+    //}
+
+    public class Custom
+    {
+    }
+
+    public class SystemClass
+    {
+        public string Client { get; set; }
+        public string IpAddress { get; set; }
+        public string Location { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 }
