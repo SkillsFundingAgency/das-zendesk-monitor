@@ -45,8 +45,7 @@ namespace SFA.DAS.Zendesk.Monitor
 
             CreateMap<Zendesk.Model.Organization, Middleware.Model.Organisation>();
             CreateMap<Zendesk.Model.OrganizationFields, Middleware.Model.OrganizationFields>()
-                .ForMember(dest => dest.MainPhone, src => src.MapFrom(p => p.MainPhone.ToString() ?? ""))
-                .ForAllOtherMembers(src => src.NullSubstitute(""))
+                .ForAllMembers(src => src.NullSubstitute(""))
                 ;
         }
 

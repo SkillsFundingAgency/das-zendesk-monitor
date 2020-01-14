@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="TestData\zendesk.ticket.1017.json" />
+    <None Remove="TestData\zendesk.ticket.1086.main_phone_with_alpha.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +30,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="TestData\MiddlewareSchema-20191204.json" />
+    <EmbeddedResource Include="TestData\zendesk.ticket.1086.main_phone_with_alpha.json" />
   </ItemGroup>
 
   <ItemGroup>
