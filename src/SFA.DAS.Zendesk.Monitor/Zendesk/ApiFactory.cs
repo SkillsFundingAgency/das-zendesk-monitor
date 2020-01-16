@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization.ContractResolverExtentions;
 using RestEase;
 using System;
@@ -9,14 +8,11 @@ using System.Text;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "<Pending>")]
-    public class ApiFactory
+    public static class ApiFactory
     {
-        private readonly HttpClient httpClient;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
-        public ApiFactory(Uri url, string user, string password, ILogger<LoggingHttpClientHandler> logger)
+        public static IApi CreateApi(HttpClient httpClient, Uri url, string user, string password)
         {
+            if (httpClient == null) throw new ArgumentNullException(nameof(httpClient));
             if (url == null) throw new ArgumentNullException(nameof(url));
 
             if (!url.AbsolutePath.Contains("api/v2"))
@@ -24,12 +20,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
             var authentication = Encoding.ASCII.GetBytes($"{user}:{password}");
 
-            httpClient = new HttpClient(new LoggingHttpClientHandler(logger));
             httpClient.BaseAddress = url;
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authentication));
-        }
 
-        public IApi CreateApi() => new RestClient(httpClient).CreateApi();
+            return new RestClient(httpClient).CreateApi();
+        }
 
         public static IApi CreateApi(HttpClient client) => new RestClient(client).CreateApi();
     }

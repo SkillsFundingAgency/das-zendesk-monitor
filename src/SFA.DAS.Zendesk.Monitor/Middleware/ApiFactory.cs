@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization.ContractResolverExtentions;
 using RestEase;
 using System;
@@ -9,30 +8,17 @@ using System.Net.Http.Headers;
 
 namespace SFA.DAS.Zendesk.Monitor.Middleware
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "<Pending>")]
-    public class ApiFactory
+    public static class ApiFactory
     {
-        private readonly string subscriptionKey;
-        private readonly ILogger<LoggingHttpClientHandler> logger;
-        private readonly HttpClient httpClient;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
-        public ApiFactory(Uri url, string subscriptionKey, string basicAuth, ILogger<LoggingHttpClientHandler> logger)
+        public static IApi CreateApi(HttpClient client, Uri url, string subscriptionKey, string basicAuth)
         {
-            this.subscriptionKey = subscriptionKey;
-            this.logger = logger;
+            if (client == null) throw new ArgumentNullException(nameof(client));
+            if (url == null) throw new ArgumentNullException(nameof(url));
 
-            httpClient = new HttpClient(new LoggingHttpClientHandler(logger))
-            {
-                BaseAddress = url
-            };
+            client.BaseAddress = url;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
 
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
-        }
-
-        public IApi Create()
-        {
-            var api = new RestClient(httpClient).CreateApi();
+            var api = new RestClient(client).CreateApi();
             api.SubscriptionKey = subscriptionKey;
             return api;
         }
