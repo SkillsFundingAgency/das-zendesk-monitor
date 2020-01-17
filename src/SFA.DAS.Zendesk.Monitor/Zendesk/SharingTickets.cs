@@ -65,8 +65,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         
         private Task MarkSharing(Ticket t, SharingReason reason)
         {
-            t.Tags.Remove(MakeTag(SharingState.Pending, reason));
-            t.Tags.Add(MakeTag(SharingState.Sending, reason));
+            t.RemoveTag(MakeTag(SharingState.Pending, reason));
+            t.AddTag(MakeTag(SharingState.Sending, reason));
             return api.PutTicket(t);
         }
 
@@ -75,7 +75,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         private Task MarkShared(Ticket t, SharingReason reason)
         {
-            t.Tags.Remove(MakeTag(SharingState.Sending, reason));
+            t.RemoveTag(MakeTag(SharingState.Sending, reason));
             return api.PutTicket(t);
         }
 

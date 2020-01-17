@@ -80,5 +80,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public bool? AllowChannelback { get; set; }
 
         public bool? AllowAttachments { get; set; }
+
+        public void RemoveTag(string tag)
+            => Tags.RemoveAll(x => x == tag);
+
+        public void AddTag(string tag)
+            => Tags.Add(tag);
     }
 }
