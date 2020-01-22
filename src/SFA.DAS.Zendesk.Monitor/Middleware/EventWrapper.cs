@@ -1,4 +1,6 @@
-﻿using SFA.DAS.Zendesk.Monitor.Middleware.Model;
+﻿#nullable disable
+
+using SFA.DAS.Zendesk.Monitor.Middleware.Model;
 
 namespace SFA.DAS.Zendesk.Monitor.Middleware
 {

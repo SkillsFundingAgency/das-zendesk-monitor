@@ -1,3 +1,5 @@
+﻿#nullable disable
+
 using Newtonsoft.Json;
 using System;
 

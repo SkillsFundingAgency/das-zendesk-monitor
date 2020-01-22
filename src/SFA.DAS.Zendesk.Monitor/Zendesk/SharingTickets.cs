@@ -41,10 +41,10 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             Option<SharedTicket> TryParseReason(string reason) =>
                 Enum.TryParse<SharingReason>(reason, true, out var r) 
                     ? new SharedTicket(r, response)
-                    : default;
+                    : Option<SharedTicket>.None;
         }
 
-        private IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
+        private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
             ticket.Tags.Intersect(AllSharingTags);
 
         public async Task<long[]> GetTicketsForSharing()
@@ -54,15 +54,18 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             return response?.Results?
                 .Where(TicketContainsSharingTag)
                 .Select(x => x.Id).ToArray()
-                ?? new long[] { };
+                ?? Array.Empty<long>();
         }
 
         private bool TicketContainsSharingTag(Ticket ticket) =>
             GetSharingTagsInTicket(ticket).Any();
 
-        public Task MarkSharing(SharedTicket share) 
-            => MarkSharing(share.Response.Ticket, share.Reason);
-        
+        public Task MarkSharing(SharedTicket share)
+        {
+            if (share == null) throw new ArgumentNullException(nameof(share));
+            return MarkSharing(share.Response.Ticket, share.Reason);
+        }
+
         private Task MarkSharing(Ticket t, SharingReason reason)
         {
             t.Tags.Remove(MakeTag(SharingState.Pending, reason));
@@ -70,8 +73,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             return api.PutTicket(t);
         }
 
-        public Task MarkShared(SharedTicket share) 
-            => MarkShared(share.Response.Ticket, share.Reason);
+        public Task MarkShared(SharedTicket share)
+        {
+            if (share == null) throw new ArgumentNullException(nameof(share));
+            return MarkShared(share.Response.Ticket, share.Reason);
+        }
 
         private Task MarkShared(Ticket t, SharingReason reason)
         {

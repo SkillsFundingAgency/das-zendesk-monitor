@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.Zendesk.Monitor;
 using System;
 using MW = SFA.DAS.Zendesk.Monitor.Middleware;
@@ -18,34 +17,28 @@ namespace ZenWatchFunction
             var config = builder.Services.BuildServiceProvider()
                 .GetRequiredService<IConfiguration>();
 
+            builder.Services.AddLogging(config);
             builder.Services.AddTransient<DurableWatcher>();
             builder.Services.AddTransient<Watcher>();
             builder.Services.AddTransient<ZD.SharingTickets>();
             builder.Services.AddTransient<ZD.ISharingTickets>(
                 s => s.GetRequiredService<ZD.SharingTickets>());
-            builder.Services.AddSingleton(s =>
-            {
-                var logger = s.GetRequiredService<ILogger<LoggingHttpClientHandler>>();
-                return new ZD.ApiFactory(
-                    new Uri(config["Zendesk:Url"]),
-                    config["Zendesk:ApiUser"],
-                    config["Zendesk:ApiKey"],
-                    logger);
-            });
-            builder.Services.AddTransient(s =>
-                s.GetRequiredService<ZD.ApiFactory>().CreateApi());
-            builder.Services.AddTransient(s =>
-            {
-                var logger = s.GetRequiredService<ILogger<LoggingHttpClientHandler>>();
-                return new MW.ApiFactory(
-                    new Uri(config["Middleware:Url"]),
-                    config["Middleware:SubscriptionKey"],
-                    config["Middleware:ApiBasicAuth"],
-                    logger);
-            });
-            builder.Services.AddTransient(s =>
-                s.GetRequiredService<MW.ApiFactory>().Create());
-            builder.Services.AddLogging(config);
+
+            builder.Services
+                .AddHttpClient<ZD.IApi>()
+                .AddTypedClient(client =>
+                    ZD.ApiFactory.CreateApi(client,
+                        new Uri(config["Zendesk:Url"]),
+                        config["Zendesk:ApiUser"],
+                        config["Zendesk:ApiKey"]));
+
+            builder.Services
+                .AddHttpClient<MW.IApi>()
+                .AddTypedClient(client =>
+                    MW.ApiFactory.CreateApi(client,
+                        new Uri(config["Middleware:Url"]),
+                        config["Middleware:SubscriptionKey"],
+                        config["Middleware:ApiBasicAuth"]));
         }
     }
 }

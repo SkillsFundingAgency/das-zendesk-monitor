@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Zendesk.Monitor.Middleware.Model
+﻿#nullable disable
+
+namespace SFA.DAS.Zendesk.Monitor.Middleware.Model
 {
     public class User
     {

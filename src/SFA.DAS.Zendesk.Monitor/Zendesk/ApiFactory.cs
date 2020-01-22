@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization.ContractResolverExtentions;
 using RestEase;
 using System;
@@ -9,23 +8,23 @@ using System.Text;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
-    public class ApiFactory
+    public static class ApiFactory
     {
-        private readonly HttpClient httpClient;
-
-        public ApiFactory(Uri url, string user, string password, ILogger<LoggingHttpClientHandler> logger)
+        public static IApi CreateApi(HttpClient httpClient, Uri url, string user, string password)
         {
+            if (httpClient == null) throw new ArgumentNullException(nameof(httpClient));
+            if (url == null) throw new ArgumentNullException(nameof(url));
+
             if (!url.AbsolutePath.Contains("api/v2"))
                 url = new Uri(url, "api/v2");
 
             var authentication = Encoding.ASCII.GetBytes($"{user}:{password}");
 
-            httpClient = new HttpClient(new LoggingHttpClientHandler(logger));
             httpClient.BaseAddress = url;
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authentication));
-        }
 
-        public IApi CreateApi() => new RestClient(httpClient).CreateApi();
+            return new RestClient(httpClient).CreateApi();
+        }
 
         public static IApi CreateApi(HttpClient client) => new RestClient(client).CreateApi();
     }
@@ -38,7 +37,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             NullValueHandling = NullValueHandling.Ignore,
         };
 
-        public static IApi CreateApi(this RestClient client)
+        internal static IApi CreateApi(this RestClient client)
         {
             client.JsonSerializerSettings = serialiser;
             return client.For<IApi>();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable disable
+using System;
 
 namespace SFA.DAS.Zendesk.Monitor.Middleware.Model
 {

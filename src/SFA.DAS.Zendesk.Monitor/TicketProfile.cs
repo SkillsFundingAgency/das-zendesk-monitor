@@ -49,10 +49,10 @@ namespace SFA.DAS.Zendesk.Monitor
                 ;
         }
 
-        private Zendesk.Model.Organization FindOrganisation(Zendesk.Model.TicketResponse response)
+        private Zendesk.Model.Organization? FindOrganisation(Zendesk.Model.TicketResponse response)
             => response.Organizations?.FirstOrDefault(x => x.Id == response.Ticket.OrganizationId);
 
-        private Zendesk.Model.User FindRequester(Zendesk.Model.TicketResponse response)
+        private Zendesk.Model.User? FindRequester(Zendesk.Model.TicketResponse response)
             => response.Users?.FirstOrDefault(x => x.Id == response.Ticket.RequesterId);
 
         private string TranslateVia(Zendesk.Model.Ticket y)
@@ -65,7 +65,7 @@ namespace SFA.DAS.Zendesk.Monitor
                 ("chat", _) => "Chat",
                 ("web", _) => "Web Form",
                 _ => y.Via?.Channel.ToLower(),
-            };
+            } ?? "";
         }
 
         private static IEnumerable<Zendesk.Model.Field> CustomFieldsWithValues(Zendesk.Model.Ticket t)

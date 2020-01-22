@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable disable
+
+using System;
 using System.Collections.Generic;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
