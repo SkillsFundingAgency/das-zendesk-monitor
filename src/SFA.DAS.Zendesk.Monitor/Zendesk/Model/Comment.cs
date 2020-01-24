@@ -1,5 +1,5 @@
 ﻿#nullable disable
-
+using Newtonsoft.Json;
 using System;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
@@ -57,10 +57,14 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public string HtmlBody { get; set; }
         public string PlainBody { get; set; }
         public object[] Attachments { get; set; }
+
+        [JsonConverter(typeof(EventValueJsonConverter))]
         public string Value { get; set; }
+        
         public string FieldName { get; set; }
         public object PreviousScheduleId { get; set; }
         public string NewScheduleId { get; set; }
+        [JsonConverter(typeof(EventValueJsonConverter))]
         public string PreviousValue { get; set; }
         public string Resource { get; set; }
         public string Subject { get; set; }
@@ -68,7 +72,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public string MacroId { get; set; }
         public bool? MacroDeleted { get; set; }
     }
-    
+
 
     //public class Metadata
     //{
