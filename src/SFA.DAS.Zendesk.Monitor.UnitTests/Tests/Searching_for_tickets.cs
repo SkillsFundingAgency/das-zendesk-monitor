@@ -89,6 +89,19 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             result.Should().BeEmpty();
         }
 
+        [Fact]
+        public async Task Smoke_test_from_captured_json()
+        {
+            var zendesk = new FakeZendeskApiFromCapturedResources(1071);
+            var middleware = Substitute.For<Middleware.IApi>();
+            var sut = new Watcher(new SharingTickets(zendesk), middleware);
+
+            await sut.ShareTicket(1071);
+
+            await middleware.Received().EscalateTicket(
+                Arg.Is<Middleware.EventWrapper>(e => e.Ticket.Id == 1071));
+        }
+
         public class AutoDomainDataAttribute : AutoDataAttribute
         {
             public AutoDomainDataAttribute()
