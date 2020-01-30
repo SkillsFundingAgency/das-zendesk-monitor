@@ -5,6 +5,9 @@
         "resourceEnvironmentName": {
             "type": "string"
         },
+        "environmentName": {
+            "type": "string"
+        },
         "serviceName": {
             "type": "string"
         },
@@ -155,7 +158,7 @@
                             },
                             {
                                 "name": "EnvironmentName",
-                                "value": "[toUpper(parameters('resourceEnvironmentName'))]"
+                                "value": "[toUpper(parameters('environmentName'))]"
                             },
                             {
                                 "name": "LoggingRedisConnectionString",
