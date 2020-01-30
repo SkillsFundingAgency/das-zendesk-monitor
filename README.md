@@ -25,8 +25,8 @@ Zendesk's behaviour is:
 
 There are some constraints in Zendesk that affect our ability to find webhook failures:
 
-1. Zendesk�s webhook error reporting is limited to the [last 25 failures per hook](https://developer.zendesk.com/rest_api/docs/support/target_failures#list-target-failures), with older failures being discarded
-2. Zendesk�s ticket search API is very limited
+1. Zendesk's webhook error reporting is limited to the [last 25 failures per hook](https://developer.zendesk.com/rest_api/docs/support/target_failures#list-target-failures), with older failures being discarded
+2. Zendesk's ticket search API is very limited
    1. Can only compare dates in inbuilt, not custom, fields
    1. Cannot search for the absence of value (unless it is highly specific)
    1. [Can only return 1,000 results](https://develop.zendesk.com/hc/en-us/articles/360022563994--BREAKING-New-Search-API-Result-Limits)
@@ -70,7 +70,7 @@ There are a couple of caveats:
 
 # Failure and Monitoring
 
-Given the recovery component's raison d'�tre is to recover from failures, it would be right to assume it may encounter failures of its own.
+Given the recovery component's raison d'etre is to recover from failures, it would be right to assume it may encounter failures of its own.
 
 Once determining there are tickets to recover, the watcher will first ascertain if the middleware is available.  After this is assured the watcher will start recovering the messages for the detected tickets.  During this process the middleware may once more become unavailable, at which point the watcher attempts to retry the message, backing off between each attempt.  After a (to-be-determined) total amount of time between retries the component will send an alert.
 
