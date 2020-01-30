@@ -5,6 +5,9 @@
         "resourceEnvironmentName": {
             "type": "string"
         },
+        "environmentName": {
+            "type": "string"
+        },
         "serviceName": {
             "type": "string"
         },
