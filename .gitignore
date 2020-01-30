@@ -347,3 +347,8 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /ZenWatch.Acceptance/appSettings.local.json
+
+# SonarCloud/Qube
+.sonarqube
+.scannerwork
+/SonarQube.Analysis.xml

@@ -1,4 +1,4 @@
-# Get sonarscanner for .NET Core SDK 2.2
+# Get sonarscanner for .NET Core SDK
 FROM openjdk:8u212-jre-alpine3.9 AS ci-build
 
 RUN apk add --no-cache \
@@ -27,15 +27,3 @@ ENV DOTNET_USE_POLLING_FILE_WATCHER=true \
 
 RUN dotnet tool install -g dotnet-sonarscanner
 ENV PATH="${PATH}:/root/.dotnet/tools"
-
-# Get your code repo files including .git
-COPY .git ./.git
-COPY src ./src
-COPY SonarQube.Analysis.xml  /root/.dotnet/tools/.store/dotnet-sonarscanner/4.8.0/dotnet-sonarscanner/4.8.0/tools/netcoreapp3.0/any/SonarQube.Analysis.xml
-
-# Sonarscanner
-RUN dotnet-sonarscanner begin /k:SkillsFundingAgency_das-zendesk-monitor /o:"educationandskillsfundingagency" 
-
-RUN dotnet build src 
-
-RUN dotnet-sonarscanner end
