@@ -1,4 +1,4 @@
- using AutoFixture;
+using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using AutoFixture.Xunit2;
 using FluentAssertions;
@@ -28,9 +28,9 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             ticket.Tags = new List<string> { $"pending_middleware_{state}".ToLower() };
             zendesk.Tickets.Add(ticket);
             middleware.When(x => x.SolveTicket(Arg.Any<Middleware.EventWrapper>()))
-                .Do(x => { throw new Exception("Stop test at Middleware step"); });
+                .Do(_ => throw new Exception("Stop test at Middleware step"));
             middleware.When(x => x.EscalateTicket(Arg.Any<Middleware.EventWrapper>()))
-                .Do(x => { throw new Exception("Stop test at Middleware step"); });
+                .Do(_ => throw new Exception("Stop test at Middleware step"));
 
             try
             {
@@ -233,6 +233,21 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         [Theory, AutoDataDomain]
         public async Task Marks_ticket_as_shared([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending.Solved] Ticket ticket)
         {
+            zendesk.Tickets.Add(ticket);
+
+            await sut.ShareTicket(ticket.Id);
+
+            zendesk.Tickets.First(x => x.Id == ticket.Id)
+                .Tags
+                .Should().NotContain("pending_middleware_solved")
+                .And.NotContain("sending_middleware_solved");
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Marks_ticket_as_shared_with_duplicate_tags([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending(As.Solved)] Ticket ticket)
+        {
+            ticket.Tags.Add("sending_middleware_solved");
+            ticket.Tags.Add("pending_middleware_solved");
             zendesk.Tickets.Add(ticket);
 
             await sut.ShareTicket(ticket.Id);
