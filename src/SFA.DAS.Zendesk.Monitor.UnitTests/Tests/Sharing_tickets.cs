@@ -244,7 +244,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Marks_ticket_as_shared_with_duplicate_tags([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending(As.Solved)] Ticket ticket)
+        public async Task Marks_ticket_as_shared_with_duplicate_tags([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending.Solved] Ticket ticket)
         {
             ticket.Tags.Add("sending_middleware_solved");
             ticket.Tags.Add("pending_middleware_solved");
