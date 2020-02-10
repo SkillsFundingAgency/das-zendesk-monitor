@@ -354,6 +354,12 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await middleware.DidNotReceive().SolveTicket(Arg.Any<Middleware.EventWrapper>());
         }
 
+        [Theory, AutoDataDomain]
+        public async Task Github_protection_stops_merging_conflicting_prs([Frozen] Zendesk.IApi zendesk, Ticket ticket)
+        {
+            await zendesk.PutTicket(ticket.Id, new TicketRequest { });
+        }
+
         private class AutoDataDomainAttribute : AutoDataAttribute
         {
             public AutoDataDomainAttribute() : base(() => Customise())
