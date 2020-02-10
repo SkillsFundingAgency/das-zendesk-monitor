@@ -25,6 +25,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         [Get("/tickets/{id}/comments.json")]
         Task<CommentResponse> GetTicketComments([Path] long id);
+        
+        [Get("/tickets/{id}/audits.json")]
+        Task<AuditResponse> GetTicketAudits([Path] long id);
     }
 
     public class SideLoads
@@ -32,6 +35,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         public bool Users { get; set; }
 
         public bool Organizations { get; set; }
+        
+        public bool Audits { get; set; }
 
         public override string ToString() => string.Join(",", Include());
 
@@ -39,6 +44,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         {
             if (Users) yield return "users";
             if (Organizations) yield return "organizations";
+            if (Audits) yield return "audits";
         }
     }
 }

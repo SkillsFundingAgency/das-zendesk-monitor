@@ -18,6 +18,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
         public Dictionary<long, List<Comment>> Comments { get; } = new Dictionary<long, List<Comment>>();
 
+        public Dictionary<long, List<Audit>> Audits { get; } = new Dictionary<long, List<Audit>>();
+
         public Task<SearchResponse> SearchTickets(string query)
         {
             var response = new SearchResponse { Results = Tickets.ToArray() };
@@ -56,22 +58,32 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
-        public Task<TicketResponse> PostTicket([Body] TicketRequest ticket) => Task.FromResult<TicketResponse>(null);
-
-        public Task PutTicket([Path] long id, [Body] TicketRequest ticket) => Task.CompletedTask;
-
-        internal void AddComments(Ticket ticket, Comment[] comments)
+        public Task<AuditResponse> GetTicketAudits(long id)
         {
-            TicketComments(ticket.Id).AddRange(comments);
+            var audits = TicketAudits(id).ToArray();
+            var response = new AuditResponse { Audits = audits };
+            return Task.FromResult(response);
         }
 
-        private List<Comment> TicketComments(long id) => Comments.GetOrAdd(id, () => new List<Comment>());
-    }
+        public Task<TicketResponse> PostTicket([Body] TicketRequest ticket)
+            => Task.FromResult<TicketResponse>(null);
 
-    /*
-     * Watcher marks ticket as sharing before sending to middleware
-     * Watcher marks ticket as shared after successfully sending to middleware
-     * Watcher leaves ticket as sharing after unsuccessfully sending to middleware
-     *
-     */
+        public Task PutTicket([Path] long id, [Body] TicketRequest ticket)
+            => Task.CompletedTask;
+
+        internal void AddComments(Ticket ticket, Comment[] comments)
+            => TicketComments(ticket.Id).AddRange(comments);
+
+        internal void AddComments(Ticket ticket, AuditedComment[] comments)
+        {
+            TicketComments(ticket.Id).AddRange(comments);
+            TicketAudits(ticket.Id).AddRange(comments.Select(a => a.AsAudit));
+        }
+
+        private List<Comment> TicketComments(long id)
+            => Comments.GetOrAdd(id, () => new List<Comment>());
+
+        private List<Audit> TicketAudits(long id)
+            => Audits.GetOrAdd(id, () => new List<Audit>());
+    }
 }

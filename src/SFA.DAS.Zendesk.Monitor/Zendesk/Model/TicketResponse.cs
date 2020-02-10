@@ -11,6 +11,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public User[] Users { get; set; }
 
         public Organization[] Organizations { get; set; }
+        
+        public Audit[] Audits { get; set; }
     }
 
     public class TicketRequest
@@ -21,6 +23,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
     public class CommentResponse
     {
         public Comment[] Comments { get; set; }
+    }
+
+    public class AuditResponse
+    {
+        public Audit[] Audits { get; set; }
     }
 
     public class SearchResponse

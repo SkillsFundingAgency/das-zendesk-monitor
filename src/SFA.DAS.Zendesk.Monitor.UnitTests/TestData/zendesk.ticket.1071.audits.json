@@ -1,0 +1,788 @@
+{
+  "audits": [
+    {
+      "id": 492645345579,
+      "ticket_id": 1071,
+      "created_at": "2019-12-17T16:11:04Z",
+      "author_id": 362626195219,
+      "metadata": {
+        "system": {
+          "client": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0",
+          "ip_address": "217.33.132.234",
+          "location": "Coventry, ENG, United Kingdom",
+          "latitude": 52.4064,
+          "longitude": -1.5082
+        },
+        "custom": {}
+      },
+      "events": [
+        {
+          "id": 492590074360,
+          "type": "AnswerBotNotification",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "to": {},
+              "from": {
+                "deleted": false,
+                "title": "Notify requester of ticket creation",
+                "id": 360017669959
+              },
+              "rel": "trigger"
+            }
+          },
+          "author_id": 362626195219,
+          "body": "{% for comment in ticket.comments %}\n    {{ comment.value_rich }}\n    {% if comment.attachments.size > 0 %}\n        <br>Attachments:<br>\n        {% for attachment in comment.attachments %}\n            <a href=\"{{ attachment.url }}\" title=\"{{ attachment.filename }}\">{{ attachment.filename }}</a><br>\n        {% endfor %}\n    {% endif %}\n{% endfor %}\n\n{{dc.system-liquid_logic_email_-_icard}}\n\n\n{% if answer_bot.article_count > 0 %}\nHere are some great articles that may help:\n{{answer_bot.article_list}}\n{{answer_bot.first_article_body}}\n{% endif %}\n",
+          "public": false,
+          "audit_id": 492645345579,
+          "recipients": [ 362934578719 ]
+        },
+        {
+          "id": 492645345759,
+          "type": "Comment",
+          "author_id": 362626195219,
+          "body": "But this one is public!\n\nIf you need help with anything else, you can:\n\n• search for help in the apprenticeship service at any time (https://help.apprenticeships.education.gov.uk/hc/en-gb)\n • call us on 0800 0150 600 (option 1 then option 2)\n • email us on helpdesk@manage-apprenticeships.service.gov.uk\n\nWe are open from 8am to 8pm, Monday to Friday.\n\nKind regards,\n\nBen Arnold\n\nApprenticeship service support\n\nHelp us to improve our service. Take our quick survey:\n\nhttps://www.surveymonkey.co.uk/r/AppServiceSupport\n\nTo find out how our data is processed and your rights, view the ESFA privacy policy (https://www.gov.uk/government/publications/esfa-privacy-notice).",
+          "html_body": "<div class=\"zd-comment\" dir=\"auto\">But this one is public!<br>\n\n<span class=\"collapse-signature\"></span><div class=\"signature\"><p dir=\"auto\">If you need help with anything else, you can:</p>\n<p dir=\"auto\">• search for help in the apprenticeship service at any time (<a href=\"https://help.apprenticeships.education.gov.uk/hc/en-gb\" rel=\"noreferrer\">https://help.apprenticeships.education.gov.uk/hc/en-gb</a>)<br>\n • call us on 0800 0150 600 (option 1 then option 2)<br>\n • email us on <a href=\"mailto:helpdesk@manage-apprenticeships.service.gov.uk\" rel=\"noreferrer\">helpdesk@manage-apprenticeships.service.gov.uk</a></p>\n<p dir=\"auto\">We are open from 8am to 8pm, Monday to Friday.</p>\n<p dir=\"auto\">Kind regards,</p>\n<p dir=\"auto\">Ben Arnold</p>\n<p dir=\"auto\">Apprenticeship service support</p>\n<p dir=\"auto\">Help us to improve our service. Take our quick survey:</p>\n<p dir=\"auto\"><a href=\"https://www.surveymonkey.co.uk/r/AppServiceSupport\" rel=\"noreferrer\">https://www.surveymonkey.co.uk/r/AppServiceSupport</a></p>\n<p dir=\"auto\">To find out how our data is processed and your rights, view the ESFA privacy policy (<a href=\"https://www.gov.uk/government/publications/esfa-privacy-notice\" rel=\"noreferrer\">https://www.gov.uk/government/publications/esfa-privacy-notice</a>).</p></div></div>",
+          "plain_body": "But this one is public!\n\n\n  If you need help with anything else, you can: \n • search for help in the apprenticeship service at any time (https://help.apprenticeships.education.gov.uk/hc/en-gb)\n\n • call us on 0800 0150 600 (option 1 then option 2)\n\n • email us on helpdesk@manage-apprenticeships.service.gov.uk \n We are open from 8am to 8pm, Monday to Friday. \n Kind regards, \n Ben Arnold \n Apprenticeship service support \n Help us to improve our service. Take our quick survey: \n https://www.surveymonkey.co.uk/r/AppServiceSupport \n To find out how our data is processed and your rights, view the ESFA privacy policy (https://www.gov.uk/government/publications/esfa-privacy-notice).",
+          "public": true,
+          "attachments": [],
+          "audit_id": 492645345579
+        },
+        {
+          "id": 492645346699,
+          "type": "Create",
+          "value": "Test private comments only",
+          "field_name": "subject"
+        },
+        {
+          "id": 492645346839,
+          "type": "Create",
+          "value": "362934578719",
+          "field_name": "requester_id"
+        },
+        {
+          "id": 492645346939,
+          "type": "Create",
+          "value": "362626195219",
+          "field_name": "assignee_id"
+        },
+        {
+          "id": 492645347079,
+          "type": "Create",
+          "value": "360001378759",
+          "field_name": "group_id"
+        },
+        {
+          "id": 492645347159,
+          "type": "Create",
+          "value": "362012707400",
+          "field_name": "organization_id"
+        },
+        {
+          "id": 492645347259,
+          "type": "Create",
+          "value": "360000322720",
+          "field_name": "ticket_form_id"
+        },
+        {
+          "id": 492645347319,
+          "type": "Create",
+          "value": "360000656319",
+          "field_name": "brand_id"
+        },
+        {
+          "id": 492645347419,
+          "type": "Create",
+          "value": "hold",
+          "field_name": "status"
+        },
+        {
+          "id": 492645347559,
+          "type": "Create",
+          "value": [ "data_lock____data_lock_multiple", "query" ],
+          "field_name": "tags"
+        },
+        {
+          "id": 492645347619,
+          "type": "Create",
+          "value": "query",
+          "field_name": "360004171579"
+        },
+        {
+          "id": 492645347759,
+          "type": "Create",
+          "value": "data_lock____data_lock_multiple",
+          "field_name": "360004171339"
+        },
+        {
+          "id": 492645347799,
+          "type": "Create",
+          "value": "33",
+          "field_name": "360004897100"
+        },
+        {
+          "id": 492645347899,
+          "type": "Create",
+          "value": "33",
+          "field_name": "360004897120"
+        },
+        {
+          "id": 492645347999,
+          "type": "Create",
+          "value": null,
+          "field_name": "priority"
+        },
+        {
+          "id": 492645348079,
+          "type": "Create",
+          "value": null,
+          "field_name": "type"
+        },
+        {
+          "id": 492645348159,
+          "type": "ScheduleAssignment",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Set priority, group, type, schedule",
+                "id": 360016345040,
+                "revision_id": 4
+              },
+              "rel": "trigger"
+            }
+          },
+          "previous_schedule_id": null,
+          "new_schedule_id": "360000032459"
+        },
+        {
+          "id": 492645348239,
+          "type": "Change",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Set priority, group, type, schedule",
+                "id": 360016345040,
+                "revision_id": 4
+              },
+              "rel": "trigger"
+            }
+          },
+          "value": "low",
+          "field_name": "priority",
+          "previous_value": null
+        },
+        {
+          "id": 492645348259,
+          "type": "Change",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Set priority, group, type, schedule",
+                "id": 360016345040,
+                "revision_id": 4
+              },
+              "rel": "trigger"
+            }
+          },
+          "value": "360001382300",
+          "field_name": "group_id",
+          "previous_value": "360001378759"
+        },
+        {
+          "id": 492645348339,
+          "type": "Change",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Set priority, group, type, schedule",
+                "id": 360016345040,
+                "revision_id": 4
+              },
+              "rel": "trigger"
+            }
+          },
+          "value": "question",
+          "field_name": "type",
+          "previous_value": null
+        },
+        {
+          "id": 492645348439,
+          "type": "Create",
+          "value": "Tier 1 ",
+          "field_name": "sla_policy"
+        },
+        {
+          "id": 492645355019,
+          "type": "Change",
+          "previous_value": null,
+          "value": {
+            "minutes": 3600,
+            "in_business_hours": true
+          },
+          "field_name": "requester_wait_time",
+          "via": {
+            "source": { "rel": "sla_target_change" },
+            "current_sla_policy": "Tier 1 "
+          }
+        },
+        {
+          "id": 495234969860,
+          "type": "AutomaticAnswerSend",
+          "author_id": -1,
+          "body": [
+            {
+              "article": {
+                "article_id": 360009901400,
+                "brand_id": 360000656319,
+                "locale": "en-gb",
+                "score": 0.14184415340423584,
+                "title": "Test 4 Article",
+                "url": "https://esfa1567428279.zendesk.com/api/v2/help_center/en-gb/articles/360009901400-Test-4-Article.json",
+                "html_url": "https://esfa1567428279.zendesk.com/hc/en-gb/articles/360009901400-Test-4-Article",
+                "id": 360009901400
+              },
+              "reviews": {
+                "enduser": null,
+                "agent": []
+              },
+              "viewed": false
+            },
+            {
+              "article": {
+                "article_id": 360009900280,
+                "brand_id": 360000656319,
+                "locale": "en-gb",
+                "score": 0.14327287673950195,
+                "title": "Test 6 Article",
+                "url": "https://esfa1567428279.zendesk.com/api/v2/help_center/en-gb/articles/360009900280-Test-6-Article.json",
+                "html_url": "https://esfa1567428279.zendesk.com/hc/en-gb/articles/360009900280-Test-6-Article",
+                "id": 360009900280
+              },
+              "reviews": {
+                "enduser": null,
+                "agent": []
+              },
+              "viewed": false
+            },
+            {
+              "article": {
+                "article_id": 360009897920,
+                "brand_id": 360000656319,
+                "locale": "en-gb",
+                "score": 0.1507834792137146,
+                "title": "Test 2 Article",
+                "url": "https://esfa1567428279.zendesk.com/api/v2/help_center/en-gb/articles/360009897920-Test-2-Article.json",
+                "html_url": "https://esfa1567428279.zendesk.com/hc/en-gb/articles/360009897920-Test-2-Article",
+                "id": 360009897920
+              },
+              "reviews": {
+                "enduser": null,
+                "agent": []
+              },
+              "viewed": false
+            }
+          ],
+          "public": true,
+          "audit_id": 495234969820
+        }
+      ],
+      "via": {
+        "channel": "web",
+        "source": {
+          "from": {},
+          "to": {},
+          "rel": null
+        }
+      }
+    },
+    {
+      "id": 492590328980,
+      "ticket_id": 1071,
+      "created_at": "2019-12-17T16:11:25Z",
+      "author_id": 362626195219,
+      "metadata": {
+        "system": {
+          "client": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0",
+          "ip_address": "217.33.132.234",
+          "location": "Coventry, ENG, United Kingdom",
+          "latitude": 52.4064,
+          "longitude": -1.5082
+        },
+        "custom": {}
+      },
+      "events": [
+        {
+          "id": 492590329080,
+          "type": "Comment",
+          "author_id": 362626195219,
+          "body": "And this one is private",
+          "html_body": "<div class=\"zd-comment\" dir=\"auto\">And this one is private<br></div>",
+          "plain_body": "And this one is private",
+          "public": false,
+          "attachments": [],
+          "audit_id": 492590328980
+        },
+        {
+          "id": 492590329340,
+          "type": "Change",
+          "value": "51",
+          "field_name": "360004897100",
+          "previous_value": "33"
+        },
+        {
+          "id": 492590329420,
+          "type": "Change",
+          "value": "18",
+          "field_name": "360004897120",
+          "previous_value": "33"
+        }
+      ],
+      "via": {
+        "channel": "web",
+        "source": {
+          "from": {},
+          "to": {},
+          "rel": null
+        }
+      }
+    },
+    {
+      "id": 492590626460,
+      "ticket_id": 1071,
+      "created_at": "2019-12-17T16:11:47Z",
+      "author_id": 362626195219,
+      "metadata": {
+        "system": {
+          "client": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0",
+          "ip_address": "217.33.132.234",
+          "location": "Coventry, ENG, United Kingdom",
+          "latitude": 52.4064,
+          "longitude": -1.5082
+        },
+        "custom": {},
+        "notifications_suppressed_for": [ 362934578719 ]
+      },
+      "events": [
+        {
+          "id": 492590626600,
+          "type": "Comment",
+          "author_id": 362626195219,
+          "body": "Adding the escalated tag to a public comment\n\n\nIf you need help with anything else, you can:\n\n• search for help in the apprenticeship service at any time (https://help.apprenticeships.education.gov.uk/hc/en-gb)\n • call us on 0800 0150 600 (option 1 then option 2)\n • email us on helpdesk@manage-apprenticeships.service.gov.uk\n\nWe are open from 8am to 8pm, Monday to Friday.\n\nKind regards,\n\nBen Arnold\n\nApprenticeship service support\n\nHelp us to improve our service. Take our quick survey:\n\nhttps://www.surveymonkey.co.uk/r/AppServiceSupport\n\nTo find out how our data is processed and your rights, view the ESFA privacy policy (https://www.gov.uk/government/publications/esfa-privacy-notice).",
+          "html_body": "<div class=\"zd-comment\" dir=\"auto\">Adding the escalated tag to a public comment<br><br>\n\n<span class=\"collapse-signature\"></span><div class=\"signature\"><p dir=\"auto\">If you need help with anything else, you can:</p>\n<p dir=\"auto\">• search for help in the apprenticeship service at any time (<a href=\"https://help.apprenticeships.education.gov.uk/hc/en-gb\" rel=\"noreferrer\">https://help.apprenticeships.education.gov.uk/hc/en-gb</a>)<br>\n • call us on 0800 0150 600 (option 1 then option 2)<br>\n • email us on <a href=\"mailto:helpdesk@manage-apprenticeships.service.gov.uk\" rel=\"noreferrer\">helpdesk@manage-apprenticeships.service.gov.uk</a></p>\n<p dir=\"auto\">We are open from 8am to 8pm, Monday to Friday.</p>\n<p dir=\"auto\">Kind regards,</p>\n<p dir=\"auto\">Ben Arnold</p>\n<p dir=\"auto\">Apprenticeship service support</p>\n<p dir=\"auto\">Help us to improve our service. Take our quick survey:</p>\n<p dir=\"auto\"><a href=\"https://www.surveymonkey.co.uk/r/AppServiceSupport\" rel=\"noreferrer\">https://www.surveymonkey.co.uk/r/AppServiceSupport</a></p>\n<p dir=\"auto\">To find out how our data is processed and your rights, view the ESFA privacy policy (<a href=\"https://www.gov.uk/government/publications/esfa-privacy-notice\" rel=\"noreferrer\">https://www.gov.uk/government/publications/esfa-privacy-notice</a>).</p></div></div>",
+          "plain_body": "Adding the escalated tag to a public comment\n\n\n\n  If you need help with anything else, you can: \n • search for help in the apprenticeship service at any time (https://help.apprenticeships.education.gov.uk/hc/en-gb)\n\n • call us on 0800 0150 600 (option 1 then option 2)\n\n • email us on helpdesk@manage-apprenticeships.service.gov.uk \n We are open from 8am to 8pm, Monday to Friday. \n Kind regards, \n Ben Arnold \n Apprenticeship service support \n Help us to improve our service. Take our quick survey: \n https://www.surveymonkey.co.uk/r/AppServiceSupport \n To find out how our data is processed and your rights, view the ESFA privacy policy (https://www.gov.uk/government/publications/esfa-privacy-notice).",
+          "public": true,
+          "attachments": [],
+          "audit_id": 492590626460
+        },
+        {
+          "id": 492590626980,
+          "type": "Change",
+          "value": [ "data_lock____data_lock_multiple", "escalated", "query" ],
+          "field_name": "tags",
+          "previous_value": [ "data_lock____data_lock_multiple", "query" ]
+        },
+        {
+          "id": 492590627020,
+          "type": "Change",
+          "value": "360000322820",
+          "field_name": "ticket_form_id",
+          "previous_value": "360000322720"
+        },
+        {
+          "id": 492590627040,
+          "type": "Change",
+          "value": "73",
+          "field_name": "360004897100",
+          "previous_value": "51"
+        },
+        {
+          "id": 492590627100,
+          "type": "Change",
+          "value": "22",
+          "field_name": "360004897120",
+          "previous_value": "18"
+        },
+        {
+          "id": 492590627140,
+          "type": "External",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated Tickets notifies Zendesk Monitor",
+                "id": 360021028340,
+                "revision_id": 11
+              },
+              "rel": "trigger"
+            }
+          },
+          "resource": "360000227819",
+          "body": "{\"id\": \"{{ticket.id}}\"}"
+        },
+        {
+          "id": 492590627160,
+          "type": "Change",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated Tickets notifies Zendesk Monitor",
+                "id": 360021028340,
+                "revision_id": 11
+              },
+              "rel": "trigger"
+            }
+          },
+          "value": [ "data_lock____data_lock_multiple", "escalated", "pending_middleware_escalated", "query" ],
+          "field_name": "tags",
+          "previous_value": [ "data_lock____data_lock_multiple", "escalated", "query" ]
+        },
+        {
+          "id": 492590627220,
+          "type": "Notification",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated with no Service Offering",
+                "id": 360016345200,
+                "revision_id": 1
+              },
+              "rel": "trigger"
+            }
+          },
+          "subject": "You have escalated a ticket without selecting a Service Offering",
+          "body": "Hi,\n\nYou have escalated a ticket to Tier Three Resolver Groups and you did not select a Service Offering.\n\nPlease select a Service Offering and resubmit the ticket\n{{ticket.url}}\n\nMany thanks\n\nApprenticeship Service Administrator ",
+          "recipients": [ 362626195219 ]
+        },
+        {
+          "id": 492590627380,
+          "type": "Change",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated with no Service Offering",
+                "id": 360016345200,
+                "revision_id": 1
+              },
+              "rel": "trigger"
+            }
+          },
+          "value": [ "data_lock____data_lock_multiple", "escalated", "noserviceoffering", "pending_middleware_escalated", "query" ],
+          "field_name": "tags",
+          "previous_value": [ "data_lock____data_lock_multiple", "escalated", "pending_middleware_escalated", "query" ]
+        },
+        {
+          "id": 492590627540,
+          "type": "AgentMacroReference",
+          "via": {
+            "channel": "web",
+            "source": {
+              "from": {},
+              "to": {},
+              "rel": null
+            }
+          },
+          "macro_title": "Escalation::Escalate to Tier 3",
+          "macro_id": "360016445439",
+          "macro_deleted": false
+        }
+      ],
+      "via": {
+        "channel": "web",
+        "source": {
+          "from": {},
+          "to": {},
+          "rel": null
+        }
+      }
+    },
+    {
+      "id": 492591250640,
+      "ticket_id": 1071,
+      "created_at": "2019-12-17T16:12:38Z",
+      "author_id": 362626195219,
+      "metadata": {
+        "system": {
+          "client": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0",
+          "ip_address": "217.33.132.234",
+          "location": "Coventry, ENG, United Kingdom",
+          "latitude": 52.4064,
+          "longitude": -1.5082
+        },
+        "custom": {}
+      },
+      "events": [
+        {
+          "id": 492591250740,
+          "type": "Comment",
+          "author_id": 362626195219,
+          "body": "Escalating a private comment",
+          "html_body": "<div class=\"zd-comment\" dir=\"auto\">Escalating a private comment<br></div>",
+          "plain_body": "Escalating a private comment",
+          "public": false,
+          "attachments": [],
+          "audit_id": 492591250640
+        },
+        {
+          "id": 492591251040,
+          "type": "Change",
+          "value": "113",
+          "field_name": "360004897100",
+          "previous_value": "73"
+        },
+        {
+          "id": 492591251120,
+          "type": "Change",
+          "value": "40",
+          "field_name": "360004897120",
+          "previous_value": "22"
+        },
+        {
+          "id": 492591251200,
+          "type": "External",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated Tickets notifies Zendesk Monitor",
+                "id": 360021028340,
+                "revision_id": 11
+              },
+              "rel": "trigger"
+            }
+          },
+          "resource": "360000227819",
+          "body": "{\"id\": \"{{ticket.id}}\"}"
+        },
+        {
+          "id": 492591251300,
+          "type": "Notification",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated with no Service Offering",
+                "id": 360016345200,
+                "revision_id": 1
+              },
+              "rel": "trigger"
+            }
+          },
+          "subject": "You have escalated a ticket without selecting a Service Offering",
+          "body": "Hi,\n\nYou have escalated a ticket to Tier Three Resolver Groups and you did not select a Service Offering.\n\nPlease select a Service Offering and resubmit the ticket\n{{ticket.url}}\n\nMany thanks\n\nApprenticeship Service Administrator ",
+          "recipients": [ 362626195219 ]
+        }
+      ],
+      "via": {
+        "channel": "web",
+        "source": {
+          "from": {},
+          "to": {},
+          "rel": null
+        }
+      }
+    },
+    {
+      "id": 492647284419,
+      "ticket_id": 1071,
+      "created_at": "2019-12-17T16:13:27Z",
+      "author_id": 362626195219,
+      "metadata": {
+        "system": {
+          "client": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0",
+          "ip_address": "217.33.132.234",
+          "location": "Coventry, ENG, United Kingdom",
+          "latitude": 52.4064,
+          "longitude": -1.5082
+        },
+        "custom": {}
+      },
+      "events": [
+        {
+          "id": 492647284699,
+          "type": "Comment",
+          "author_id": 362626195219,
+          "body": "escalated_tag on a private comment",
+          "html_body": "<div class=\"zd-comment\" dir=\"auto\">escalated_tag on a private comment<br></div>",
+          "plain_body": "escalated_tag on a private comment",
+          "public": false,
+          "attachments": [],
+          "audit_id": 492647284419
+        },
+        {
+          "id": 492647285299,
+          "type": "Change",
+          "value": "162",
+          "field_name": "360004897100",
+          "previous_value": "113"
+        },
+        {
+          "id": 492647285379,
+          "type": "Change",
+          "value": "49",
+          "field_name": "360004897120",
+          "previous_value": "40"
+        },
+        {
+          "id": 492647285439,
+          "type": "External",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated Tickets notifies Zendesk Monitor",
+                "id": 360021028340,
+                "revision_id": 11
+              },
+              "rel": "trigger"
+            }
+          },
+          "resource": "360000227819",
+          "body": "{\"id\": \"{{ticket.id}}\"}"
+        },
+        {
+          "id": 492647285599,
+          "type": "Notification",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated with no Service Offering",
+                "id": 360016345200,
+                "revision_id": 1
+              },
+              "rel": "trigger"
+            }
+          },
+          "subject": "You have escalated a ticket without selecting a Service Offering",
+          "body": "Hi,\n\nYou have escalated a ticket to Tier Three Resolver Groups and you did not select a Service Offering.\n\nPlease select a Service Offering and resubmit the ticket\n{{ticket.url}}\n\nMany thanks\n\nApprenticeship Service Administrator ",
+          "recipients": [ 362626195219 ]
+        }
+      ],
+      "via": {
+        "channel": "web",
+        "source": {
+          "from": {},
+          "to": {},
+          "rel": null
+        }
+      }
+    },
+    {
+      "id": 492813415479,
+      "ticket_id": 1071,
+      "created_at": "2019-12-18T01:54:06Z",
+      "author_id": 362626195219,
+      "metadata": {
+        "system": {
+          "client": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0",
+          "ip_address": "86.10.78.228",
+          "location": "Royal Leamington Spa, ENG, United Kingdom",
+          "latitude": 52.3128,
+          "longitude": -1.5032999999999999
+        },
+        "custom": {}
+      },
+      "events": [
+        {
+          "id": 492813415499,
+          "type": "Comment",
+          "author_id": 362626195219,
+          "body": "escalated_tag on a private comment (really)",
+          "html_body": "<div class=\"zd-comment\" dir=\"auto\">escalated_tag on a private comment (really)<br></div>",
+          "plain_body": "escalated_tag on a private comment (really)",
+          "public": false,
+          "attachments": [],
+          "audit_id": 492813415479
+        },
+        {
+          "id": 492813415519,
+          "type": "Change",
+          "value": [ "data_lock____data_lock_multiple", "escalated", "escalated_tag", "noserviceoffering", "pending_middleware_escalated", "query" ],
+          "field_name": "tags",
+          "previous_value": [ "data_lock____data_lock_multiple", "escalated", "noserviceoffering", "pending_middleware_escalated", "query" ]
+        },
+        {
+          "id": 492813415559,
+          "type": "Change",
+          "value": "177",
+          "field_name": "360004897100",
+          "previous_value": "162"
+        },
+        {
+          "id": 492813415579,
+          "type": "Change",
+          "value": "15",
+          "field_name": "360004897120",
+          "previous_value": "49"
+        },
+        {
+          "id": 492813415619,
+          "type": "External",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated Tickets notifies Zendesk Monitor",
+                "id": 360021028340,
+                "revision_id": 11
+              },
+              "rel": "trigger"
+            }
+          },
+          "resource": "360000227819",
+          "body": "{\"id\": \"{{ticket.id}}\"}"
+        },
+        {
+          "id": 492813415659,
+          "type": "Notification",
+          "via": {
+            "channel": "rule",
+            "source": {
+              "from": {
+                "deleted": false,
+                "title": "Escalated with no Service Offering",
+                "id": 360016345200,
+                "revision_id": 1
+              },
+              "rel": "trigger"
+            }
+          },
+          "subject": "You have escalated a ticket without selecting a Service Offering",
+          "body": "Hi,\n\nYou have escalated a ticket to Tier Three Resolver Groups and you did not select a Service Offering.\n\nPlease select a Service Offering and resubmit the ticket\n{{ticket.url}}\n\nMany thanks\n\nApprenticeship Service Administrator ",
+          "recipients": [ 362626195219 ]
+        }
+      ],
+      "via": {
+        "channel": "web",
+        "source": {
+          "from": {},
+          "to": {},
+          "rel": null
+        }
+      }
+    }
+  ],
+  "next_page": null,
+  "previous_page": null,
+  "count": 6
+}

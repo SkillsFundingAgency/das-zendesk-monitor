@@ -19,8 +19,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
         [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
         public class Solved : PendingAttribute
         {
-            public Solved()
-                : base(nameof(Solved))
+            public Solved(bool addTag = true, bool addComment = true)
+                : base(nameof(Solved), addTag, addComment)
             {
             }
         }
@@ -28,8 +28,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
         [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
         public class Escalated : PendingAttribute
         {
-            public Escalated()
-                : base(nameof(Escalated))
+            public Escalated(bool addTag = true, bool addComment = true)
+                : base(nameof(Escalated), addTag, addComment)
             {
             }
         }
@@ -38,9 +38,13 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
         {
             private readonly List<CustomisationFunc> customisations = new List<CustomisationFunc>();
 
-            protected PendingAttribute(string reason)
+            public PendingAttribute(string reason, bool addTag = true, bool addComment = true)
             {
-                customisations.Add((fixture, x) => AddTagCustomisation(fixture, x, reason));
+                if (addTag)
+                    customisations.Add((fixture, x) => AddTagCustomisation(fixture, x, reason));
+
+                if (addComment)
+                    customisations.Add((fixture, x) => AddTaggedCommentCustomisation(fixture, x));
             }
 
             private IPostprocessComposer<Ticket> AddTagCustomisation(
@@ -50,6 +54,23 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
                 ticket
                     .Without(y => y.Tags)
                     .Do(y => y.Tags = new List<string> { $"pending_middleware_{reason.ToLower()}" });
+
+            private IPostprocessComposer<Ticket> AddTaggedCommentCustomisation(
+                IFixture fixture,
+                IPostprocessComposer<Ticket> ticket)
+            =>
+                ticket
+                    .Without(y => y.Id)
+                    .Do(ticket =>
+                    {
+                        ticket.Id = fixture.Create<long>();
+
+                        var comment = fixture.Create<AuditedComment>();
+                        comment.Share();
+
+                        var zendesk = fixture.Create<FakeZendeskApi>();
+                        zendesk.AddComments(ticket, new[] { comment });
+                    });
 
             public override ICustomization GetCustomization(ParameterInfo parameter)
             {

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace SFA.DAS.Zendesk.Monitor.UnitTests
@@ -8,7 +9,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
     public class ModelSerialisationTests
     {
         [Fact]
-        public void A()
+        public void SmokeTestDeserialisationOfCapturedTicket()
         {
             var a = Resources.LoadAsString(
                 "SFA.DAS.Zendesk.Monitor.UnitTests.TestData.zendesk.ticket.1017.json");
@@ -37,7 +38,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             j.Ticket.CustomFields.Should().ContainEquivalentOf(
                 new { Id = 360004171439, Value = "INC01167381" }
-                );
+                                                              );
 
             j.Users.Should().ContainEquivalentOf(new
             {
@@ -76,6 +77,29 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     OrganisationType = "employer",
                 },
             });
+        }
+
+        [Theory]
+        [InlineData(@"""123456""", "123456")]
+        [InlineData(@"[""123"", ""456""]", "123,456")]
+        [InlineData(@"{""minutes"":3600,""in_business_hours"":true}", 
+            "{\r\n  \"minutes\": 3600,\r\n  \"in_business_hours\": true\r\n}")]
+        [InlineData(@"123456", "123456")]
+        [InlineData(@"null", null)]
+        public void TestCustomDeserialisationOfEventValue2(
+            string value,
+            string expected)
+        {
+            var json = @"{""audits"": [{""events"": [" +
+                @"{""value"": " + value + "}," +
+                @"{""previous_value"": " + value + "}" +
+                @"]}]}";
+
+            var j = JsonConvert.DeserializeObject<Zendesk.Model.AuditResponse>(
+                json, Zendesk.ApiFactoryExtensions.serialiser);
+
+            j.Audits.SelectMany(x => x.Events).Should()
+                .ContainEquivalentOf(new { Value = expected });
         }
         
         [Fact]

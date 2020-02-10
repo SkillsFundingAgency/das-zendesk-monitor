@@ -21,11 +21,42 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             var response = await api.GetTicketWithRequiredSideloads(id);
 
             var sharing = ReasonForSharing(response);
-            
-            await sharing.IfSomeAsync(async s 
-                => s.Response.Comments = await api.GetTicketComments(response.Ticket));
-            
+
+            await sharing.IfSomeAsync(LoadComments);
+
+            sharing = sharing.Filter(t => t.Response.Comments.Any());
+
             return sharing;
+        }
+
+        private async Task LoadComments(SharedTicket response)
+        {
+            var comments = await api.GetTicketComments(response.Response.Ticket);
+            var audits = await api.GetTicketAudits(response.Response.Ticket);
+            response.Response.Comments = TaggedComments(comments, audits);
+        }
+
+        private static Comment[] TaggedComments(Comment[] comments, Audit[] audits)
+        {
+            if (comments == null || audits == null)
+                return Array.Empty<Comment>();
+
+            var taggedAudits = audits
+                .Where(a => a.Events.Any(IsEscalationEvent));
+
+            var privateComments = taggedAudits
+                .SelectMany(a => a.Events)
+                .Where(e => e.Type == "Comment" && e.Public != true)
+                .Select(e => e.Id);
+
+            var taggedComments = comments
+                .Where(x => privateComments.Contains(x.Id));
+
+            return taggedComments.ToArray();
+
+            static bool IsEscalationEvent(Event e)
+                => e.Type == "Change" &&
+                   e.Value?.Contains("escalated_tag") == true;
         }
 
         private Option<SharedTicket> ReasonForSharing(TicketResponse response)

@@ -4,6 +4,7 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using NSubstitute;
 using SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation;
+using SFA.DAS.Zendesk.Monitor.UnitTests.Helpers;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
@@ -81,38 +82,120 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware_with_comments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Solved] Ticket ticket, Comment[] comments)
+        public async Task Sends_nothing_to_middleware_when_ther_are_no_tagged_comments(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            [Frozen] AuditedComment comment,
+            [Pending.Solved] Ticket ticket,
+            Watcher sut
+                                                                                      )
         {
+            // Given
+            comment.AuditTagEvent.Value = "";
+            zendesk.Tickets.Add(ticket);
+
+            // When
+            await sut.ShareTicket(ticket.Id);
+
+            // Then
+            await middleware.DidNotReceive().SolveTicket(Arg.Any<Middleware.EventWrapper>());
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Sends_ticket_to_middleware_with_tagged_comment(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            Watcher sut,
+            [Frozen] AuditedComment comment,
+            [Pending.Solved] Ticket ticket)
+        {
+            // Given
+            var auditTagEvent = comment.AuditTagEvent.Value = "escalated_tag";
+            zendesk.Tickets.Add(ticket);
+
+            // When
+            await sut.ShareTicket(ticket.Id);
+
+            // Then
+            var mwt = new { Ticket = new { Comments = new[] { new { comment.Id } } } };
+
+            await middleware.Received().SolveTicket(
+                Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
+        }
+
+        //[Theory, AutoDataDomain]
+        //public async Task Sends_ticket_to_middleware_when_tagged_comment_has_other_tags_too(
+        //    [Frozen] FakeZendeskApi zendesk,
+        //    [Frozen] Middleware.IApi middleware,
+        //    Watcher sut,
+        //    [Frozen] AuditedComment comment,
+        //    [Pending.Solved] Ticket ticket)
+        //{
+        //    // Given
+        //    var auditTagEvent = comment.AuditTagEvent.Value = "something, escalated_tag, another";
+        //    zendesk.Tickets.Add(ticket);
+        //}
+
+        [Theory, AutoData]
+        public void AuditedCommentMapping(AuditedComment comment)
+        {
+            comment.Id.Should().Be(comment.AsAudit.Events[^1].Id);
+            comment.Public.Should().Be(comment.AsAudit.Events[^1].Public);
+            comment.Body.Should().Be(comment.AsAudit.Events[^1].Body);
+        }
+
+        [Theory, AutoDataDomain]
+        public async Task Sends_ticket_to_middleware_with_all_tagged_comments(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            Watcher sut,
+            [Pending.Solved(addComment: false)] Ticket ticket,
+            AuditedComment[] comments)
+        {
+            // Given
+            comments.ShareAll();
             zendesk.Tickets.Add(ticket);
             zendesk.AddComments(ticket, comments);
 
+            // When
             await sut.ShareTicket(ticket.Id);
 
+            // Then
             var mwt = new
             {
                 Ticket = new
                 {
-                    Comments = comments.Select(c =>
+                    Comments = comments.Select(x =>
                     new
                     {
-                        c.Id,
-                        c.Body,
-                        c.CreatedAt,
+                        x.Id,
+                        x.Body,
                     }),
                 }
             };
 
-            await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
+            await middleware.Received().SolveTicket(
+                Verify.That<Middleware.EventWrapper>(
+                    body => body.Should().BeEquivalentTo(mwt)));
         }
 
         [Theory, AutoDataDomain]
-        public async Task Sends_ticket_to_middleware_with_attachments([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Solved] Ticket ticket, Comment[] comments)
+        public async Task Sends_ticket_to_middleware_with_attachments(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            Watcher sut,
+            [Pending.Solved(addComment: false)] Ticket ticket,
+            AuditedComment[] comments)
         {
+            // Given
+            comments.ShareAll();
             zendesk.Tickets.Add(ticket);
             zendesk.AddComments(ticket, comments);
 
+            // When
             await sut.ShareTicket(ticket.Id);
 
+            // Then
             var expected = new
             {
                 Ticket = new
@@ -130,7 +213,9 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             };
 
-            await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(expected)));
+            await middleware.Received().SolveTicket(
+                Verify.That<Middleware.EventWrapper>(
+                    body => body.Should().BeEquivalentTo(expected)));
         }
 
         [Theory, AutoDataDomain]
