@@ -1,7 +1,6 @@
 ﻿using RestEase;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
@@ -21,7 +20,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         Task<TicketResponse> PostTicket([Body] TicketRequest ticket);
 
         [Put("/tickets/{id}.json")]
-        Task PutTicket([Path] long id, [Body] TicketRequest ticket);
+        Task UpdateTags([Path] long id, [Body] SafeModifyTags update);
 
         [Get("/tickets/{id}/comments.json")]
         Task<CommentResponse> GetTicketComments([Path] long id);

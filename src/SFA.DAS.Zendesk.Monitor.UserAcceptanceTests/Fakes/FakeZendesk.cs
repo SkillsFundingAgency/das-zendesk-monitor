@@ -91,12 +91,10 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             return response.Ticket;
         }
 
-        internal Task UpdateTicket(Ticket ticket)
-        {
-            return zendeskApi.PutTicket(ticket.Id, new TicketRequest { Ticket = ticket });
-        }
+        internal Task AddTag(Ticket ticket, string v)
+            => zendeskApi.ModifyTags(ticket, additions: new[] { v });
 
-        public Task<long[]> /*ISharingTickets.*/GetTicketsForSharing() => sharing.GetTicketsForSharing();
+        Task<long[]> ISharingTickets.GetTicketsForSharing() => sharing.GetTicketsForSharing();
 
         Task<Option<SharedTicket>> ISharingTickets.GetTicketForSharing(long id) => sharing.GetTicketForSharing(id);
 

@@ -97,12 +97,12 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             return MarkSharing(share.Response.Ticket, share.Reason);
         }
 
-        private Task MarkSharing(Ticket t, SharingReason reason)
-        {
-            t.RemoveTag(MakeTag(SharingState.Pending, reason));
-            t.AddTag(MakeTag(SharingState.Sending, reason));
-            return api.PutTicket(t);
-        }
+        private Task MarkSharing(Ticket ticket, SharingReason reason)
+            => api.ModifyTags(
+                ticket,
+                additions: new[] { MakeTag(SharingState.Sending, reason) },
+                removals:  new[] { MakeTag(SharingState.Pending, reason) }
+                );
 
         public Task MarkShared(SharedTicket share)
         {
@@ -110,11 +110,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             return MarkShared(share.Response.Ticket, share.Reason);
         }
 
-        private Task MarkShared(Ticket t, SharingReason reason)
-        {
-            t.RemoveTag(MakeTag(SharingState.Sending, reason));
-            return api.PutTicket(t);
-        }
+        private Task MarkShared(Ticket ticket, SharingReason reason)
+            => api.ModifyTags(
+                ticket,
+                removals: new[] { MakeTag(SharingState.Sending, reason) }
+                );
 
         private enum SharingState
         {

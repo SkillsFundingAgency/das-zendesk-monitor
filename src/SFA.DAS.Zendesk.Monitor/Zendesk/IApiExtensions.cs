@@ -16,8 +16,23 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         internal static Task<TicketResponse> PostTicket(this IApi api, Ticket ticket)
             => api.PostTicket(new TicketRequest { Ticket = ticket });
 
-        internal static Task PutTicket(this IApi api, Ticket ticket)
-            => api.PutTicket(ticket.Id, new TicketRequest { Ticket = ticket });
+        public static async Task ModifyTags(
+            this IApi api,
+            Ticket ticket,
+            string[]? additions = null,
+            string[]? removals = null)
+        {
+            if (api == null) throw new ArgumentNullException(nameof(api));
+            if (ticket == null) throw new ArgumentNullException(nameof(ticket));
+
+            var ticketResponse = await api.GetTicket(ticket.Id);
+
+            var update = new SafeModifyTags(ticketResponse.Ticket);
+            update.Add(additions ?? Array.Empty<string>());
+            update.Remove(removals ?? Array.Empty<string>());
+
+            await api.UpdateTags(ticket.Id, update);
+        }
 
         internal static Task<TicketResponse> GetTicketWithRequiredSideloads(this IApi api, long id)
             => api.GetTicketWithSideloads(id, RequiredSideloads);

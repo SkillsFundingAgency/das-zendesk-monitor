@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using SFA.DAS.Zendesk.Monitor.Acceptance.Fakes;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
@@ -17,6 +17,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
     [Binding]
     public class MiddlewareReceiveTicketUpdatesSteps
     {
+        private const string PendingMiddleware = "pending_middleware";
         private readonly MockMiddleware middleware = new MockMiddleware();
 
         private readonly Watcher watcher;
@@ -38,8 +39,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
         [When(@"the ticket is marked to be shared")]
         public async Task WhenTheTicketIsMarkedToBeShared()
         {
-            data.Ticket.Tags.Add("pending_middleware");
-            await zendesk.UpdateTicket(data.Ticket);
+            await zendesk.AddTag(data.Ticket, PendingMiddleware);
 
             // Zendesk search results are only updated every ??? minutes.
             await WaitUntil(() => TicketIsMarkedForSharing(data.Ticket.Id), TimeSpan.FromMinutes(10), TimeSpan.FromSeconds(20));
@@ -78,7 +78,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
         public async Task ThenTheTicketIsNotMarkedToBeShared()
         {
             var ticket = await zendesk.GetTicket(data.Ticket.Id);
-            ticket.Tags.Should().NotContain("pending_middleware");
+            ticket.Tags.Should().NotContain(PendingMiddleware);
         }
     }
 }

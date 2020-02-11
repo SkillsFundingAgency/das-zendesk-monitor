@@ -68,6 +68,12 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         public Task<TicketResponse> PostTicket([Body] TicketRequest ticket)
             => Task.FromResult<TicketResponse>(null);
 
+        public Task UpdateTags([Path] long id, [Body] SafeModifyTags update)
+        {
+            Tickets.First(x => x.Id == id).Tags = update.Tags;
+            return Task.CompletedTask;
+        }
+
         public Task PutTicket([Path] long id, [Body] TicketRequest ticket)
             => Task.CompletedTask;
 
