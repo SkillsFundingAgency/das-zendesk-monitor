@@ -1,6 +1,9 @@
-﻿using FluentAssertions;
+using AutoFixture.Xunit2;
+using FluentAssertions;
 using Newtonsoft.Json;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -8,6 +11,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public class ModelSerialisationTests
     {
+        private const string iso8601 = "yyyy-MM-ddTHH:mm:ss.FFFFFFFK";
+
         [Fact]
         public void SmokeTestDeserialisationOfCapturedTicket()
         {
@@ -117,7 +122,6 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 Phone = "01234 666 777 and some letters",
             });
 
-
             j.Organizations.Should().BeEquivalentTo(new
             {
                 Name = "Org with alphabetic Main Phone field",
@@ -127,5 +131,26 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 },
             });
         }
+
+        [Theory, AutoData]
+        public void Serialise_SafeModifyTags(SafeModifyTags ticket)
+        {
+            var json = JsonConvert.SerializeObject(
+                ticket, Zendesk.ApiFactoryExtensions.serialiser);
+
+            var expected = $"{{\"ticket\":{{" +
+                $"\"safe_update\":true," +
+                $"\"updated_stamp\":\"{ticket.UpdatedStamp.ToString(iso8601)}\"," +
+                $"\"tags\":[{ticket.Tags.ToQuotedList()}]" +
+                $"}}}}";
+
+            json.Should().BeEquivalentTo(expected);
+        }
+    }
+
+    public static class StringExtensions
+    {
+        public static string ToQuotedList(this IEnumerable<string> xs)
+            => string.Join(",", xs.Select(x => $"\"{x}\""));
     }
 }
