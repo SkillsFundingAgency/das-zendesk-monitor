@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using AutoFixture.Dsl;
 using AutoFixture.Kernel;
 using AutoFixture.Xunit2;
@@ -19,26 +19,35 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
         [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
         public class Solved : PendingAttribute
         {
-            public Solved(bool addTag = true, bool addComment = true)
-                : base(nameof(Solved), addTag, addComment)
+            public Solved(bool addTag = true)
+                : base(nameof(Solved), addTag, SolvedTicketsDoNotHaveComments)
             {
             }
+
+            // Agents do not use any macros when resolving tickets, so
+            // there is no audited comment associated with the resolution.
+            private const bool SolvedTicketsDoNotHaveComments = false;
         }
 
         [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
         public class Escalated : PendingAttribute
         {
-            public Escalated(bool addTag = true, bool addComment = true)
-                : base(nameof(Escalated), addTag, addComment)
+            public Escalated(bool addTag = true)
+                : base(nameof(Escalated), addTag, EscalatedTicketsHaveAuditedComment)
             {
             }
+
+            // When escalating tickets agents use a macro that adds a tagged
+            // comment to the ticket.  The extra tag and comment occur in the
+            // same audit event as the "pending" tag.
+            private const bool EscalatedTicketsHaveAuditedComment = true;
         }
 
         public abstract class PendingAttribute : CustomizeAttribute, ICustomization
         {
             private readonly List<CustomisationFunc> customisations = new List<CustomisationFunc>();
 
-            public PendingAttribute(string reason, bool addTag = true, bool addComment = true)
+            public PendingAttribute(string reason, bool addTag, bool addComment)
             {
                 if (addTag)
                     customisations.Add((fixture, x) => AddTagCustomisation(fixture, x, reason));

@@ -36,7 +36,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             return
                 from reason in shareReason
                 from responseWithComments in shareReason.MapAsync(_ => loadComments(response))
-                where TicketWasShared(responseWithComments)
+                where TicketWasShared(responseWithComments, reason)
                 select new SharedTicket(reason, responseWithComments);
 
             static string LastWord(string tag)
@@ -48,8 +48,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                 t => t.EndsWith(SharingReason.Solved.AsTag())
                   || t.EndsWith(SharingReason.Escalated.AsTag()));
 
-        private static bool TicketWasShared(TicketResponse response)
-            => response.Comments.Any();
+        private static bool TicketWasShared(TicketResponse response, SharingReason reason)
+            => reason == SharingReason.Solved
+            || (reason == SharingReason.Escalated && response.Comments.Any());
 
         private SharedTicket(SharingReason reason, TicketResponse response)
         {
