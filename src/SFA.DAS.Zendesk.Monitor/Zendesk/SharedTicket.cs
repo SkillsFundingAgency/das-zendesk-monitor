@@ -31,7 +31,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             var shareReason =
                 GetSharingTagsInTicket(response.Ticket).ToOption()
                 .Map(LastWord)
-                .Bind(parseEnum<SharingReason>).ToAsync();
+                .Bind(parseEnumIgnoreCase<SharingReason>).ToAsync();
 
             return
                 from reason in shareReason
@@ -41,11 +41,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
             static string LastWord(string tag)
                 => tag?.Split('_').LastOrDefault() ?? "";
-
-            static Option<TEnum> parseEnum<TEnum>(string value) where TEnum : struct
-                => Enum.TryParse<TEnum>(value, true, out TEnum result)
-                    ? Some(result)
-                    : None;
         }
 
         private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket)
