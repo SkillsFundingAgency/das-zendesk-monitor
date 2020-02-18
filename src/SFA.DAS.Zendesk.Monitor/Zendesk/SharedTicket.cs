@@ -44,12 +44,12 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         }
 
         private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket)
-            => ticket.Tags.Where(t => t.EndsWith("_middleware_solved")
-            || t.EndsWith("_middleware_escalated"));
+            => ticket.Tags.Where(
+                t => t.EndsWith(SharingReason.Solved.AsTag())
+                  || t.EndsWith(SharingReason.Escalated.AsTag()));
 
         private static bool TicketWasShared(TicketResponse response)
             => response.Comments.Any();
-
 
         private SharedTicket(SharingReason reason, TicketResponse response)
         {

@@ -55,9 +55,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                    e.Value?.Contains("escalated_tag") == true;
         }
 
-        private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
-            ticket.Tags.Intersect(AllSharingTags);
-
         public async Task<long[]> GetTicketsForSharing()
         {
             var search = string.Join(" ", AllSharingTags.Select(x => $"tags:{x}"));
@@ -70,6 +67,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         private bool TicketContainsSharingTag(Ticket ticket) =>
             GetSharingTagsInTicket(ticket).Any();
+
+        private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
+            ticket.Tags.Intersect(AllSharingTags);
 
         public Task MarkSharing(SharedTicket share)
         {
@@ -108,6 +108,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                 .Using(MakeTag).ToArray();
 
         private static string MakeTag(SharingState state, SharingReason reason) =>
-            $"{state}_middleware_{reason}".ToLower();
+            $"{state}_{reason.AsTag()}".ToLower();
     }
 }
