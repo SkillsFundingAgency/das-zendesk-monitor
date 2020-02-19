@@ -1,4 +1,4 @@
-﻿using LanguageExt;
+using LanguageExt;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Collections.Generic;
@@ -102,13 +102,10 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             Sending,
         }
 
-        private static readonly string[] AllSharingTags = new[]
-        {
-            MakeTag(SharingState.Pending, SharingReason.Solved),
-            MakeTag(SharingState.Sending, SharingReason.Solved),
-            MakeTag(SharingState.Pending, SharingReason.Escalated),
-            MakeTag(SharingState.Sending, SharingReason.Escalated),
-        };
+        private static readonly string[] AllSharingTags =
+            CartesianProduct
+                .OfEnums<SharingState, SharingReason>()
+                .Using(MakeTag).ToArray();
 
         private static string MakeTag(SharingState state, SharingReason reason) =>
             $"{state}_middleware_{reason}".ToLower();
