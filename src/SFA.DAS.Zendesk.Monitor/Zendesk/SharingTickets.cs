@@ -1,4 +1,4 @@
-﻿using LanguageExt;
+using LanguageExt;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Collections.Generic;
@@ -19,22 +19,18 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         public async Task<Option<SharedTicket>> GetTicketForSharing(long id)
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
-
-            var sharing = ReasonForSharing(response);
-
-            await sharing.IfSomeAsync(LoadComments);
-
-            sharing = sharing.Filter(t => t.Response.Comments.Any());
-
-            return sharing;
+            return await SharedTicket.Create(response, LoadComments).ToOption();
         }
 
-        private async Task LoadComments(SharedTicket response)
-        {
-            var comments = await api.GetTicketComments(response.Response.Ticket);
-            var audits = await api.GetTicketAudits(response.Response.Ticket);
-            response.Response.Comments = TaggedComments(comments, audits);
-        }
+        private Func<TicketResponse, Task<TicketResponse>> LoadComments
+            => async response
+            =>
+            {
+                var comments = await api.GetTicketComments(response.Ticket);
+                var audits = await api.GetTicketAudits(response.Ticket);
+                response.Comments = TaggedComments(comments, audits);
+                return response;
+            };
 
         private static Comment[] TaggedComments(Comment[] comments, Audit[] audits)
         {
@@ -59,25 +55,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                    e.Value?.Contains("escalated_tag") == true;
         }
 
-        private Option<SharedTicket> ReasonForSharing(TicketResponse response)
-        {
-            return GetSharingTagsInTicket(response.Ticket)
-                .Select(SegmentAfterLastUnderscore)
-                .Select(TryParseReason)
-                .FirstOrDefault();
-
-            string SegmentAfterLastUnderscore(string tag) =>
-                tag.Split('_').LastOrDefault() ?? "";
-
-            Option<SharedTicket> TryParseReason(string reason) =>
-                Enum.TryParse<SharingReason>(reason, true, out var r) 
-                    ? new SharedTicket(r, response)
-                    : Option<SharedTicket>.None;
-        }
-
-        private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
-            ticket.Tags.Intersect(AllSharingTags);
-
         public async Task<long[]> GetTicketsForSharing()
         {
             var search = string.Join(" ", AllSharingTags.Select(x => $"tags:{x}"));
@@ -90,6 +67,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         private bool TicketContainsSharingTag(Ticket ticket) =>
             GetSharingTagsInTicket(ticket).Any();
+
+        private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket) =>
+            ticket.Tags.Intersect(AllSharingTags);
 
         public Task MarkSharing(SharedTicket share)
         {
@@ -122,15 +102,12 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             Sending,
         }
 
-        private static readonly string[] AllSharingTags = new[]
-        {
-            MakeTag(SharingState.Pending, SharingReason.Solved),
-            MakeTag(SharingState.Sending, SharingReason.Solved),
-            MakeTag(SharingState.Pending, SharingReason.Escalated),
-            MakeTag(SharingState.Sending, SharingReason.Escalated),
-        };
+        private static readonly string[] AllSharingTags =
+            CartesianProduct
+                .OfEnums<SharingState, SharingReason>()
+                .Using(MakeTag).ToArray();
 
         private static string MakeTag(SharingState state, SharingReason reason) =>
-            $"{state}_middleware_{reason}".ToLower();
+            $"{state}_{reason.AsTag()}".ToLower();
     }
 }

@@ -5,4 +5,10 @@
         Solved,
         Escalated,
     }
+
+    public static class SharingReasonExtensions
+    {
+        public static string AsTag(this SharingReason reason)
+            => $"middleware_{reason}".ToLower();
+    }
 }
