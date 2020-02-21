@@ -145,16 +145,16 @@
                                 "value": "[reference('storage-account').outputs.storageConnectionString.value]"
                             },
                             {
-                                "name": "AzureWebJobsDashboard",
-                                "value": "[reference('storage-account').outputs.storageConnectionString.value]"
-                            },
-                            {
                                 "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
                                 "value": "[reference('worker-function-app-insights').outputs.InstrumentationKey.value]"
                             },
                             {
                                 "name": "FUNCTIONS_EXTENSION_VERSION",
                                 "value": "~2"
+                            },
+                            {
+                                "name": "FUNCTIONS_WORKER_RUNTIME",
+                                "value": "dotnet"
                             },
                             {
                                 "name": "EnvironmentName",
@@ -189,12 +189,12 @@
                                 "value": "[parameters('MiddlewareSubscriptionKey')]"
                             },
                             {
-                              "name": "Middleware:ApiBasicAuth",
-                              "value": "[parameters('MiddlewareApiBasicAuth')]"
+                                "name": "Middleware:ApiBasicAuth",
+                                "value": "[parameters('MiddlewareApiBasicAuth')]"
                             },
                             {
-                              "name": "MonitorCronSetting",
-                              "value": "[parameters('MonitorCronSetting')]"
+                                "name": "MonitorCronSetting",
+                                "value": "[parameters('MonitorCronSetting')]"
                             },
                             {
                                 "name": "AppName",
