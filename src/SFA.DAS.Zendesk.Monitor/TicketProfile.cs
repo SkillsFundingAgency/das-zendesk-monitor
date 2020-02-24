@@ -59,9 +59,10 @@ namespace SFA.DAS.Zendesk.Monitor
         {
             return (y.Via?.Channel, y.Via?.Source?.Rel) switch
             {
-                ("voice", "voicemail") => $"Voicemail",
+                ("voice", "voicemail") => "Voicemail",
                 ("voice", _) => $"Phone call ({y.Via?.Source?.Rel})",
                 ("email", _) => "Mail",
+                ("twitter", _) => "Mail",
                 ("chat", _) => "Chat",
                 ("web", _) => "Web Form",
                 _ => y.Via?.Channel.ToLower(),
