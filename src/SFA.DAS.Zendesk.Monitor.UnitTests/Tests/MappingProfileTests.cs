@@ -17,8 +17,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
         public static IEnumerable<object[]> ViaTestData => new List<object[]>
         {
-            new object[] 
-            { 
+            new object[]
+            {
                 new Via
                 {
                     Channel = "voice",
@@ -26,8 +26,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 },
                 "Phone call (inbound)"
             },
-            new object[] 
-            { 
+            new object[]
+            {
                 new Via
                 {
                     Channel = "voice",
@@ -35,8 +35,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 },
                 "Voicemail"
             },
-            new object[] 
-            { 
+            new object[]
+            {
                 new Via
                 {
                     Channel = "voice",
@@ -44,8 +44,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 },
                 "Phone call (outbound)"
             },
-            new object[] 
-            { 
+            new object[]
+            {
                 new Via {Channel = "email"},
                 "Mail"
             },
@@ -54,10 +54,15 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 new Via { Channel = "chat" },
                 "Chat"
             },
-            new object[] 
-            { 
+            new object[]
+            {
                 new Via { Channel = "web" },
                 "Web Form"
+            },
+            new object[]
+            {
+                new Via { Channel = "twitter" },
+                "Mail"
             },
         };
 
