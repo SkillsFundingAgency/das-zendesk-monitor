@@ -86,7 +86,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
             [Frozen] AuditedComment comment,
-            [Pending.Solved] Ticket ticket,
+            [Pending.Escalated] Ticket ticket,
             Watcher sut
                                                                                       )
         {
@@ -98,7 +98,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await sut.ShareTicket(ticket.Id);
 
             // Then
-            await middleware.DidNotReceive().SolveTicket(Arg.Any<Middleware.EventWrapper>());
+            await middleware.DidNotReceive().EscalateTicket(Arg.Any<Middleware.EventWrapper>());
         }
 
         [Theory, AutoDataDomain]
@@ -107,7 +107,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             [Frozen] Middleware.IApi middleware,
             Watcher sut,
             [Frozen] AuditedComment comment,
-            [Pending.Solved] Ticket ticket)
+            [Pending.Escalated] Ticket ticket)
         {
             // Given
             var auditTagEvent = comment.AuditTagEvent.Value = "escalated_tag";
@@ -119,7 +119,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             // Then
             var mwt = new { Ticket = new { Comments = new[] { new { comment.Id } } } };
 
-            await middleware.Received().SolveTicket(
+            await middleware.Received().EscalateTicket(
                 Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
@@ -149,7 +149,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
             Watcher sut,
-            [Pending.Solved(addComment: false)] Ticket ticket,
+            [Pending.Solved] Ticket ticket,
             AuditedComment[] comments)
         {
             // Given
@@ -184,7 +184,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
             Watcher sut,
-            [Pending.Solved(addComment: false)] Ticket ticket,
+            [Pending.Solved] Ticket ticket,
             AuditedComment[] comments)
         {
             // Given

@@ -77,7 +77,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         public Task PutTicket([Path] long id, [Body] TicketRequest ticket)
             => Task.CompletedTask;
 
-        internal void AddComments(Ticket ticket, Comment[] comments)
+        internal void AddComments(Ticket ticket, params Comment[] comments)
             => TicketComments(ticket.Id).AddRange(comments);
 
         internal void AddComments(Ticket ticket, AuditedComment[] comments)
