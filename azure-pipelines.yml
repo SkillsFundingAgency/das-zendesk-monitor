@@ -36,6 +36,8 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: Build
+  env:
+    MSBUILDSINGLELOADCONTEXT: 1
   inputs:
     projects: 'src/**/*.csproj'
     arguments: '--configuration $(buildConfiguration) --no-restore'
