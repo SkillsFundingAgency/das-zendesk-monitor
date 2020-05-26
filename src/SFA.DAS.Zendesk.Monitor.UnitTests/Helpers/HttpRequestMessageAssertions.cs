@@ -6,7 +6,7 @@ using Newtonsoft.Json.Schema;
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public static class HttpRequestMessageExtensions
     {

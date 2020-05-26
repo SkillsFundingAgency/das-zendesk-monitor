@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public class MiddlewareSchemaTestData : IEnumerable<object[]>
     {
