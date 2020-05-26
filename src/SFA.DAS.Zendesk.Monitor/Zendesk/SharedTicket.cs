@@ -10,6 +10,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
     public sealed class SharedTicket
     {
+        public long Id { get; }
+
         public SharingReason Reason { get; }
 
         public TicketResponse Response { get; }
@@ -56,6 +58,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         {
             if (reason > SharingReason.Escalated)
                 throw new ArgumentOutOfRangeException(nameof(reason), reason, "Undeclared SharingReason found.");
+
+            Id = response.Ticket?.Id
+                ?? throw new ArgumentException("Response does not contain the Ticket ID");
 
             Reason = reason;
             Response = response;
