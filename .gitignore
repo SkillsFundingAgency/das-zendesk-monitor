@@ -352,3 +352,6 @@ healthchecksdb
 .sonarqube
 .scannerwork
 /SonarQube.Analysis.xml
+
+#SpecFlow
+*.feature.cs
