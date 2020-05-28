@@ -93,7 +93,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
         {
             var ticket = new Ticket
             {
-                Subject = $"Integration testing Watcher",
+                Subject = $"Integration testing Watcher {Guid.NewGuid()}",
                 Comment = new Comment { Body = "Created for testing" },
             };
 
