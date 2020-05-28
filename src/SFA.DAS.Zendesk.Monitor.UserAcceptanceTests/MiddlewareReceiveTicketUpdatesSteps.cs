@@ -80,5 +80,18 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             var ticket = await zendesk.GetTicket(data.Ticket.Id);
             ticket.Tags.Should().NotContain(PendingMiddleware);
         }
+
+        [When(@"the ticket is marked for escalation to Service Now")]
+        public async Task WhenHasBeenMarkedForEscalationToServiceNow()
+        {
+            await zendesk.Escalate(data.Ticket);
+        }
+
+        [Then(@"the ticket is updated with the Incident Number")]
+        public void ThenTheTicketIsUpdatedWithTheIncidentNumber()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
     }
 }

@@ -11,3 +11,8 @@ Scenario: Share ticket with middleware
 	Then the ticket is shared with the Middleware
 	And the ticket is not marked to be shared
 
+@SkipWhenLiveUnitTesting
+Scenario: Escalated tickets are given the Service Now Incident Number
+	Given a ticket exists
+	When the ticket is marked for escalation to Service Now
+	Then the ticket is updated with the Incident Number
