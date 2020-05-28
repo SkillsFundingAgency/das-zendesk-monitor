@@ -22,6 +22,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         [Put("/tickets/{id}.json")]
         Task UpdateTags([Path] long id, [Body] SafeModifyTags update);
 
+        [Put("/tickets/{id}.json")]
+        Task UpdateTicket([Path] long id, [Body] TicketRequest ticket);
+
         [Get("/tickets/{id}/comments.json")]
         Task<CommentResponse> GetTicketComments([Path] long id);
         

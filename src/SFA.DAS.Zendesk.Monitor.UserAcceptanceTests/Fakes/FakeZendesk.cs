@@ -1,4 +1,4 @@
-﻿using LanguageExt;
+using LanguageExt;
 using Microsoft.Extensions.Configuration;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
@@ -87,6 +87,24 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 
             var response = await zendeskApi.PostTicket(new TicketRequest { Ticket = ticket });
             return response.Ticket;
+        }
+
+        internal async Task Escalate(Ticket ticket)
+        {
+            // as per https://esfa1567428279.zendesk.com/agent/admin/macros/360016445439
+            ticket.Tags.Add("escalated_tag");
+            ticket.Comment = new Comment
+            {
+                Public = false,
+                Body = "this ticket is being escalated by an automated test, please ignore.",
+            };
+
+            ticket.Status = "hold";
+            ticket.CustomFields.FirstOrDefault(x => x.Id == 360004171339).Value = "customer_disconnect";
+            ticket.CustomFields.FirstOrDefault(x => x.Id == 360004146580).Value = "as_end_point_assessors";
+            ticket.CustomFields.FirstOrDefault(x => x.Id == 360009649760).Value = "esfa_apprenticeship_dev_ops_";
+
+            await zendeskApi.UpdateTicket(ticket.Id, new TicketRequest { Ticket = ticket });
         }
 
         internal Task AddTag(Ticket ticket, string v)

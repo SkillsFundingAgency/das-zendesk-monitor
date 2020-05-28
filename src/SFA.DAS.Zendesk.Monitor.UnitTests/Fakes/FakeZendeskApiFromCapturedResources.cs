@@ -40,7 +40,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         public Task<TicketResponse> PostTicket([Body] TicketRequest ticket)
             => GetTicket(ticket.Ticket.Id);
 
-        public Task PutTicket([Path] long id, [Body] TicketRequest ticket)
+        public Task UpdateTicket([Path] long id, [Body] TicketRequest ticket)
             => Task.CompletedTask;
 
         public Task<SearchResponse> SearchTickets([Query] string query)
