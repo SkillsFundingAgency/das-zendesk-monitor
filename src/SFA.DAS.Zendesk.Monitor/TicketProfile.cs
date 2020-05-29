@@ -63,6 +63,7 @@ namespace SFA.DAS.Zendesk.Monitor
                 ("voice", _) => $"Phone call ({y.Via?.Source?.Rel})",
                 ("email", _) => "Mail",
                 ("twitter", _) => "Mail",
+                ("api", _) => "Mail",
                 ("chat", _) => "Chat",
                 ("web", _) => "Web Form",
                 _ => y.Via?.Channel.ToLower(),

@@ -64,6 +64,11 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 new Via { Channel = "twitter" },
                 "Mail"
             },
+            new object[]
+            {
+                new Via { Channel = "api" },
+                "Mail"
+            },
         };
 
         [Theory, MemberData(nameof(ViaTestData))]
