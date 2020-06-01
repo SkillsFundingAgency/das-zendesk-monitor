@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests.Fakes
 {
     public class HttpMessageHandlerSpy : HttpMessageHandler
     {

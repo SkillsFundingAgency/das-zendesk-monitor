@@ -3,11 +3,12 @@ using FluentAssertions;
 using Newtonsoft.Json.Schema;
 using RestEase;
 using SFA.DAS.Zendesk.Monitor.Middleware;
+using SFA.DAS.Zendesk.Monitor.UnitTests.Fakes;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public class MiddlewareSchemaTests
     {
