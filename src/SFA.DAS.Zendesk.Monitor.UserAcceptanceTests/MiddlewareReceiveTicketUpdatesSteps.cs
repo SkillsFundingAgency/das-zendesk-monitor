@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
+using TechTalk.SpecFlow.Tracing;
 
 namespace SFA.DAS.Zendesk.Monitor.Acceptance
 {
@@ -23,10 +24,12 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
         private readonly Watcher watcher;
         private readonly FakeZendesk zendesk = new FakeZendesk();
         private readonly Data data;
+        private readonly ITraceListener trace;
 
-        public MiddlewareReceiveTicketUpdatesSteps(Data data)
+        public MiddlewareReceiveTicketUpdatesSteps(Data data, ITraceListener traceListener)
         {
             this.data = data;
+            this.trace = traceListener;
             watcher = new Watcher(zendesk, middleware);
         }
 
@@ -34,6 +37,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
         public async Task GivenATicketExists()
         {
             data.Ticket = await zendesk.CreateTicket();
+            trace.WriteTestOutput($"Ticket {data.Ticket.Id} created - {data.Ticket.Url}");
         }
 
         [When(@"the ticket is marked to be shared")]
@@ -106,6 +110,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             if ((data?.Ticket?.Id > 0) == false) return;
 
             await zendesk.Solve(data.Ticket);
+            trace.WriteTestOutput($"Ticket {data.Ticket.Id} solved");
         }
     }
 }
