@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -39,6 +41,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
         private readonly FluentMockServer server;
         private readonly IApi zendeskApi;
         private readonly ISharingTickets sharing;
+        private readonly Lazy<Task<Dictionary<string, long>>> ticketFieldIds;
 
         public FakeZendesk()
         {
@@ -73,6 +76,15 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 
             zendeskApi = ApiFactory.CreateApi(httpClient);
             sharing = new SharingTickets(zendeskApi);
+            ticketFieldIds = new Lazy<Task<Dictionary<string, long>>>(LoadTicketFields);
+        }
+
+        private async Task<Dictionary<string, long>> LoadTicketFields()
+        {
+            var fields = await zendeskApi.GetTicketFieldIds();
+            return fields.TicketFields
+                .Distinct(new UniqueTicketFieldTitle())
+                .ToDictionary(x => x.Title, x => x.Id);
         }
 
         internal async Task<Ticket> GetTicket(long id) => (await zendeskApi.GetTicket(id)).Ticket;
@@ -100,11 +112,25 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             };
 
             ticket.Status = "hold";
-            ticket.CustomFields.FirstOrDefault(x => x.Id == 360004171339).Value = "customer_disconnect";
-            ticket.CustomFields.FirstOrDefault(x => x.Id == 360004146580).Value = "as_end_point_assessors";
-            ticket.CustomFields.FirstOrDefault(x => x.Id == 360009649760).Value = "esfa_apprenticeship_dev_ops_";
+            await PopulateTicketCustomField(ticket, "Contact Reason", "customer_disconnect");
+            await PopulateTicketCustomField(ticket, "Service Offering", "as_end_point_assessors");
+            await PopulateTicketCustomField(ticket, "Resolver Group", "esfa_apprenticeship_dev_ops_");
 
             await zendeskApi.UpdateTicket(ticket.Id, new TicketRequest { Ticket = ticket });
+        }
+
+        private async Task PopulateTicketCustomField(Ticket ticket, string field, string value)
+        {
+            var fieldIds = await ticketFieldIds.Value;
+
+            if(!fieldIds.TryGetValue(field, out var fieldId))
+                throw new Exception($"Field `{field}` not found in \n{String.Join(",", fieldIds.Keys)}");
+
+            var ticketField = ticket.CustomFields.Where(x => x.Id == fieldId).FirstOrDefault();
+            if(ticketField == null)
+                throw new Exception($"Field {fieldId} (`{field}`) not found in ticket {ticket.Id}");
+
+            ticketField.Value = value;
         }
 
         internal Task AddTag(Ticket ticket, string v)
@@ -117,5 +143,14 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
         Task ISharingTickets.MarkShared(SharedTicket share) => sharing.MarkShared(share);
 
         Task ISharingTickets.MarkSharing(SharedTicket share) => sharing.MarkSharing(share);
+    }
+
+    internal class UniqueTicketFieldTitle : IEqualityComparer<TicketField>
+    {
+        public bool Equals([AllowNull] TicketField x, [AllowNull] TicketField y) =>
+            x?.Title?.Equals(y?.Title) ?? false;
+
+        public int GetHashCode([DisallowNull] TicketField obj) =>
+            obj.Title.GetHashCode();
     }
 }

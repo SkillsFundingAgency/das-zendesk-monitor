@@ -48,6 +48,9 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
         public Task UpdateTags([Path] long id, [Body] SafeModifyTags update)
             => Task.CompletedTask;
+
+        public Task<TicketFieldResponse> GetTicketFieldIds() =>
+            Task.FromResult(new TicketFieldResponse { TicketFields = new TicketField[0] });
     }
 
     internal static class ZendeskStringExtensions

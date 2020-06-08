@@ -65,6 +65,10 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             return Task.FromResult(response);
         }
 
+        public Task<TicketFieldResponse> GetTicketFieldIds() =>
+            Task.FromResult(new TicketFieldResponse { TicketFields = new TicketField[0] });
+        
+
         public Task<TicketResponse> PostTicket([Body] TicketRequest ticket)
             => Task.FromResult<TicketResponse>(null);
 

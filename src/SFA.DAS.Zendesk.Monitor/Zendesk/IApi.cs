@@ -7,6 +7,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
     public interface IApi
     {
+        [Get("/ticket_fields.json")]
+        Task<TicketFieldResponse> GetTicketFieldIds();
+
         [Get("/tickets/{id}.json")]
         Task<TicketResponse> GetTicket([Path] long id);
 
