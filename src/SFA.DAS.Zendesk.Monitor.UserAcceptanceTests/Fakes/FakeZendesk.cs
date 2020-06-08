@@ -83,6 +83,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
         {
             var fields = await zendeskApi.GetTicketFieldIds();
             return fields.TicketFields
+                .Where(x => x.Active)
                 .Distinct(new UniqueTicketFieldTitle())
                 .ToDictionary(x => x.Title, x => x.Id);
         }
@@ -121,16 +122,34 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 
         private async Task PopulateTicketCustomField(Ticket ticket, string field, string value)
         {
-            var fieldIds = await ticketFieldIds.Value;
-
-            if(!fieldIds.TryGetValue(field, out var fieldId))
-                throw new Exception($"Field `{field}` not found in \n{String.Join(",", fieldIds.Keys)}");
-
-            var ticketField = ticket.CustomFields.Where(x => x.Id == fieldId).FirstOrDefault();
+            var fieldId = await CustomTicketFieldId(field);
+            var ticketField = ticket.CustomField(fieldId);
+            
             if(ticketField == null)
                 throw new Exception($"Field {fieldId} (`{field}`) not found in ticket {ticket.Id}");
 
             ticketField.Value = value;
+        }
+
+        internal async Task<long> CustomTicketFieldId(string field)
+        {
+            var fieldIds = await ticketFieldIds.Value;
+
+            return fieldIds.TryGetValue(field, out var fieldId)
+                ? fieldId
+                : throw new Exception($"Field `{field}` not found in \n{String.Join(",", fieldIds.Keys)}");
+        }
+
+        internal async Task Solve(Ticket ticket, string comment = "this ticket is has been solved by an automated test.")
+        {
+            ticket.Status = "solved";
+            ticket.Comment = new Comment
+            {
+                Public = false,
+                Body = comment,
+            };
+         
+            await zendeskApi.UpdateTicket(ticket.Id, new TicketRequest { Ticket = ticket });
         }
 
         internal Task AddTag(Ticket ticket, string v)

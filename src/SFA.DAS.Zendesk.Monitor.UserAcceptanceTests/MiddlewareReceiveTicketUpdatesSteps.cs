@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using SFA.DAS.Zendesk.Monitor.Acceptance.Fakes;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
@@ -88,10 +88,24 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
         }
 
         [Then(@"the ticket is updated with the Incident Number")]
-        public void ThenTheTicketIsUpdatedWithTheIncidentNumber()
+        public async Task ThenTheTicketIsUpdatedWithTheIncidentNumberAsync()
         {
-            ScenarioContext.Current.Pending();
+            await WaitUntil(() => TicketHasIncidentNumber(data.Ticket.Id), TimeSpan.FromMinutes(10), TimeSpan.FromSeconds(20));
+
+            async Task<bool> TicketHasIncidentNumber(long id)
+            {
+                var ticket = await zendesk.GetTicket(id);
+                var incidentNumberFieldId = await zendesk.CustomTicketFieldId("Service Now Incident Number (auto populated)");
+                return ticket.CustomField(incidentNumberFieldId)?.Value != null;
+            }
         }
 
+        [AfterScenario]
+        public async Task SolveTestTicket()
+        {
+            if ((data?.Ticket?.Id > 0) == false) return;
+
+            await zendesk.Solve(data.Ticket);
+        }
     }
 }

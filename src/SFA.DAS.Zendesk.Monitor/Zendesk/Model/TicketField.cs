@@ -1,4 +1,4 @@
-﻿#nullable disable
+#nullable disable
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 {
@@ -7,5 +7,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public long Id { get; set; }
         public string Type { get; set; }
         public string Title { get; set; }
+        public bool Active { get; set; }
     }
 }
