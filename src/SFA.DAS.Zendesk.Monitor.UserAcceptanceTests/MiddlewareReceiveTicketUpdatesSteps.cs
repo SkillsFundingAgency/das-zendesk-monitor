@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using SFA.DAS.Zendesk.Monitor.Acceptance.Fakes;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
@@ -51,24 +51,30 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             // Doesn't really belong in "When", but has to happen before the "Thens"
         }
 
-        private async Task<bool> TicketIsMarkedForSharing(long id)
+        private async Task TicketIsMarkedForSharing(long id)
         {
             var ticket = await watcher.GetTicketsForSharing();
-            return ticket.Contains(id);
+            ticket.Should().Contain(id);
         }
 
-        private async Task<bool> WaitUntil(Func<Task<bool>> p, TimeSpan timeSpan, TimeSpan waitBetween)
+        private async Task WaitUntil(Func<Task> p, TimeSpan timeSpan, TimeSpan waitBetween)
         {
             var now = DateTime.UtcNow;
             var until = now.Add(timeSpan);
-            while (DateTime.UtcNow < until)
+            while (true)
             {
-                var success = await p();
-                Debug.WriteLine($"WaitUntil {DateTime.UtcNow - now} successful? {success}");
-                if (success) return success;
+                try
+                {
+                    await p();
+                    return;
+                }
+                catch
+                {
+                    if (DateTime.UtcNow > until)
+                        throw;
+                }
                 await Task.Delay(waitBetween);
             }
-            return false;
         }
 
         [Then(@"the ticket is shared with the Middleware")]
@@ -94,13 +100,19 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
         [Then(@"the ticket is updated with the Incident Number")]
         public async Task ThenTheTicketIsUpdatedWithTheIncidentNumberAsync()
         {
-            await WaitUntil(() => TicketHasIncidentNumber(data.Ticket.Id), TimeSpan.FromMinutes(10), TimeSpan.FromSeconds(20));
+            var incidentNumberFieldId = await zendesk.CustomTicketFieldId("Service Now Incident Number (auto populated)");
 
-            async Task<bool> TicketHasIncidentNumber(long id)
+            await WaitUntil(
+                TicketHasIncidentNumber,
+                TimeSpan.FromMinutes(5),
+                TimeSpan.FromSeconds(10));
+
+            async Task TicketHasIncidentNumber()
             {
-                var ticket = await zendesk.GetTicket(id);
-                var incidentNumberFieldId = await zendesk.CustomTicketFieldId("Service Now Incident Number (auto populated)");
-                return ticket.CustomField(incidentNumberFieldId)?.Value != null;
+                var ticket = await zendesk.GetTicket(data.Ticket.Id);
+                var incNo = ticket.CustomField(incidentNumberFieldId)?.Value;
+                incNo.Should().NotBeNullOrEmpty();
+                trace.WriteTestOutput($"Incident Number: `{incNo}`");
             }
         }
 
