@@ -4,6 +4,7 @@ using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -27,22 +28,15 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             }
         }
 
-        private readonly FluentMockServer server = FluentMockServer.Start(new FluentMockServerSettings
+        private static ProxyAndRecordSettings LiveZendeskProxySettings(string instance) => new ProxyAndRecordSettings
         {
-            //*
-            ReadStaticMappings = true,
-            FileSystemHandler = new LocalFileSystemHandler(ProjectPath),
-            /*/
-            ProxyAndRecordSettings = new ProxyAndRecordSettings
-            {
-                Url = "https://esfa.zendesk.com/api/v2",
-                SaveMapping = true,
-                SaveMappingToFile = true,
-                BlackListedHeaders = new[] { "dnt", "Content-Length", "Authorization", "Host" }
-            }
-            /**/
-        });
+            Url = $"https://{instance}.zendesk.com/api/v2",
+            SaveMapping = true,
+            SaveMappingToFile = true,
+            BlackListedHeaders = new[] { "dnt", "Content-Length", "Authorization", "Host" }
+        };
 
+        private readonly FluentMockServer server;
         private readonly IApi zendeskApi;
         private readonly ISharingTickets sharing;
 
@@ -56,12 +50,16 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             var instance = conf.GetValue<string>("Zendesk:Instance");
             var user = conf.GetValue<string>("Zendesk:ApiUser");
             var token = conf.GetValue<string>("Zendesk:ApiKey");
+            var useLiveZendesk = conf.GetValue<bool?>("Zendesk:UseLiveInstance") ?? false;
 
-            /*
+            server = FluentMockServer.Start(new FluentMockServerSettings
+            {
+                ReadStaticMappings = !useLiveZendesk,
+                FileSystemHandler = new LocalFileSystemHandler(ProjectPath),
+                ProxyAndRecordSettings = useLiveZendesk ? LiveZendeskProxySettings(instance) : null,
+            });
+
             var url = server.Urls.First();
-            /*/
-            var url = $"https://{instance}.zendesk.com";
-            /**/
 
             var httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri($"{url}/api/v2");
@@ -70,7 +68,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
                 NoCache = true
             };
 
-            var byteArray = Encoding.ASCII.GetBytes($"{user}/token:{token}");
+            var byteArray = Encoding.ASCII.GetBytes($"{user}:{token}");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
             zendeskApi = ApiFactory.CreateApi(httpClient);
