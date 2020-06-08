@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 {
@@ -88,5 +90,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
 
         public void AddTag(string tag)
             => Tags.Add(tag);
+
+        public Field CustomField(long fieldId)
+        {
+            var field = CustomFields.Where(x => x.Id == fieldId).FirstOrDefault();
+            return field ?? throw new Exception($"Field {fieldId} not found in ticket {Id}");
+        }
     }
 }

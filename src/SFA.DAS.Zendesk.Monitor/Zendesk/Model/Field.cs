@@ -6,6 +6,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
     {
         public long Id { get; set; }
 
-        public object Value { get; set; }
+        public string Value { get; set; }
     }
 }

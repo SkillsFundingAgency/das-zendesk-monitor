@@ -30,6 +30,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public Audit[] Audits { get; set; }
     }
 
+    public class TicketFieldResponse
+    {
+        public TicketField[] TicketFields { get; set; }
+    }
+
     public class SearchResponse
     {
         public Ticket[] Results { get; set; }

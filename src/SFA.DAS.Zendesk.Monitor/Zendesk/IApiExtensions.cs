@@ -16,6 +16,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         internal static Task<TicketResponse> PostTicket(this IApi api, Ticket ticket)
             => api.PostTicket(new TicketRequest { Ticket = ticket });
 
+        internal static Task UpdateTickets(this IApi api, Ticket ticket)
+            => api.UpdateTicket(ticket.Id, new TicketRequest { Ticket = ticket });
+
         public static async Task ModifyTags(
             this IApi api,
             Ticket ticket,
