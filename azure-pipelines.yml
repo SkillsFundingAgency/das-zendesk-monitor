@@ -41,7 +41,7 @@ steps:
   inputs:
     projects: 'src/**/*.csproj'
     arguments: '--configuration $(buildConfiguration) --no-restore'
-    
+
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
@@ -55,6 +55,14 @@ steps:
     command: publish
     publishWebProjects: false
     projects: 'src/SFA.DAS.Zendesk.Monitor.Function/SFA.DAS.Zendesk.Monitor.Function.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish User Acceptance Tests'
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: 'src/SFA.DAS.Zendesk.Monitor.UserAcceptanceTests/SFA.DAS.Zendesk.Monitor.UserAcceptanceTests.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
 
 - task: CopyFiles@2
