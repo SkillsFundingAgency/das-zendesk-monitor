@@ -48,6 +48,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             var conf = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddJsonFile("appsettings.local.json", optional: true)
+                .AddUserSecrets("ZendeskMonitorSecrets")
                 .Build();
 
             var instance = conf.GetValue<string>("Zendesk:Instance");
