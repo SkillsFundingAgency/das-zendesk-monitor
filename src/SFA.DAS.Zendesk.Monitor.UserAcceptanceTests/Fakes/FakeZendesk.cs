@@ -64,8 +64,11 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
 
             var url = server.Urls.First();
 
-            var httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri($"https://{instance}.zendesk.com/api/v2");
+            var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri($"https://{instance}.zendesk.com/api/v2")
+            };
+
             httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
             {
                 NoCache = true
