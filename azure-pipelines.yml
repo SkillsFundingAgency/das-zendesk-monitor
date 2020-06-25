@@ -73,6 +73,14 @@ steps:
     TargetFolder: '$(build.artifactstagingdirectory)/publish'
     OverWrite: true
 
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+  inputs:
+    Contents: |     
+     src/Check-TestResults.ps1
+    TargetFolder: '$(build.artifactstagingdirectory)/publish'
+    OverWrite: true
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact'
   inputs:
