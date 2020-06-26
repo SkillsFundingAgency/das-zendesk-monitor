@@ -16,7 +16,12 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
             if (url == null) throw new ArgumentNullException(nameof(url));
 
             client.BaseAddress = url;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", basicAuth);
+            client.DefaultRequestHeaders.UserAgent.Add(
+                new ProductInfoHeaderValue("ZendeskMonitor", "1.0"));
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("*/*"));
 
             var api = new RestClient(client).CreateApi();
             api.SubscriptionKey = subscriptionKey;
