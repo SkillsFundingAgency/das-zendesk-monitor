@@ -13,5 +13,13 @@
       "Function": "Information",
       "Host.Aggregator": "Trace"
     }
+  },
+  "extensions": {
+    "http": {
+      "hsts": {
+        "isEnabled": true,
+        "maxAge": "30"
+      }
+    }
   }
 }
