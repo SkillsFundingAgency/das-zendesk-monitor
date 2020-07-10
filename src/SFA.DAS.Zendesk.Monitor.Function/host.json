@@ -19,6 +19,9 @@
       "hsts": {
         "isEnabled": true,
         "maxAge": "30"
+      },
+      "customHeaders": {
+        "Content-Security-Policy": "default-src 'none';"
       }
     }
   }
