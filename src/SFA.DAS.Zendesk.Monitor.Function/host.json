@@ -21,7 +21,8 @@
         "maxAge": "30"
       },
       "customHeaders": {
-        "Content-Security-Policy": "default-src 'none';"
+        "Content-Security-Policy": "default-src 'none';",
+        "X-XSS-Protection":  0
       }
     }
   }
