@@ -22,6 +22,7 @@
       },
       "customHeaders": {
         "Content-Security-Policy": "default-src 'none';",
+        "X-Frame-Options": "DENY",
         "X-XSS-Protection":  0
       }
     }
