@@ -14,10 +14,11 @@ variables:
   buildPlatform: 'anycpu'
 
 pool:
-  name: 'Continuous Integration 02 - SSD - 160ACU'
+  name: 'Azure Pipelines'
+  vmImage: 'windows-2019'
 
 steps:
-- task: gittools.gitversion.gitversion-task.GitVersion@4
+- task: gittools.gitversion.gitversion-task.GitVersion@5
   displayName: GitVersion
   inputs:
     updateAssemblyInfo: true
@@ -26,6 +27,11 @@ steps:
   inputs:
     packageType: 'sdk'
     version: '3.x'
+    
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '2.x'    
 
 - task: DotNetCoreCLI@2
   displayName: Restore
