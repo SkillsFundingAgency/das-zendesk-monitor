@@ -1,6 +1,7 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Collections.Generic;
@@ -145,6 +146,20 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 $"}}}}";
 
             json.Should().BeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public void Serialise_CustomFields_with_complex_object()
+        {
+            var a = Resources.LoadAsString(
+                "SFA.DAS.Zendesk.Monitor.UnitTests.TestData.zendesk.ticket.39702.json");
+
+            var j = JsonConvert.DeserializeObject<Zendesk.Model.TicketResponse>(
+                a, Zendesk.ApiFactoryExtensions.serialiser);
+
+            j.Ticket.CustomFields.Should().ContainEquivalentOf(
+                new { Id = 360002764900, Value = new JArray("7") }
+                );
         }
     }
 

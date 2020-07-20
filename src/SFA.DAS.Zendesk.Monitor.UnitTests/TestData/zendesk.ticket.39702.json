@@ -1,0 +1,658 @@
+{
+  "ticket": {
+    "url": "https://esfa.zendesk.com/api/v2/tickets/39702.json",
+    "id": 39702,
+    "external_id": null,
+    "created_at": "2020-06-26T08:25:48Z",
+    "updated_at": "2020-07-20T13:44:05Z",
+    "type": "question",
+    "subject": "DLOCK7 error (R11)",
+    "raw_subject": "DLOCK7 error (R11)",
+    "description": "Loren ipsum.",
+    "priority": "high",
+    "status": "open",
+    "recipient": "helpdesk@manage-apprenticeships.service.gov.uk",
+    "requester_id": 363389937519,
+    "submitter_id": 363389937519,
+    "assignee_id": 362594054779,
+    "organization_id": 361893697279,
+    "group_id": 360000866860,
+    "collaborator_ids": [
+    ],
+    "follower_ids": [
+    ],
+    "email_cc_ids": [
+    ],
+    "forum_topic_id": null,
+    "problem_id": null,
+    "has_incidents": false,
+    "is_public": true,
+    "due_at": null,
+    "tags": [
+      "1hoursla",
+      "7",
+      "as_payments",
+      "autonote1",
+      "data_lock____data_lock_multiple",
+      "escalated",
+      "esfa_employer_digital_services__as_payments_",
+      "pending_middleware_escalated",
+      "query"
+    ],
+    "custom_fields": [
+      {
+        "id": 360011122180,
+        "value": null
+      },
+      {
+        "id": 360008354059,
+        "value": "80"
+      },
+      {
+        "id": 360004039179,
+        "value": "as_payments"
+      },
+      {
+        "id": 360011231760,
+        "value": null
+      },
+      {
+        "id": 360011121940,
+        "value": null
+      },
+      {
+        "id": 360011122200,
+        "value": null
+      },
+      {
+        "id": 360011130139,
+        "value": null
+      },
+      {
+        "id": 360011424799,
+        "value": "esfa_employer_digital_services__as_payments_"
+      },
+      {
+        "id": 360002730279,
+        "value": null
+      },
+      {
+        "id": 360003866920,
+        "value": null
+      },
+      {
+        "id": 360011122220,
+        "value": null
+      },
+      {
+        "id": 360011130159,
+        "value": null
+      },
+      {
+        "id": 360002600499,
+        "value": "data_lock____data_lock_multiple"
+      },
+      {
+        "id": 360009859380,
+        "value": null
+      },
+      {
+        "id": 360011231040,
+        "value": null
+      },
+      {
+        "id": 360011219779,
+        "value": null
+      },
+      {
+        "id": 360011130179,
+        "value": null
+      },
+      {
+        "id": 360002764880,
+        "value": null
+      },
+      {
+        "id": 360004010580,
+        "value": "INC01237140"
+      },
+      {
+        "id": 360002657880,
+        "value": null
+      },
+      {
+        "id": 360011121500,
+        "value": null
+      },
+      {
+        "id": 360002764900,
+        "value": [
+          "7"
+        ]
+      },
+      {
+        "id": 360011230820,
+        "value": null
+      },
+      {
+        "id": 360011121520,
+        "value": null
+      },
+      {
+        "id": 360011122800,
+        "value": null
+      },
+      {
+        "id": 360009859200,
+        "value": null
+      },
+      {
+        "id": 360011121540,
+        "value": null
+      },
+      {
+        "id": 360011122820,
+        "value": null
+      },
+      {
+        "id": 360011231380,
+        "value": null
+      },
+      {
+        "id": 360009859220,
+        "value": null
+      },
+      {
+        "id": 360011130519,
+        "value": null
+      },
+      {
+        "id": 360011121560,
+        "value": null
+      },
+      {
+        "id": 360011122840,
+        "value": null
+      },
+      {
+        "id": 360002574239,
+        "value": "query"
+      },
+      {
+        "id": 360009858980,
+        "value": null
+      },
+      {
+        "id": 360011130279,
+        "value": null
+      },
+      {
+        "id": 360009887399,
+        "value": null
+      },
+      {
+        "id": 360011231400,
+        "value": null
+      },
+      {
+        "id": 360011130539,
+        "value": null
+      },
+      {
+        "id": 360011230640,
+        "value": null
+      },
+      {
+        "id": 360011130299,
+        "value": null
+      },
+      {
+        "id": 360009887419,
+        "value": null
+      },
+      {
+        "id": 360011231420,
+        "value": null
+      },
+      {
+        "id": 360011121860,
+        "value": null
+      },
+      {
+        "id": 360002763980,
+        "value": null
+      },
+      {
+        "id": 360011130319,
+        "value": null
+      },
+      {
+        "id": 360011231440,
+        "value": null
+      },
+      {
+        "id": 360011130579,
+        "value": null
+      },
+      {
+        "id": 360011121880,
+        "value": null
+      },
+      {
+        "id": 360011123420,
+        "value": null
+      },
+      {
+        "id": 360011231200,
+        "value": null
+      },
+      {
+        "id": 360011130339,
+        "value": null
+      },
+      {
+        "id": 360011121900,
+        "value": null
+      },
+      {
+        "id": 360011122160,
+        "value": null
+      },
+      {
+        "id": 360011219959,
+        "value": null
+      },
+      {
+        "id": 360008354039,
+        "value": "2459"
+      },
+      {
+        "id": 360011130359,
+        "value": null
+      },
+      {
+        "id": 360011219199,
+        "value": null
+      }
+    ],
+    "satisfaction_rating": {
+      "score": "offered"
+    },
+    "sharing_agreement_ids": [
+    ],
+    "fields": [
+      {
+        "id": 360011122180,
+        "value": null
+      },
+      {
+        "id": 360008354059,
+        "value": "80"
+      },
+      {
+        "id": 360004039179,
+        "value": "as_payments"
+      },
+      {
+        "id": 360011231760,
+        "value": null
+      },
+      {
+        "id": 360011121940,
+        "value": null
+      },
+      {
+        "id": 360011122200,
+        "value": null
+      },
+      {
+        "id": 360011130139,
+        "value": null
+      },
+      {
+        "id": 360011424799,
+        "value": "esfa_employer_digital_services__as_payments_"
+      },
+      {
+        "id": 360002730279,
+        "value": null
+      },
+      {
+        "id": 360003866920,
+        "value": null
+      },
+      {
+        "id": 360011122220,
+        "value": null
+      },
+      {
+        "id": 360011130159,
+        "value": null
+      },
+      {
+        "id": 360002600499,
+        "value": "data_lock____data_lock_multiple"
+      },
+      {
+        "id": 360009859380,
+        "value": null
+      },
+      {
+        "id": 360011231040,
+        "value": null
+      },
+      {
+        "id": 360011219779,
+        "value": null
+      },
+      {
+        "id": 360011130179,
+        "value": null
+      },
+      {
+        "id": 360002764880,
+        "value": null
+      },
+      {
+        "id": 360004010580,
+        "value": "INC123456789"
+      },
+      {
+        "id": 360002657880,
+        "value": null
+      },
+      {
+        "id": 360011121500,
+        "value": null
+      },
+      {
+        "id": 360002764900,
+        "value": [
+          "7"
+        ]
+      },
+      {
+        "id": 360011230820,
+        "value": null
+      },
+      {
+        "id": 360011121520,
+        "value": null
+      },
+      {
+        "id": 360011122800,
+        "value": null
+      },
+      {
+        "id": 360009859200,
+        "value": null
+      },
+      {
+        "id": 360011121540,
+        "value": null
+      },
+      {
+        "id": 360011122820,
+        "value": null
+      },
+      {
+        "id": 360011231380,
+        "value": null
+      },
+      {
+        "id": 360009859220,
+        "value": null
+      },
+      {
+        "id": 360011130519,
+        "value": null
+      },
+      {
+        "id": 360011121560,
+        "value": null
+      },
+      {
+        "id": 360011122840,
+        "value": null
+      },
+      {
+        "id": 360002574239,
+        "value": "query"
+      },
+      {
+        "id": 360009858980,
+        "value": null
+      },
+      {
+        "id": 360011130279,
+        "value": null
+      },
+      {
+        "id": 360009887399,
+        "value": null
+      },
+      {
+        "id": 360011231400,
+        "value": null
+      },
+      {
+        "id": 360011130539,
+        "value": null
+      },
+      {
+        "id": 360011230640,
+        "value": null
+      },
+      {
+        "id": 360011130299,
+        "value": null
+      },
+      {
+        "id": 360009887419,
+        "value": null
+      },
+      {
+        "id": 360011231420,
+        "value": null
+      },
+      {
+        "id": 360011121860,
+        "value": null
+      },
+      {
+        "id": 360002763980,
+        "value": null
+      },
+      {
+        "id": 360011130319,
+        "value": null
+      },
+      {
+        "id": 360011231440,
+        "value": null
+      },
+      {
+        "id": 360011130579,
+        "value": null
+      },
+      {
+        "id": 360011121880,
+        "value": null
+      },
+      {
+        "id": 360011123420,
+        "value": null
+      },
+      {
+        "id": 360011231200,
+        "value": null
+      },
+      {
+        "id": 360011130339,
+        "value": null
+      },
+      {
+        "id": 360011121900,
+        "value": null
+      },
+      {
+        "id": 360011122160,
+        "value": null
+      },
+      {
+        "id": 360011219959,
+        "value": null
+      },
+      {
+        "id": 360008354039,
+        "value": "2459"
+      },
+      {
+        "id": 360011130359,
+        "value": null
+      },
+      {
+        "id": 360011219199,
+        "value": null
+      }
+    ],
+    "followup_ids": [
+    ],
+    "ticket_form_id": 123456789,
+    "brand_id": 123456789,
+    "satisfaction_probability": null,
+    "allow_channelback": false,
+    "allow_attachments": true
+  },
+  "users": [
+    {
+      "id": 362594054779,
+      "url": "https://esfa.zendesk.com/api/v2/users/362594054779.json",
+      "name": "Bobby Bobson (PM - Tier 2)",
+      "email": "bobby.bobson@example.com",
+      "created_at": "2019-09-02T12:00:48Z",
+      "updated_at": "2020-07-20T13:34:10Z",
+      "time_zone": "London",
+      "iana_time_zone": "Europe/London",
+      "phone": null,
+      "shared_phone_number": null,
+      "photo": null,
+      "locale_id": 1176,
+      "locale": "en-gb",
+      "organization_id": null,
+      "role": "agent",
+      "verified": true,
+      "external_id": null,
+      "tags": [
+      ],
+      "alias": "Henry",
+      "active": true,
+      "shared": false,
+      "shared_agent": false,
+      "last_login_at": "2020-07-13T14:17:22Z",
+      "two_factor_auth_enabled": null,
+      "signature": "Regards\nHenry\nApprenticeship Service \nTechnical Support Team",
+      "details": "",
+      "notes": "",
+      "role_type": 0,
+      "custom_role_id": 123456789,
+      "moderator": false,
+      "ticket_restriction": null,
+      "only_private_comments": false,
+      "restricted_agent": false,
+      "suspended": false,
+      "chat_only": false,
+      "default_group_id": 123456789,
+      "report_csv": false,
+      "user_fields": {
+        "address_line_1": null,
+        "address_line_2": null,
+        "address_line_3": null,
+        "city": null,
+        "contact_type": null,
+        "postcode": null
+      }
+    },
+    {
+      "id": 363389937519,
+      "url": "https://esfa.zendesk.com/api/v2/users/363389937519.json",
+      "name": "Random Customer",
+      "email": "random.customer@example.com",
+      "created_at": "2019-10-17T08:23:28Z",
+      "updated_at": "2020-03-26T12:03:36Z",
+      "time_zone": "London",
+      "iana_time_zone": "Europe/London",
+      "phone": "+44123456789",
+      "shared_phone_number": false,
+      "photo": null,
+      "locale_id": 1176,
+      "locale": "en-gb",
+      "organization_id": 132456789,
+      "role": "end-user",
+      "verified": true,
+      "external_id": null,
+      "tags": [
+      ],
+      "alias": "",
+      "active": true,
+      "shared": false,
+      "shared_agent": false,
+      "last_login_at": null,
+      "two_factor_auth_enabled": false,
+      "signature": null,
+      "details": "",
+      "notes": "",
+      "role_type": null,
+      "custom_role_id": null,
+      "moderator": false,
+      "ticket_restriction": "requested",
+      "only_private_comments": false,
+      "restricted_agent": true,
+      "suspended": false,
+      "chat_only": false,
+      "default_group_id": null,
+      "report_csv": false,
+      "user_fields": {
+        "address_line_1": null,
+        "address_line_2": null,
+        "address_line_3": null,
+        "city": null,
+        "contact_type": "training_provider",
+        "postcode": null
+      }
+    }
+  ],
+  "organizations": [
+    {
+      "url": "https://organisations.example.com/361893697279.json",
+      "id": 361893697279,
+      "name": "Random Customer Education",
+      "shared_tickets": false,
+      "shared_comments": false,
+      "external_id": null,
+      "created_at": "2019-09-17T15:20:03Z",
+      "updated_at": "2020-06-26T09:32:12Z",
+      "domain_names": [
+      ],
+      "details": "",
+      "notes": "UKPRN: 123456789",
+      "group_id": null,
+      "tags": [
+      ],
+      "organization_fields": {
+        "account_manager": "Middleware ProdApp",
+        "account_manager_e_mail": "MiddlewareProdApp@example.com",
+        "account_manager_status": null,
+        "address_line_1": null,
+        "address_line_2": null,
+        "address_line_3": null,
+        "city": null,
+        "county": null,
+        "main_phone": null,
+        "organisation_status": "active",
+        "organisation_type": "training_provider",
+        "postcode": null
+      }
+    }
+  ]
+}
