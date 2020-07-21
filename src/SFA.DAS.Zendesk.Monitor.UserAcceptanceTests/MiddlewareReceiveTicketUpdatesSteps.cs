@@ -111,7 +111,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             {
                 var ticket = await zendesk.GetTicket(data.Ticket.Id);
                 var incNo = ticket.CustomField(incidentNumberFieldId)?.Value;
-                incNo.Should().NotBeNullOrEmpty();
+                incNo?.ToString().Should().NotBeNullOrEmpty();
                 trace.WriteTestOutput($"Incident Number: `{incNo}`");
             }
         }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -41,5 +41,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="TestData\zendesk.ticket.1017.json" />
+    <EmbeddedResource Include="TestData\zendesk.ticket.39702.json" />
   </ItemGroup>
 </Project>
