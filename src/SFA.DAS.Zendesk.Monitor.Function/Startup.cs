@@ -25,7 +25,7 @@ namespace ZenWatchFunction
                 s => s.GetRequiredService<ZD.SharingTickets>());
 
             builder.Services
-                .AddHttpClient<ZD.IApi>()
+                .AddHttpClient<ZD.IApi>("ZendeskAPI")
                 .AddTypedClient(client =>
                     ZD.ApiFactory.CreateApi(client,
                         new Uri(config["Zendesk:Url"]),
@@ -33,7 +33,7 @@ namespace ZenWatchFunction
                         config["Zendesk:ApiKey"]));
 
             builder.Services
-                .AddHttpClient<MW.IApi>()
+                .AddHttpClient<MW.IApi>("MiddlewareAPI")
                 .AddTypedClient(client =>
                     MW.ApiFactory.CreateApi(client,
                         new Uri(config["Middleware:Url"]),
