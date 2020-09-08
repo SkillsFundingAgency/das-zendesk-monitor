@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
@@ -24,8 +25,8 @@ namespace ZenWatchFunction
     {
         [FunctionName("NotifyTicket")]
         public static async Task<HttpResponseMessage> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post")]HttpRequestMessage request,
-            [OrchestrationClient]DurableOrchestrationClient starter,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestMessage request,
+            [DurableClient] IDurableOrchestrationClient starter,
             ILogger log)
         {
             var input = await request.GetJsonBody<NotifyTicket, NotifyTicketValidator>();
