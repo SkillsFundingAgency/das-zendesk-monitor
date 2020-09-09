@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Zendesk.Monitor;
 using System;
@@ -16,7 +17,7 @@ namespace ZenWatchFunction
         }
 
         [FunctionName(nameof(SearchTickets))]
-        public async Task<long[]> SearchTickets([ActivityTrigger] DurableActivityContext context)
+        public async Task<long[]> SearchTickets([ActivityTrigger] IDurableActivityContext context)
         {
             log.LogInformation($"Searching for tickets");
             var tickets = await watcher.GetTicketsForSharing();

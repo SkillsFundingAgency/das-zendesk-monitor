@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using SFA.DAS.Zendesk.Monitor.Acceptance.Fakes;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
@@ -111,7 +111,8 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
             {
                 var ticket = await zendesk.GetTicket(data.Ticket.Id);
                 var incNo = ticket.CustomField(incidentNumberFieldId)?.Value;
-                incNo?.ToString().Should().NotBeNullOrEmpty();
+                incNo.Should().NotBeNull()
+                    .And.Subject.ToString().Should().NotBeEmpty();
                 trace.WriteTestOutput($"Incident Number: `{incNo}`");
             }
         }
