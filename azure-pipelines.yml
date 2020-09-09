@@ -14,8 +14,9 @@ variables:
   buildPlatform: 'anycpu'
 
 pool:
-  name: 'Azure Pipelines'
-  vmImage: 'windows-2019'
+  name: 'DAS - Continuous Integration'
+  demands:
+    - Agent.OS -equals Windows_NT
 
 steps:
 - task: gittools.gitversion.gitversion-task.GitVersion@5
