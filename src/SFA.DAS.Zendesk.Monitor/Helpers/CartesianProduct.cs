@@ -9,7 +9,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
     {
         /// <summary>
         /// <para>
-        /// Calculate the set of all ordered pairs (a,b) 
+        /// Calculate the set of all ordered pairs (a,b)
         /// where a is in A and b is in B.
         /// </para>
         /// <para>
@@ -26,6 +26,12 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public static T[] GetValues<T>() where T : struct, Enum
             => (T[])Enum.GetValues(typeof(T));
+
+        public static CartesianProduct<TA, TB> Of<TA, TB>(
+            IEnumerable<TA> sequence1,
+            IEnumerable<TB> sequence2)
+            =>
+            new CartesianProduct<TA, TB>(sequence1, sequence2);
     }
 
     public class CartesianProduct<TA, TB>

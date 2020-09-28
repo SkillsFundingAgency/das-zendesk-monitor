@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static SFA.DAS.Zendesk.Monitor.Zendesk.EnumValues;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
@@ -81,8 +82,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             => api.ModifyTags(
                 ticket,
                 additions: new[] { MakeTag(SharingState.Sending, reason) },
-                removals:  new[] { MakeTag(SharingState.Pending, reason) }
-                );
+                removals: new[] { MakeTag(SharingState.Pending, reason) }
+                             );
 
         public Task MarkShared(SharedTicket share)
         {
@@ -93,8 +94,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         private Task MarkShared(Ticket ticket, SharingReason reason)
             => api.ModifyTags(
                 ticket,
-                removals: new[] { MakeTag(SharingState.Sending, reason) }
-                );
+                removals: new[] { MakeTag(SharingState.Sending, reason) });
 
         private enum SharingState
         {
@@ -104,7 +104,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         private static readonly string[] AllSharingTags =
             CartesianProduct
-                .OfEnums<SharingState, SharingReason>()
+                .Of(ListEnum<SharingState>(), SharingReason.List)
                 .Using(MakeTag).ToArray();
 
         private static string MakeTag(SharingState state, SharingReason reason) =>
