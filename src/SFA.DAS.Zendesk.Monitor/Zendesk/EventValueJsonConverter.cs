@@ -6,14 +6,14 @@ using System.Collections.Generic;
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
     /// <summary>
-    /// Zendesk is a bit loose with their use of the "value" field in the 
+    /// Zendesk is a bit loose with their use of the "value" field in the
     /// "event" structure.  Sometimes it is a string, sometimes an array,
     /// and sometimes an object.
-    /// 
+    ///
     /// JsonConvert complains at this.
-    /// 
+    ///
     /// Values of the Audit.Event.Value seen in the wild so far:
-    /// 
+    ///
     /// "value": ["data_lock____data_lock_multiple", "query"]
     /// "value": "360000656319"
     /// "value": null
@@ -38,16 +38,16 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                 _ => DeserialiseObject(reader),
             };
 
-        private string DeserialiseString(JsonReader reader) 
+        private static string DeserialiseString(JsonReader reader)
             => JToken.Load(reader).ToObject<string>();
 
-        private string DeserialiseArray(JsonReader reader)
+        private static string DeserialiseArray(JsonReader reader)
         {
             var values = JArray.Load(reader).ToObject<IList<object>>();
             return string.Join(",", values);
         }
 
-        private string DeserialiseObject(JsonReader reader)
+        private static string DeserialiseObject(JsonReader reader)
             => JToken.Load(reader).ToObject<object>()?.ToString() ?? "";
 
         public override bool CanWrite => false;

@@ -49,13 +49,13 @@ namespace SFA.DAS.Zendesk.Monitor
                 ;
         }
 
-        private Zendesk.Model.Organization? FindOrganisation(Zendesk.Model.TicketResponse response)
+        private static Zendesk.Model.Organization? FindOrganisation(Zendesk.Model.TicketResponse response)
             => response.Organizations?.FirstOrDefault(x => x.Id == response.Ticket.OrganizationId);
 
-        private Zendesk.Model.User? FindRequester(Zendesk.Model.TicketResponse response)
+        private static Zendesk.Model.User? FindRequester(Zendesk.Model.TicketResponse response)
             => response.Users?.FirstOrDefault(x => x.Id == response.Ticket.RequesterId);
 
-        private string TranslateVia(Zendesk.Model.Ticket y)
+        private static string TranslateVia(Zendesk.Model.Ticket y)
         {
             return (y.Via?.Channel, y.Via?.Source?.Rel) switch
             {
