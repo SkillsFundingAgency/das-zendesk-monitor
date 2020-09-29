@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static LanguageExt.Prelude;
+using static SFA.DAS.Zendesk.Monitor.Zendesk.SmartEnumValues;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
@@ -33,7 +33,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             var shareReason =
                 GetSharingTagsInTicket(response.Ticket).ToOption()
                 .Map(LastWord)
-                .Bind(parseEnumIgnoreCase<SharingReason>).ToAsync();
+                .Bind(ParseIgnoringCase<SharingReason>).ToAsync();
 
             return
                 from reason in shareReason
@@ -46,19 +46,18 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         }
 
         private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket)
-            => ticket.Tags.Where(
-                t => t.EndsWith(SharingReason.Solved.AsTag())
-                  || t.EndsWith(SharingReason.Escalated.AsTag()));
+            => ticket.Tags.Where(TagEndsWithSharingReason);
+
+        private static bool TagEndsWithSharingReason(string tag) =>
+            SharingReason.List.Any(reason => tag.EndsWith(reason.AsTag()));
 
         private static bool TicketWasShared(TicketResponse response, SharingReason reason)
             => reason == SharingReason.Solved
+            || reason == SharingReason.HandedOff
             || (reason == SharingReason.Escalated && response.Comments.Any());
 
         private SharedTicket(SharingReason reason, TicketResponse response)
         {
-            if (reason > SharingReason.Escalated)
-                throw new ArgumentOutOfRangeException(nameof(reason), reason, "Undeclared SharingReason found.");
-
             Id = response.Ticket?.Id
                 ?? throw new ArgumentException("Response does not contain the Ticket ID");
 
@@ -66,12 +65,13 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             Response = response;
         }
 
-        internal T Switch<T>(Func<bool, T> solved, Func<bool, T> escalated)
+        internal T Switch<T>(Func<bool, T> solved, Func<bool, T> handedOff, Func<bool, T> escalated)
         {
             return Reason switch
             {
-                SharingReason.Solved => solved(true),
-                SharingReason.Escalated => escalated(true),
+                var e when e == SharingReason.Solved => solved(true),
+                var e when e == SharingReason.Escalated => escalated(true),
+                var e when e == SharingReason.HandedOff => handedOff(true),
                 _ => throw new InvalidOperationException("Undeclared SharingReason found in Switch"),
             };
         }

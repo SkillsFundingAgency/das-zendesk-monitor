@@ -19,7 +19,7 @@ namespace SFA.DAS.Zendesk.Monitor
 
         public Watcher(ISharingTickets zendesk, Middleware.IApi middleware)
             : this(zendesk, middleware, NullLogger<Watcher>.Instance)
-        { 
+        {
         }
 
         public Watcher(ISharingTickets zendesk, Middleware.IApi middleware, ILogger<Watcher> logger)
@@ -48,10 +48,13 @@ namespace SFA.DAS.Zendesk.Monitor
 
             await share.Switch(
                 solved => middleware.SolveTicket(wrap),
+                handedOff => middleware.HandOffTicket(wrap),
                 escalated => middleware.EscalateTicket(wrap)
                 );
- 
+
             await zendesk.MarkShared(share);
+
+            logger?.LogInformation($"Shared {share.Reason} ticket {share.Id}");
         }
     }
 }

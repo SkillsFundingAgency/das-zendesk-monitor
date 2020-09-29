@@ -33,14 +33,27 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
         public class Escalated : PendingAttribute
         {
             public Escalated(bool addTag = true)
-                : base(nameof(Escalated), addTag, EscalatedTicketsHaveAuditedComment)
+                : base(nameof(Escalated), addTag, EscalatedTicketsHaveAuditedComments)
             {
             }
 
             // When escalating tickets agents use a macro that adds a tagged
             // comment to the ticket.  The extra tag and comment occur in the
             // same audit event as the "pending" tag.
-            private const bool EscalatedTicketsHaveAuditedComment = true;
+            private const bool EscalatedTicketsHaveAuditedComments = true;
+        }
+
+        [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+        public class HandedOff : PendingAttribute
+        {
+            public HandedOff(bool addTag = true)
+                : base(nameof(HandedOff), addTag, HandedOffTicketsHaveSimpleComments)
+            {
+            }
+
+            // When handing tickets off to other systems, all comments are sent
+            // to the middleware to be shown in the other system.
+            private const bool HandedOffTicketsHaveSimpleComments = true;
         }
 
         public abstract class PendingAttribute : CustomizeAttribute, ICustomization

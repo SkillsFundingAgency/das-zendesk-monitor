@@ -36,6 +36,9 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
 
         public string SubscriptionKey { get; set; }
 
+        public Task HandOffTicket([Body] EventWrapper body)
+            => client.HandOffTicket(body);
+
         public Task EscalateTicket([Body] EventWrapper body)
             => client.EscalateTicket(body);
 
