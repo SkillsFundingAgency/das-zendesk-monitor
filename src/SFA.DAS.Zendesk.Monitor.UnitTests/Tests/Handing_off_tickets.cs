@@ -41,7 +41,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         }
 
         [Theory, ZendeskAutoData]
-        public async Task Marks_ticket_as_sharing_before_sending_to_middleware(
+        public void Marks_ticket_as_sharing_before_sending_to_middleware(
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
             Watcher sut,
@@ -52,11 +52,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             middleware.When(x => x.HandOffTicket(Arg.Any<Middleware.EventWrapper>()))
                 .Do(_ => throw new Exception("Stop test at Middleware step"));
 
-            try
-            {
-                await sut.ShareTicket(ticket.Id);
-            }
-            catch { /* Expecting the middleware to fail */ }
+            sut.Invoking(s => s.ShareTicket(ticket.Id))
+                .Should().Throw<Exception>().WithMessage("Stop test at Middleware step");
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
