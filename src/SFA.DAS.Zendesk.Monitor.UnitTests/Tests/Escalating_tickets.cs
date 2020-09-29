@@ -10,14 +10,14 @@ using Xunit;
 
 namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
-    public class Handing_off_tickets
+    public class Escalating_tickets
     {
         [Theory, ZendeskAutoData]
         public async Task Sends_ticket_to_middleware(
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
             Watcher sut,
-            [Pending.HandedOff] Ticket ticket)
+            [Pending.Escalated] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
 
@@ -35,7 +35,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             };
 
-            await middleware.Received().HandOffTicket(
+            await middleware.Received().EscalateTicket(
                 Verify.That<Middleware.EventWrapper>(x =>
                     x.Should().BeEquivalentTo(expectedTicket)));
         }
@@ -45,11 +45,11 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
             Watcher sut,
-            [Pending.HandedOff] Ticket ticket)
+            [Pending.Escalated] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
 
-            middleware.When(x => x.HandOffTicket(Arg.Any<Middleware.EventWrapper>()))
+            middleware.When(x => x.EscalateTicket(Arg.Any<Middleware.EventWrapper>()))
                 .Do(_ => throw new Exception("Stop test at Middleware step"));
 
             sut.Invoking(s => s.ShareTicket(ticket.Id))
@@ -57,8 +57,50 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
-                .Should().NotContain($"pending_middleware_handedoff".ToLower())
-                .And.Contain($"sending_middleware_handedoff".ToLower());
+                .Should().NotContain($"pending_middleware_escalated".ToLower())
+                .And.Contain($"sending_middleware_escalated".ToLower());
+        }
+
+        [Theory, ZendeskAutoData]
+        public async Task Sends_nothing_to_middleware_when_there_are_no_tagged_comments(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            Watcher sut,
+            [Frozen] AuditedComment comment,
+            [Pending.Escalated] Ticket ticket
+                                                                                       )
+        {
+            // Given
+            comment.AuditTagEvent.Value = "";
+            zendesk.Tickets.Add(ticket);
+
+            // When
+            await sut.ShareTicket(ticket.Id);
+
+            // Then
+            await middleware.DidNotReceive().EscalateTicket(Arg.Any<Middleware.EventWrapper>());
+        }
+
+        [Theory, ZendeskAutoData]
+        public async Task Sends_ticket_to_middleware_with_tagged_comment(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            Watcher sut,
+            [Frozen] AuditedComment comment,
+            [Pending.Escalated] Ticket ticket)
+        {
+            // Given
+            var auditTagEvent = comment.AuditTagEvent.Value = "escalated_tag";
+            zendesk.Tickets.Add(ticket);
+
+            // When
+            await sut.ShareTicket(ticket.Id);
+
+            // Then
+            var mwt = new { Ticket = new { Comments = new[] { new { comment.Id } } } };
+
+            await middleware.Received().EscalateTicket(
+                Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
         [Theory, ZendeskAutoData]
@@ -66,7 +108,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
             Watcher sut,
-            [Pending.HandedOff] Ticket ticket,
+            [Pending.Escalated] Ticket ticket,
             User reporter)
         {
             ticket.RequesterId = reporter.Id;
@@ -98,7 +140,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             };
 
-            await middleware.Received().HandOffTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
+            await middleware.Received().EscalateTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
         [Theory, ZendeskAutoData]
@@ -106,7 +148,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
             Watcher sut,
-            [Pending.HandedOff] Ticket ticket,
+            [Pending.Escalated] Ticket ticket,
             Organization org)
         {
             ticket.OrganizationId = org.Id;
@@ -139,14 +181,14 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             };
 
-            await middleware.Received().HandOffTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
+            await middleware.Received().EscalateTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
         [Theory, ZendeskAutoData]
         public async Task Marks_ticket_as_shared(
             [Frozen] FakeZendeskApi zendesk,
             Watcher sut,
-            [Pending.HandedOff] Ticket ticket)
+            [Pending.Escalated] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
 
@@ -154,26 +196,26 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
-                .Should().NotContain("pending_middleware_handedoff")
-                .And.NotContain("sending_middleware_handedoff");
+                .Should().NotContain("pending_middleware_escalated")
+                .And.NotContain("sending_middleware_escalated");
         }
 
         [Theory, ZendeskAutoData]
         public async Task Marks_ticket_as_shared_with_duplicate_tags(
             [Frozen] FakeZendeskApi zendesk,
             Watcher sut,
-            [Pending.HandedOff] Ticket ticket)
+            [Pending.Escalated] Ticket ticket)
         {
-            ticket.Tags.Add("sending_middleware_handedoff");
-            ticket.Tags.Add("pending_middleware_handedoff");
+            ticket.Tags.Add("sending_middleware_escalated");
+            ticket.Tags.Add("pending_middleware_escalated");
             zendesk.Tickets.Add(ticket);
 
             await sut.ShareTicket(ticket.Id);
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
-                .Should().NotContain("pending_middleware_handedoff")
-                .And.NotContain("sending_middleware_handedoff");
+                .Should().NotContain("pending_middleware_escalated")
+                .And.NotContain("sending_middleware_escalated");
         }
 
         [Theory, ZendeskAutoData]
@@ -188,7 +230,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             await sut.ShareTicket(ticket.Id);
 
-            await middleware.DidNotReceive().HandOffTicket(Arg.Any<Middleware.EventWrapper>());
+            await middleware.DidNotReceive().SolveTicket(Arg.Any<Middleware.EventWrapper>());
         }
     }
 }
