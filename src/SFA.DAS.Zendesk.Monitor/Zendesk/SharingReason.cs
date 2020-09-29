@@ -6,6 +6,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
     {
         public static readonly SharingReason Solved = new SharingReason(nameof(Solved), 0);
         public static readonly SharingReason Escalated = new SharingReason(nameof(Escalated), 1);
+        public static readonly SharingReason HandedOff = new SharingReason(nameof(HandedOff), 2);
 
         private SharingReason(string name, int value) : base(name, value)
         {

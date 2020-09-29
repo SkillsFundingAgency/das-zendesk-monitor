@@ -1,11 +1,8 @@
-using AutoFixture;
-using AutoFixture.AutoNSubstitute;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using NSubstitute;
 using SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation;
 using SFA.DAS.Zendesk.Monitor.UnitTests.Helpers;
-using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Collections.Generic;
@@ -17,13 +14,10 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 {
     public class Sharing_tickets
     {
-        public static IEnumerable<object[]> Tags()
-        {
-            yield return new object[] { "escalated" };
-            yield return new object[] { "solved" };
-        }
-
-        [Theory, MemberAutoDomainData(nameof(Tags))]
+        [Theory]
+        [InlineDomainAutoData("escalated")]
+        [InlineDomainAutoData("solved")]
+        [InlineDomainAutoData("handedoff")]
         public async Task Marks_ticket_as_sharing_before_sending_to_middleware(string state, [Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Escalated] Ticket ticket)
         {
             ticket.Tags = new List<string> { $"pending_middleware_{state}".ToLower() };
@@ -31,6 +25,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             middleware.When(x => x.SolveTicket(Arg.Any<Middleware.EventWrapper>()))
                 .Do(_ => throw new Exception("Stop test at Middleware step"));
             middleware.When(x => x.EscalateTicket(Arg.Any<Middleware.EventWrapper>()))
+                .Do(_ => throw new Exception("Stop test at Middleware step"));
+            middleware.When(x => x.HandOffTicket(Arg.Any<Middleware.EventWrapper>()))
                 .Do(_ => throw new Exception("Stop test at Middleware step"));
 
             try
@@ -45,7 +41,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 .And.Contain($"sending_middleware_{state}".ToLower());
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Solved] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
@@ -69,7 +65,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     x.Should().BeEquivalentTo(expectedTicket)));
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_ticket_to_correct_endpoint([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Escalated] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
@@ -81,7 +77,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     x.Should().BeEquivalentTo(new { Ticket = new { ticket.Id } })));
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_nothing_to_middleware_when_ther_are_no_tagged_comments(
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
@@ -101,7 +97,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await middleware.DidNotReceive().EscalateTicket(Arg.Any<Middleware.EventWrapper>());
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_ticket_to_middleware_with_tagged_comment(
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
@@ -123,19 +119,6 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
-        //[Theory, AutoDataDomain]
-        //public async Task Sends_ticket_to_middleware_when_tagged_comment_has_other_tags_too(
-        //    [Frozen] FakeZendeskApi zendesk,
-        //    [Frozen] Middleware.IApi middleware,
-        //    Watcher sut,
-        //    [Frozen] AuditedComment comment,
-        //    [Pending.Solved] Ticket ticket)
-        //{
-        //    // Given
-        //    var auditTagEvent = comment.AuditTagEvent.Value = "something, escalated_tag, another";
-        //    zendesk.Tickets.Add(ticket);
-        //}
-
         [Theory, AutoData]
         public void AuditedCommentMapping(AuditedComment comment)
         {
@@ -144,7 +127,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             comment.Body.Should().Be(comment.AsAudit.Events[^1].Body);
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_ticket_to_middleware_with_all_tagged_comments(
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
@@ -179,7 +162,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     body => body.Should().BeEquivalentTo(mwt)));
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_ticket_to_middleware_with_attachments(
             [Frozen] FakeZendeskApi zendesk,
             [Frozen] Middleware.IApi middleware,
@@ -218,7 +201,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     body => body.Should().BeEquivalentTo(expected)));
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_ticket_to_middleware_with_requester([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Solved] Ticket ticket, User reporter)
         {
             ticket.RequesterId = reporter.Id;
@@ -253,7 +236,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_ticket_to_middleware_with_organisation([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Solved] Ticket ticket, Organization org)
         {
             ticket.OrganizationId = org.Id;
@@ -289,7 +272,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await middleware.Received().SolveTicket(Verify.That<Middleware.EventWrapper>(x => x.Should().BeEquivalentTo(mwt)));
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_previously_failed_solved_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Solved] Ticket ticket)
         {
             ticket.Tags = new List<string> { "sending_middleware_solved" };
@@ -302,7 +285,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     x.Should().BeEquivalentTo(new { Ticket = new { ticket.Id } })));
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Sends_previously_failed_escalated_ticket_to_middleware([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, [Pending.Escalated] Ticket ticket)
         {
             ticket.Tags = new List<string> { "sending_middleware_escalated" };
@@ -315,7 +298,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                     x.Should().BeEquivalentTo(new { Ticket = new { ticket.Id } })));
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Marks_ticket_as_shared([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending.Solved] Ticket ticket)
         {
             zendesk.Tickets.Add(ticket);
@@ -328,7 +311,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 .And.NotContain("sending_middleware_solved");
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Marks_ticket_as_shared_with_duplicate_tags([Frozen] FakeZendeskApi zendesk, Watcher sut, [Pending.Solved] Ticket ticket)
         {
             ticket.Tags.Add("sending_middleware_solved");
@@ -343,7 +326,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 .And.NotContain("sending_middleware_solved");
         }
 
-        [Theory, AutoDataDomain]
+        [Theory, ZendeskAutoData]
         public async Task Ignores_tickets_without_sharing_tags([Frozen] FakeZendeskApi zendesk, [Frozen] Middleware.IApi middleware, Watcher sut, Ticket ticket)
         {
             ticket.Tags.Clear();
@@ -354,26 +337,10 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await middleware.DidNotReceive().SolveTicket(Arg.Any<Middleware.EventWrapper>());
         }
 
-        private class AutoDataDomainAttribute : AutoDataAttribute
+        public class InlineDomainAutoDataAttribute : InlineAutoDataAttribute
         {
-            public AutoDataDomainAttribute() : base(() => Customise())
-            {
-            }
-
-            private static IFixture Customise()
-            {
-                var fixture = new Fixture();
-                fixture.Register<IApi>(() => fixture.Create<FakeZendeskApi>());
-                fixture.Register<ISharingTickets>(() => fixture.Create<SharingTickets>());
-                fixture.Customize(new AutoNSubstituteCustomization { ConfigureMembers = true });
-                return fixture;
-            }
-        }
-
-        public class MemberAutoDomainDataAttribute : MemberAutoDataAttribute
-        {
-            public MemberAutoDomainDataAttribute(string memberName, params object[] parameters)
-                : base(new AutoDataDomainAttribute(), memberName, parameters)
+            public InlineDomainAutoDataAttribute(params object[] values)
+                : base(new ZendeskAutoDataAttribute(), values)
             {
             }
         }

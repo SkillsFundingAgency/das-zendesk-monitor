@@ -1,4 +1,4 @@
-using LanguageExt;
+﻿using LanguageExt;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Collections.Generic;
@@ -53,6 +53,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         private static bool TicketWasShared(TicketResponse response, SharingReason reason)
             => reason == SharingReason.Solved
+            || reason == SharingReason.HandedOff
             || (reason == SharingReason.Escalated && response.Comments.Any());
 
         private SharedTicket(SharingReason reason, TicketResponse response)
@@ -64,12 +65,13 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             Response = response;
         }
 
-        internal T Switch<T>(Func<bool, T> solved, Func<bool, T> escalated)
+        internal T Switch<T>(Func<bool, T> solved, Func<bool, T> handedOff, Func<bool, T> escalated)
         {
             return Reason switch
             {
                 var e when e == SharingReason.Solved => solved(true),
                 var e when e == SharingReason.Escalated => escalated(true),
+                var e when e == SharingReason.HandedOff => handedOff(true),
                 _ => throw new InvalidOperationException("Undeclared SharingReason found in Switch"),
             };
         }

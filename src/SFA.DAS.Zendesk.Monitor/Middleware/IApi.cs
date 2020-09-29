@@ -11,6 +11,9 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
         [Put("/ticket?escalate=true")]
         Task EscalateTicket([Body] EventWrapper body);
 
+        [Post("/ticket")]
+        Task HandOffTicket([Body] EventWrapper body);
+
         [Delete("/ticket")]
         Task SolveTicket([Body] EventWrapper body);
     }
