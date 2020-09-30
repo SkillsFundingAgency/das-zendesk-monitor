@@ -1,5 +1,13 @@
 Zendesk does not provide guaranteed delivery of messages via its webhooks.  This design attempts to provide after-market features to provide such guarantee.
 
+# Integration Overview
+
+Zendesk is used by the Apprenticeship Service as one of a number of customer interaction tracking systems.  As part of the lifecycle of some tickets, investigation is may be required by teams that use one of the other systems.  At this point, the Zendesk tickets must be transferred to the other system, and the other system's updates must be transferred back to the Zendesk ticket.
+
+![Detection](docs/zendesk-integration-overview.png)
+
+Zendesk business rules ensure the ticket satisfies business conditions before being sent to the Monitor.  This is an example of the [business rules for escalated tickets](docs/escalate-to-middleware-rules.pdf).
+
 # Requirements
 
 A service which monitors the Zendesk application, and ensures that all webhook messages are reliably delivered to the middleware.  To accomplish this, the service must detect Zendesk tickets that have outstanding messages undelivered; and be capable of delivering those messages into the middleware reliably.
@@ -64,9 +72,9 @@ There are a couple of caveats:
 * A minimum level of implementation is required before the integration can be ready for beta testing.
 
 ---
-![Detection](/docs/sequence-detect.png)
+![Detection](docs/sequence-detect.png)
 ---
-![Delivery](/docs/sequence-deliver.png)
+![Delivery](docs/sequence-deliver.png)
 
 # Failure and Monitoring
 
