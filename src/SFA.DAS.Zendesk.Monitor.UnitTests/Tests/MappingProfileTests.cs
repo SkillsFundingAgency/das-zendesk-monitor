@@ -82,5 +82,24 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             mapped.Via.Should().Be(viaText);
         }
+
+        [Theory]
+        [InlineData("middleware_destination_itsm", "itsm")]
+        [InlineData("middleware_destination_pcrm", "pcrm")]
+        [InlineData("some_other_tag", "itsm")] // default to "itsm"
+        [InlineData("middleware_destination_", "")]  // ability to "unset" destination
+        public void TestDestinationMapping(string tag, string destination)
+        {
+            var mapper = new MapperConfiguration(cfg => cfg.AddProfile<TicketProfile>()).CreateMapper();
+
+            var ticket = new Ticket
+            {
+                Tags = new List<string> { tag },
+            };
+
+            var mapped = mapper.Map<Middleware.Model.Ticket>(ticket);
+
+            mapped.Destination.Should().Be(destination);
+        }
     }
 }
