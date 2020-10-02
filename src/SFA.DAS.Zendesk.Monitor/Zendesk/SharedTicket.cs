@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using RestEase;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Collections.Generic;
@@ -40,52 +41,15 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
             return
                 from reason in shareReason
-                from responseWithComments in shareReason.Map(reason => LoadComments(reason, response, comments, audits))
+                from responseWithComments in shareReason.Map(AddComments)
                 where TicketWasShared(responseWithComments, reason)
                 select new SharedTicket(reason, responseWithComments);
 
             static string LastWord(string tag)
                 => tag?.Split('_').LastOrDefault() ?? "";
-        }
 
-        private static TicketResponse LoadComments(SharingReason reason, TicketResponse response, Comment[] comments, Audit[] audits)
-        {
-            switch(reason)
-            {
-                case var e when e == SharingReason.HandedOff:
-                    response.Comments = comments;
-                    return response;
-
-                case var e when e == SharingReason.Escalated:
-                    response.Comments = TaggedComments(comments, audits);
-                    return response;
-
-                default:
-                    return response;
-            }
-        }
-
-        private static Comment[] TaggedComments(Comment[] comments, Audit[] audits)
-        {
-            if (comments == null || audits == null)
-                return Array.Empty<Comment>();
-
-            var taggedAudits = audits
-                .Where(a => a.Events.Any(IsEscalationEvent));
-
-            var privateComments = taggedAudits
-                .SelectMany(a => a.Events)
-                .Where(e => e.Type == "Comment" && e.Public != true)
-                .Select(e => e.Id);
-
-            var taggedComments = comments
-                .Where(x => privateComments.Contains(x.Id));
-
-            return taggedComments.ToArray();
-
-            static bool IsEscalationEvent(Event e)
-                => e.Type == "Change" &&
-                   e.Value?.Contains("escalated_tag") == true;
+            TicketResponse AddComments(SharingReason reason)
+                => reason.AddCommentsToResponse(response, comments, audits);
         }
 
         private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket)
