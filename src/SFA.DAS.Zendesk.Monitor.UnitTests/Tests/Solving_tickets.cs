@@ -53,7 +53,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 .Do(_ => throw new Exception("Stop test at Middleware step"));
 
             sut.Invoking(s => s.ShareTicket(ticket.Id))
-                .Should().Throw<Exception>().WithMessage("Stop test at Middleware step");
+               .Should().Throw<Exception>().WithMessage("Stop test at Middleware step");
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
@@ -189,6 +189,35 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await sut.ShareTicket(ticket.Id);
 
             await middleware.DidNotReceive().SolveTicket(Arg.Any<Middleware.EventWrapper>());
+        }
+
+        [Theory, ZendeskAutoData]
+        public async Task Sends_ticket_to_middleware_with_no_comments(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            Watcher sut,
+            [Pending.Solved] Ticket ticket,
+            Comment[] comments)
+        {
+            // Given
+            zendesk.Tickets.Add(ticket);
+            zendesk.AddComments(ticket, comments);
+
+            // When
+            await sut.ShareTicket(ticket.Id);
+
+            // Then
+            var mwt = new
+            {
+                Ticket = new
+                {
+                    Comments = Array.Empty<Middleware.Model.Comments>(),
+                }
+            };
+
+            await middleware.Received().SolveTicket(
+                Verify.That<Middleware.EventWrapper>(
+                    body => body.Should().BeEquivalentTo(mwt)));
         }
     }
 }

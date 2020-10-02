@@ -16,19 +16,22 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         public TicketResponse Response { get; }
 
-        public static OptionAsync<SharedTicket> Create(
+        internal static OptionAsync<SharedTicket> Create(
             TicketResponse response,
-            Func<TicketResponse, Task<TicketResponse>> loadComments)
+            Comment[] comments,
+            Audit[] audits)
         {
-            if (response == null) throw new ArgumentNullException(nameof(response));
-            if (loadComments == null) throw new ArgumentNullException(nameof(response));
+            _ = response ?? throw new ArgumentNullException(nameof(response));
+            _ = comments ?? throw new ArgumentNullException(nameof(comments));
+            _ = audits ?? throw new ArgumentNullException(nameof(audits));
 
-            return ReasonForSharing(response, loadComments);
+            return ReasonForSharing(response, comments, audits);
         }
 
         private static OptionAsync<SharedTicket> ReasonForSharing(
             TicketResponse response,
-            Func<TicketResponse, Task<TicketResponse>> loadComments)
+            Comment[] comments,
+            Audit[] audits)
         {
             var shareReason =
                 GetSharingTagsInTicket(response.Ticket).ToOption()
@@ -37,12 +40,52 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
             return
                 from reason in shareReason
-                from responseWithComments in shareReason.MapAsync(_ => loadComments(response))
+                from responseWithComments in shareReason.Map(reason => LoadComments(reason, response, comments, audits))
                 where TicketWasShared(responseWithComments, reason)
                 select new SharedTicket(reason, responseWithComments);
 
             static string LastWord(string tag)
                 => tag?.Split('_').LastOrDefault() ?? "";
+        }
+
+        private static TicketResponse LoadComments(SharingReason reason, TicketResponse response, Comment[] comments, Audit[] audits)
+        {
+            switch(reason)
+            {
+                case var e when e == SharingReason.HandedOff:
+                    response.Comments = comments;
+                    return response;
+
+                case var e when e == SharingReason.Escalated:
+                    response.Comments = TaggedComments(comments, audits);
+                    return response;
+
+                default:
+                    return response;
+            }
+        }
+
+        private static Comment[] TaggedComments(Comment[] comments, Audit[] audits)
+        {
+            if (comments == null || audits == null)
+                return Array.Empty<Comment>();
+
+            var taggedAudits = audits
+                .Where(a => a.Events.Any(IsEscalationEvent));
+
+            var privateComments = taggedAudits
+                .SelectMany(a => a.Events)
+                .Where(e => e.Type == "Comment" && e.Public != true)
+                .Select(e => e.Id);
+
+            var taggedComments = comments
+                .Where(x => privateComments.Contains(x.Id));
+
+            return taggedComments.ToArray();
+
+            static bool IsEscalationEvent(Event e)
+                => e.Type == "Change" &&
+                   e.Value?.Contains("escalated_tag") == true;
         }
 
         private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket)

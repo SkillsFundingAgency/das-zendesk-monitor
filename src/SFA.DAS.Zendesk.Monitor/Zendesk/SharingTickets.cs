@@ -20,7 +20,10 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         public async Task<Option<SharedTicket>> GetTicketForSharing(long id)
         {
             var response = await api.GetTicketWithRequiredSideloads(id);
-            return await SharedTicket.Create(response, LoadComments).ToOption();
+            var comments = await api.GetTicketComments(response.Ticket);
+            var audits = await api.GetTicketAudits(response.Ticket);
+            return await SharedTicket.Create(response, comments, audits).ToOption();
+            //return await SharedTicket.Create(response, LoadComments).ToOption();
         }
 
         private Func<TicketResponse, Task<TicketResponse>> LoadComments
@@ -28,8 +31,9 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             =>
             {
                 var comments = await api.GetTicketComments(response.Ticket);
-                var audits = await api.GetTicketAudits(response.Ticket);
-                response.Comments = TaggedComments(comments, audits);
+                //var audits = await api.GetTicketAudits(response.Ticket);
+                //response.Comments = TaggedComments(comments, audits);
+                response.Comments = comments;
                 return response;
             };
 

@@ -68,7 +68,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             Watcher sut,
             [Frozen] AuditedComment comment,
             [Pending.Escalated] Ticket ticket
-                                                                                       )
+            )
         {
             // Given
             comment.AuditTagEvent.Value = "";

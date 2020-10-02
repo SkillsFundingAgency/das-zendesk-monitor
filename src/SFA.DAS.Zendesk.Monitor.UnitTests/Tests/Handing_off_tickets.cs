@@ -53,7 +53,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 .Do(_ => throw new Exception("Stop test at Middleware step"));
 
             sut.Invoking(s => s.ShareTicket(ticket.Id))
-                .Should().Throw<Exception>().WithMessage("Stop test at Middleware step");
+               .Should().Throw<Exception>().WithMessage("Stop test at Middleware step");
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags
@@ -189,6 +189,77 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             await sut.ShareTicket(ticket.Id);
 
             await middleware.DidNotReceive().HandOffTicket(Arg.Any<Middleware.EventWrapper>());
+        }
+
+        [Theory, ZendeskAutoData]
+        public async Task Sends_all_comments(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            Watcher sut,
+            [Pending.HandedOff] Ticket ticket,
+            Comment[] comments)
+        {
+            comments[0].Public = false;
+            comments[1].Public = true;
+
+            zendesk.Tickets.Add(ticket);
+            zendesk.AddComments(ticket, comments);
+
+            await sut.ShareTicket(ticket.Id);
+
+            var expectedTicket = new
+            {
+                Ticket = new
+                {
+                    Comments = comments.Select(x =>
+                    new
+                    {
+                        x.Id,
+                        x.Body,
+                    }),
+                }
+            };
+
+            await middleware.Received().HandOffTicket(
+                Verify.That<Middleware.EventWrapper>(x =>
+                    x.Should().BeEquivalentTo(expectedTicket)));
+        }
+
+        [Theory, ZendeskAutoData]
+        public async Task Sends_ticket_to_middleware_with_attachments(
+            [Frozen] FakeZendeskApi zendesk,
+            [Frozen] Middleware.IApi middleware,
+            Watcher sut,
+            [Pending.HandedOff] Ticket ticket,
+            Comment[] comments)
+        {
+            // Given
+            zendesk.Tickets.Add(ticket);
+            zendesk.AddComments(ticket, comments);
+
+            // When
+            await sut.ShareTicket(ticket.Id);
+
+            // Then
+            var expected = new
+            {
+                Ticket = new
+                {
+                    Comments = comments.Select(c => new
+                    {
+                        c.Id,
+                        Attachments = c.Attachments.Select(a => new
+                        {
+                            Filename = a.FileName,
+                            Url = a.ContentUrl,
+                        }),
+                    }),
+                }
+            };
+
+            await middleware.Received().HandOffTicket(
+                Verify.That<Middleware.EventWrapper>(
+                    body => body.Should().BeEquivalentTo(expected)));
         }
     }
 }

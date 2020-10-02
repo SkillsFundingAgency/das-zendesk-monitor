@@ -53,7 +53,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
 
             // When handing tickets off to other systems, all comments are sent
             // to the middleware to be shown in the other system.
-            private const bool HandedOffTicketsHaveSimpleComments = true;
+            private const bool HandedOffTicketsHaveSimpleComments = false;
         }
 
         public abstract class PendingAttribute : CustomizeAttribute, ICustomization
