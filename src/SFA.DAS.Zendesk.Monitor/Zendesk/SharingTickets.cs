@@ -23,41 +23,6 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             var comments = await api.GetTicketComments(response.Ticket);
             var audits = await api.GetTicketAudits(response.Ticket);
             return await SharedTicket.Create(response, comments, audits).ToOption();
-            //return await SharedTicket.Create(response, LoadComments).ToOption();
-        }
-
-        private Func<TicketResponse, Task<TicketResponse>> LoadComments
-            => async response
-            =>
-            {
-                var comments = await api.GetTicketComments(response.Ticket);
-                //var audits = await api.GetTicketAudits(response.Ticket);
-                //response.Comments = TaggedComments(comments, audits);
-                response.Comments = comments;
-                return response;
-            };
-
-        private static Comment[] TaggedComments(Comment[] comments, Audit[] audits)
-        {
-            if (comments == null || audits == null)
-                return Array.Empty<Comment>();
-
-            var taggedAudits = audits
-                .Where(a => a.Events.Any(IsEscalationEvent));
-
-            var privateComments = taggedAudits
-                .SelectMany(a => a.Events)
-                .Where(e => e.Type == "Comment" && e.Public != true)
-                .Select(e => e.Id);
-
-            var taggedComments = comments
-                .Where(x => privateComments.Contains(x.Id));
-
-            return taggedComments.ToArray();
-
-            static bool IsEscalationEvent(Event e)
-                => e.Type == "Change" &&
-                   e.Value?.Contains("escalated_tag") == true;
         }
 
         public async Task<long[]> GetTicketsForSharing()
@@ -108,8 +73,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
         private static readonly string[] AllSharingTags =
             CartesianProduct
-                .Of(ListEnum<SharingState>(), SharingReason.List)
+                .Of(ListEnum<SharingState>(), SharingReasonValidations.List)
                 .Using(MakeTag).ToArray();
+
+        private static string MakeTag(SharingState state, ISharingValidation validation) =>
+            MakeTag(state, validation.Reason);
 
         private static string MakeTag(SharingState state, SharingReason reason) =>
             $"{state}_{reason.AsTag()}".ToLower();
