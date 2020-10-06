@@ -1,6 +1,8 @@
 using AutoMapper;
+using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SFA.DAS.Zendesk.Monitor
 {
@@ -16,6 +18,7 @@ namespace SFA.DAS.Zendesk.Monitor
                 ;
 
             CreateMap<Zendesk.Model.Ticket, Middleware.Model.Ticket>()
+                .ForMember(dest => dest.Destination, src => src.MapFrom(p => FindDestination(p)))
                 .ForMember(dest => dest.Comments, src => src.Ignore())
                 .ForMember(dest => dest.Requester, src => src.Ignore())
                 .ForMember(dest => dest.Organization, src => src.Ignore())
@@ -48,6 +51,12 @@ namespace SFA.DAS.Zendesk.Monitor
                 .ForAllMembers(src => src.NullSubstitute(""))
                 ;
         }
+
+        private static string FindDestination(Ticket p) =>
+            p.Tags
+                ?.Find(t => t.StartsWith("middleware_destination_"))
+                ?.Split("_").Last()
+            ?? "itsm";
 
         private static Zendesk.Model.Organization? FindOrganisation(Zendesk.Model.TicketResponse response)
             => response.Organizations?.FirstOrDefault(x => x.Id == response.Ticket.OrganizationId);

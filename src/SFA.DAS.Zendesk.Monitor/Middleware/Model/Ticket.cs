@@ -17,6 +17,7 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware.Model
         public CustomField[] CustomFields { get; set; }
         public Organisation Organization { get; set; }
         public User Requester { get; set; }
+        public string Destination { get; set; }
 
         public override string ToString()
             => JsonConvert.SerializeObject(this, Formatting.Indented);
