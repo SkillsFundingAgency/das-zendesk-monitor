@@ -1,10 +1,6 @@
 ﻿using LanguageExt;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using static SFA.DAS.Zendesk.Monitor.Zendesk.SmartEnumValues;
 
 namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
@@ -12,56 +8,43 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
     {
         public long Id { get; }
 
-        public SharingReason Reason { get; }
+        internal SharingReason Reason { get; }
 
         public TicketResponse Response { get; }
+        public string ReasonTag => Reason.AsTag();
 
-        public static OptionAsync<SharedTicket> Create(
+        internal static OptionAsync<SharedTicket> Create(
             TicketResponse response,
-            Func<TicketResponse, Task<TicketResponse>> loadComments)
+            Comment[] comments,
+            Audit[] audits)
         {
-            if (response == null) throw new ArgumentNullException(nameof(response));
-            if (loadComments == null) throw new ArgumentNullException(nameof(response));
+            _ = response ?? throw new ArgumentNullException(nameof(response));
+            _ = comments ?? throw new ArgumentNullException(nameof(comments));
+            _ = audits ?? throw new ArgumentNullException(nameof(audits));
 
-            return ReasonForSharing(response, loadComments);
+            return ReasonForSharing(response, comments, audits);
         }
 
         private static OptionAsync<SharedTicket> ReasonForSharing(
             TicketResponse response,
-            Func<TicketResponse, Task<TicketResponse>> loadComments)
+            Comment[] comments,
+            Audit[] audits)
         {
-            var shareReason =
-                GetSharingTagsInTicket(response.Ticket).ToOption()
-                .Map(LastWord)
-                .Bind(ParseIgnoringCase<SharingReason>).ToAsync();
+            response.Comments = comments;
+            response.Audits = audits;
 
-            return
-                from reason in shareReason
-                from responseWithComments in shareReason.MapAsync(_ => loadComments(response))
-                where TicketWasShared(responseWithComments, reason)
-                select new SharedTicket(reason, responseWithComments);
-
-            static string LastWord(string tag)
-                => tag?.Split('_').LastOrDefault() ?? "";
+            return SharingReasonValidations.List
+                .Bind(r => r.TryShareTicket(response))
+                .ToOption()
+                .ToAsync();
         }
 
-        private static IEnumerable<string> GetSharingTagsInTicket(Ticket ticket)
-            => ticket.Tags.Where(TagEndsWithSharingReason);
-
-        private static bool TagEndsWithSharingReason(string tag) =>
-            SharingReason.List.Any(reason => tag.EndsWith(reason.AsTag()));
-
-        private static bool TicketWasShared(TicketResponse response, SharingReason reason)
-            => reason == SharingReason.Solved
-            || reason == SharingReason.HandedOff
-            || (reason == SharingReason.Escalated && response.Comments.Any());
-
-        private SharedTicket(SharingReason reason, TicketResponse response)
+        internal SharedTicket(SharingReason reason, TicketResponse response)
         {
             Id = response.Ticket?.Id
                 ?? throw new ArgumentException("Response does not contain the Ticket ID");
 
-            Reason = reason;
+            this.Reason = reason;
             Response = response;
         }
 

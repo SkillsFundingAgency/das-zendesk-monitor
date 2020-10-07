@@ -5,7 +5,7 @@
         public static AuditedComment[] ShareAll(this AuditedComment[] comments)
         {
             foreach (var c in comments) 
-                c.Share();
+                c.Escalate();
             return comments;
         }
     }

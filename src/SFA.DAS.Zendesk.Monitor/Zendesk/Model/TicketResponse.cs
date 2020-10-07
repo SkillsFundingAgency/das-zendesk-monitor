@@ -11,7 +11,7 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public User[] Users { get; set; }
 
         public Organization[] Organizations { get; set; }
-        
+
         public Audit[] Audits { get; set; }
     }
 

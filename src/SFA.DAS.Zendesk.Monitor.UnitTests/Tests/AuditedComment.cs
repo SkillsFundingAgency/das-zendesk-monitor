@@ -33,7 +33,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             set => base.Body = AsAudit.Events[^1].Body = value;
         }
 
-        public void Share()
+        public void Escalate()
         {
             Public = false;
 

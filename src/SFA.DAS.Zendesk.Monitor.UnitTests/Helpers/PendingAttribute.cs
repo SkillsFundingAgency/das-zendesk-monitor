@@ -19,65 +19,23 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
         [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
         public class Solved : PendingAttribute
         {
-            public Solved(bool addTag = true)
-                : base(nameof(Solved), addTag, SolvedTicketsDoNotHaveComments)
+            public Solved() : base(nameof(Solved))
             {
             }
-
-            // Agents do not use any macros when resolving tickets, so
-            // there is no audited comment associated with the resolution.
-            private const bool SolvedTicketsDoNotHaveComments = false;
         }
 
         [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
         public class Escalated : PendingAttribute
         {
-            public Escalated(bool addTag = true)
-                : base(nameof(Escalated), addTag, EscalatedTicketsHaveAuditedComments)
+            public Escalated()
+                : base(nameof(Escalated), EscalateCommentCustomisation)
             {
             }
 
             // When escalating tickets agents use a macro that adds a tagged
             // comment to the ticket.  The extra tag and comment occur in the
             // same audit event as the "pending" tag.
-            private const bool EscalatedTicketsHaveAuditedComments = true;
-        }
-
-        [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-        public class HandedOff : PendingAttribute
-        {
-            public HandedOff(bool addTag = true)
-                : base(nameof(HandedOff), addTag, HandedOffTicketsHaveSimpleComments)
-            {
-            }
-
-            // When handing tickets off to other systems, all comments are sent
-            // to the middleware to be shown in the other system.
-            private const bool HandedOffTicketsHaveSimpleComments = true;
-        }
-
-        public abstract class PendingAttribute : CustomizeAttribute, ICustomization
-        {
-            private readonly List<CustomisationFunc> customisations = new List<CustomisationFunc>();
-
-            public PendingAttribute(string reason, bool addTag, bool addComment)
-            {
-                if (addTag)
-                    customisations.Add((fixture, x) => AddTagCustomisation(fixture, x, reason));
-
-                if (addComment)
-                    customisations.Add((fixture, x) => AddTaggedCommentCustomisation(fixture, x));
-            }
-
-            private IPostprocessComposer<Ticket> AddTagCustomisation(
-                IFixture _,
-                IPostprocessComposer<Ticket> ticket, string reason)
-            =>
-                ticket
-                    .Without(y => y.Tags)
-                    .Do(y => y.Tags = new List<string> { $"pending_middleware_{reason.ToLower()}" });
-
-            private IPostprocessComposer<Ticket> AddTaggedCommentCustomisation(
+            private static IPostprocessComposer<Ticket> EscalateCommentCustomisation(
                 IFixture fixture,
                 IPostprocessComposer<Ticket> ticket)
             =>
@@ -88,11 +46,40 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.AutoFixtureCustomisation
                         ticket.Id = fixture.Create<long>();
 
                         var comment = fixture.Create<AuditedComment>();
-                        comment.Share();
+                        comment.Escalate();
 
                         var zendesk = fixture.Create<FakeZendeskApi>();
                         zendesk.AddComments(ticket, new[] { comment });
                     });
+        }
+
+        [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+        public class HandedOff : PendingAttribute
+        {
+            public HandedOff() : base(nameof(HandedOff))
+            {
+            }
+        }
+
+        public abstract class PendingAttribute : CustomizeAttribute, ICustomization
+        {
+            protected readonly List<CustomisationFunc> customisations = new List<CustomisationFunc>();
+
+            protected PendingAttribute(
+                string reason,
+                params CustomisationFunc[] extraCustomisations)
+            {
+                customisations.Add((fixture, x) => AddTagCustomisation(fixture, x, reason));
+                customisations.AddRange(extraCustomisations);
+            }
+
+            private IPostprocessComposer<Ticket> AddTagCustomisation(
+                IFixture _,
+                IPostprocessComposer<Ticket> ticket, string reason)
+            =>
+                ticket
+                    .Without(y => y.Tags)
+                    .Do(y => y.Tags = new List<string> { $"pending_middleware_{reason.ToLower()}" });
 
             public override ICustomization GetCustomization(ParameterInfo parameter)
             {

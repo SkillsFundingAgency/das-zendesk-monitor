@@ -1,17 +1,15 @@
-﻿using Ardalis.SmartEnum;
-
-namespace SFA.DAS.Zendesk.Monitor.Zendesk
+﻿namespace SFA.DAS.Zendesk.Monitor.Zendesk
 {
-    public sealed class SharingReason : SmartEnum<SharingReason>
+    internal enum SharingReason
     {
-        public static readonly SharingReason Solved = new SharingReason(nameof(Solved), 0);
-        public static readonly SharingReason Escalated = new SharingReason(nameof(Escalated), 1);
-        public static readonly SharingReason HandedOff = new SharingReason(nameof(HandedOff), 2);
+        Solved,
+        Escalated,
+        HandedOff,
+    }
 
-        private SharingReason(string name, int value) : base(name, value)
-        {
-        }
-
-        public string AsTag() => $"middleware_{Name}".ToLower();
+    internal static class SharingReasonExtensions
+    {
+        internal static string AsTag(this SharingReason reason) =>
+            $"middleware_{reason}".ToLower();
     }
 }
