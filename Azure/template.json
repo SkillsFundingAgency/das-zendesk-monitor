@@ -287,6 +287,7 @@
                 }
             },
             "dependsOn": [
+                "worker-app-service-subnet",
                 "worker-app-service-plan",
                 "storage-account"
             ]
