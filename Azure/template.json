@@ -25,6 +25,10 @@
             "type": "int",
             "defaultValue": 1
         },
+        "aspTier": {
+            "type": "string",
+            "defaultValue": "Standard"
+        },
         "loggingRedisConnectionString": {
             "type": "securestring"
         },
@@ -161,7 +165,7 @@
                         "value": "[parameters('workerAspInstances')]"
                     },
                     "nonASETier": {
-                        "value": "Basic"
+                        "value": "[parameters('aspTier')]"
                     }
                 }
             }
