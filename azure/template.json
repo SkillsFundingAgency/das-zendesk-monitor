@@ -48,7 +48,7 @@
             "type": "string"
         },
         "MiddlewareSubscriptionKey": {
-            "type": "string"
+            "type": "securestring"
         },
         "MiddlewareApiBasicAuth": {
             "type": "securestring"
@@ -199,7 +199,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'),'function-app.json')]",
+                    "uri": "[concat(variables('deploymentUrlBase'),'function-app-v2.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -216,77 +216,81 @@
                         "value": "[reference('worker-app-service-subnet').outputs.SubnetResourceId.value]"
                     },
                     "functionAppAppSettings": {
-                        "value": [
-                            {
-                                "name": "AzureWebJobsStorage",
-                                "value": "[reference('storage-account').outputs.storageConnectionString.value]"
-                            },
-                            {
-                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference('worker-function-app-insights').outputs.InstrumentationKey.value]"
-                            },
-                            {
-                                "name": "FUNCTIONS_EXTENSION_VERSION",
-                                "value": "[parameters('functionsExtensionVersion')]"
-                            },
-                            {
-                                "name": "FUNCTIONS_WORKER_RUNTIME",
-                                "value": "dotnet"
-                            },
-                            {
-                                "name": "EnvironmentName",
-                                "value": "[toUpper(parameters('environmentName'))]"
-                            },
-                            {
-                                "name": "LoggingRedisConnectionString",
-                                "value": "[parameters('loggingRedisConnectionString')]"
-                            },
-                            {
-                                "name": "ConfigurationStorageConnectionString",
-                                "value": "[parameters('configurationStorageConnectionString')]"
-                            },
-                            {
-                                "name": "Zendesk:Url",
-                                "value": "[parameters('ZenDeskUrl')]"
-                            },
-                            {
-                                "name": "Zendesk:ApiUser",
-                                "value": "[parameters('ApiUser')]"
-                            },
-                            {
-                                "name": "Zendesk:ApiKey",
-                                "value": "[parameters('ApiKey')]"
-                            },
-                            {
-                                "name": "Middleware:Url ",
-                                "value": "[parameters('MiddlewareUrl')]"
-                            },
-                            {
-                                "name": "Middleware:SubscriptionKey ",
-                                "value": "[parameters('MiddlewareSubscriptionKey')]"
-                            },
-                            {
-                                "name": "Middleware:ApiBasicAuth",
-                                "value": "[parameters('MiddlewareApiBasicAuth')]"
-                            },
-                            {
-                                "name": "MonitorCronSetting",
-                                "value": "[parameters('MonitorCronSetting')]"
-                            },
-                            {
-                                "name": "AppName",
-                                "value": "das-zendesk-monitor"
-                            }
-                        ]
+                        "value": {
+                            "array": [
+                                {
+                                    "name": "AzureWebJobsStorage",
+                                    "value": "[reference('storage-account').outputs.storageConnectionString.value]"
+                                },
+                                {
+                                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                    "value": "[reference('worker-function-app-insights').outputs.InstrumentationKey.value]"
+                                },
+                                {
+                                    "name": "FUNCTIONS_EXTENSION_VERSION",
+                                    "value": "[parameters('functionsExtensionVersion')]"
+                                },
+                                {
+                                    "name": "FUNCTIONS_WORKER_RUNTIME",
+                                    "value": "dotnet"
+                                },
+                                {
+                                    "name": "EnvironmentName",
+                                    "value": "[toUpper(parameters('environmentName'))]"
+                                },
+                                {
+                                    "name": "LoggingRedisConnectionString",
+                                    "value": "[parameters('loggingRedisConnectionString')]"
+                                },
+                                {
+                                    "name": "ConfigurationStorageConnectionString",
+                                    "value": "[parameters('configurationStorageConnectionString')]"
+                                },
+                                {
+                                    "name": "Zendesk:Url",
+                                    "value": "[parameters('ZenDeskUrl')]"
+                                },
+                                {
+                                    "name": "Zendesk:ApiUser",
+                                    "value": "[parameters('ApiUser')]"
+                                },
+                                {
+                                    "name": "Zendesk:ApiKey",
+                                    "value": "[parameters('ApiKey')]"
+                                },
+                                {
+                                    "name": "Middleware:Url ",
+                                    "value": "[parameters('MiddlewareUrl')]"
+                                },
+                                {
+                                    "name": "Middleware:SubscriptionKey ",
+                                    "value": "[parameters('MiddlewareSubscriptionKey')]"
+                                },
+                                {
+                                    "name": "Middleware:ApiBasicAuth",
+                                    "value": "[parameters('MiddlewareApiBasicAuth')]"
+                                },
+                                {
+                                    "name": "MonitorCronSetting",
+                                    "value": "[parameters('MonitorCronSetting')]"
+                                },
+                                {
+                                    "name": "AppName",
+                                    "value": "das-zendesk-monitor"
+                                }
+                            ]
+                        }
                     },
                     "functionAppConnectionStrings": {
-                        "value": [
-                            {
-                                "name": "Redis",
-                                "connectionString": "[parameters('loggingRedisConnectionString')]",
-                                "type": "Custom"
-                            }
-                        ]
+                        "value": {
+                            "array": [
+                                {
+                                    "name": "Redis",
+                                    "connectionString": "[parameters('loggingRedisConnectionString')]",
+                                    "type": "Custom"
+                                }
+                            ]
+                        }
                     }
                 }
             },
