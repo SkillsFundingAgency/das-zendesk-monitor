@@ -280,6 +280,10 @@
                                 {
                                     "name": "AppName",
                                     "value": "das-zendesk-monitor"
+                                },
+                                {
+                                    "name": "WEBSITE_RUN_FROM_PACKAGE",
+                                    "value": "1"
                                 }
                             ]
                         }
