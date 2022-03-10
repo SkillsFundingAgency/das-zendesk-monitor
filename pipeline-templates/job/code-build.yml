@@ -1,0 +1,104 @@
+jobs:
+- job: 'CodeBuild'
+  variables:
+    buildConfiguration: 'release'
+    buildPlatform: 'anycpu'
+
+  pool:
+    name: 'DAS - Continuous Integration'
+    demands:
+      - Agent.OS -equals Windows_NT
+  workspace:
+    clean: all
+  variables:
+      - group: BUILD Management Resources
+      - name: buildConfiguration 
+        value: 'release'
+      - name: buildPlatform
+        value: 'any cpu'
+
+  steps:
+  - task: gittools.gitversion.gitversion-task.GitVersion@5
+    displayName: GitVersion
+    inputs:
+      updateAssemblyInfo: true
+
+  - task: SonarCloudPrepare@1
+    displayName: Prepare SonarCloud analysis configuration
+    condition: and(succeeded(), or(in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/main'), eq(variables['Build.Reason'], 'PullRequest')))
+    inputs:
+      SonarCloud: ESFA - SonarCloud
+      organization: $(SonarCloudOrganisationKey)
+      scannerMode: MSBuild
+      projectName: "$(Build.DefinitionName)"
+      projectKey: SkillsFundingAgency_das-zendesk-monitor
+
+      
+  - task: DotNetCoreCLI@2
+    displayName: Restore
+    inputs:
+      command: restore
+      projects: 'src/**/*.csproj'
+      noCache: true
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    env:
+      MSBUILDSINGLELOADCONTEXT: 1
+    inputs:
+      projects: 'src/**/*.csproj'
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: test
+      projects: '**/*.UnitTests.csproj'
+      arguments: '--configuration $(buildConfiguration) --no-build'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish Function App'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: 'src/SFA.DAS.Zendesk.Monitor.Function/SFA.DAS.Zendesk.Monitor.Function.csproj'
+      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish User Acceptance Tests'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: 'src/SFA.DAS.Zendesk.Monitor.UserAcceptanceTests/SFA.DAS.Zendesk.Monitor.UserAcceptanceTests.csproj'
+      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
+
+  - task: SonarCloudAnalyze@1
+    displayName: Run SonarCloud analysis
+    condition: and(succeeded(), or(in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/main'), eq(variables['Build.Reason'], 'PullRequest')))
+
+  - task: SonarCloudPublish@1
+    displayName: Publish SonarCloud analysis results on build summary
+    condition: and(succeeded(), or(in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/main'), eq(variables['Build.Reason'], 'PullRequest')))
+    inputs:
+      pollingTimeoutSec: '300'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    inputs:
+      Contents: |
+      azure/**
+      TargetFolder: '$(build.artifactstagingdirectory)/publish'
+      OverWrite: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    inputs:
+      Contents: |     
+      src/Check-TestResults.ps1
+      TargetFolder: '$(build.artifactstagingdirectory)/publish'
+      OverWrite: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact'
+    inputs:
+      PathtoPublish: '$(build.artifactstagingdirectory)/publish'
