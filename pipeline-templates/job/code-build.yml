@@ -1,6 +1,6 @@
 jobs:
 - job: 'CodeBuild'
-    pool:
+  pool:
     name: 'DAS - Continuous Integration'
     demands:
       - Agent.OS -equals Windows_NT
@@ -82,7 +82,7 @@ jobs:
     displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
     inputs:
       Contents: |
-      azure/**
+        azure/**
       TargetFolder: '$(build.artifactstagingdirectory)/publish'
       OverWrite: true
 
@@ -90,7 +90,7 @@ jobs:
     displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
     inputs:
       Contents: |     
-      src/Check-TestResults.ps1
+        src/Check-TestResults.ps1
       TargetFolder: '$(build.artifactstagingdirectory)/publish'
       OverWrite: true
 
