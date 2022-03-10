@@ -1,10 +1,6 @@
 jobs:
 - job: 'CodeBuild'
-  variables:
-    buildConfiguration: 'release'
-    buildPlatform: 'anycpu'
-
-  pool:
+    pool:
     name: 'DAS - Continuous Integration'
     demands:
       - Agent.OS -equals Windows_NT
