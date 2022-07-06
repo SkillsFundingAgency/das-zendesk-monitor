@@ -74,6 +74,10 @@
         },
         "subnetDelegations": {
             "type": "array"
+        },
+        "utcValue": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyMMddHHmmss')]"
         }
     },
     "variables": {
@@ -97,7 +101,7 @@
         },
         {
             "apiVersion": "2020-06-01",
-            "name": "worker-app-service-subnet",
+            "name": "[concat('worker-app-service-subnet-', parameters('utcValue'))]",
             "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -127,7 +131,7 @@
         },
         {
             "apiVersion": "2020-06-01",
-            "name": "storage-account",
+            "name": "[concat('storage-account-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[variables('resourceGroupName')]",
             "properties": {
@@ -148,7 +152,7 @@
         },
         {
             "apiVersion": "2020-06-01",
-            "name": "worker-app-service-plan",
+            "name": "[concat('worker-app-service-plan-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[variables('resourceGroupName')]",
             "properties": {
@@ -175,7 +179,7 @@
         },
         {
             "apiVersion": "2020-06-01",
-            "name": "worker-function-app-insights",
+            "name": "[concat('worker-function-app-insights-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[variables('resourceGroupName')]",
             "properties": {
@@ -196,7 +200,7 @@
         },
         {
             "apiVersion": "2020-06-01",
-            "name": "worker-function-app",
+            "name": "[concat('worker-function-app-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[variables('resourceGroupName')]",
             "properties": {
@@ -216,18 +220,18 @@
                         "value": "[variables('resourceGroupName')]"
                     },
                     "subnetResourceId": {
-                        "value": "[reference('worker-app-service-subnet').outputs.SubnetResourceId.value]"
+                        "value": "[reference(concat('worker-app-service-subnet-', parameters('utcValue'))).outputs.SubnetResourceId.value]"
                     },
                     "functionAppAppSettings": {
                         "value": {
                             "array": [
                                 {
                                     "name": "AzureWebJobsStorage",
-                                    "value": "[reference('storage-account').outputs.storageConnectionString.value]"
+                                    "value": "[reference(concat('storage-account-', parameters('utcValue'))).outputs.storageConnectionString.value]"
                                 },
                                 {
                                     "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                    "value": "[reference('worker-function-app-insights').outputs.InstrumentationKey.value]"
+                                    "value": "[reference(concat('worker-function-app-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value]"
                                 },
                                 {
                                     "name": "FUNCTIONS_EXTENSION_VERSION",
@@ -302,9 +306,9 @@
                 }
             },
             "dependsOn": [
-                "worker-app-service-subnet",
-                "worker-app-service-plan",
-                "storage-account"
+                "[concat('worker-app-service-subnet-', parameters('utcValue'))]",
+                "[concat('worker-app-service-plan-', parameters('utcValue'))]",
+                "[concat('storage-account-', parameters('utcValue'))]"
             ]
         }
     ],
