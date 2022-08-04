@@ -78,6 +78,9 @@
         "utcValue": {
             "type": "string",
             "defaultValue": "[utcNow('yyMMddHHmmss')]"
+        },
+        "workerAccessRestrictions": {
+            "type": "array"
         }
     },
     "variables": {
@@ -87,7 +90,6 @@
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "workerFunctionAppName": "[concat(variables('resourceNamePrefix'),'-wkr-fa')]",
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]"
-
     },
     "resources": [
         {
@@ -221,6 +223,9 @@
                     },
                     "subnetResourceId": {
                         "value": "[reference(concat('worker-app-service-subnet-', parameters('utcValue'))).outputs.SubnetResourceId.value]"
+                    },
+                    "ipSecurityRestrictions": {
+                        "value": "[parameters('workerAccessRestrictions')]"
                     },
                     "functionAppAppSettings": {
                         "value": {
