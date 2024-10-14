@@ -30,13 +30,19 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             string existingValue,
             bool hasExistingValue,
             JsonSerializer serializer)
-        =>
-            reader.TokenType switch
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException(nameof(reader), "JsonReader cannot be null.");
+            }
+
+            return reader.TokenType switch
             {
                 JsonToken.String => DeserialiseString(reader),
                 JsonToken.StartArray => DeserialiseArray(reader),
                 _ => DeserialiseObject(reader),
             };
+        }
 
         private static string DeserialiseString(JsonReader reader)
             => JToken.Load(reader).ToObject<string>();

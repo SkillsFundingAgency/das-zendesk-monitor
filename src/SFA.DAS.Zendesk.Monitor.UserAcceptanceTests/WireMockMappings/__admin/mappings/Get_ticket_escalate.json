@@ -1,0 +1,67 @@
+{
+  "Guid": "a6ff2298-5d52-424a-92dc-013a66b1d512",
+  "Title": "Get ticket - escalate",
+  "Request": {
+    "Path": {
+      "Matchers": [
+        {
+          "Name": "WildcardMatcher",
+          "Pattern": "/api/v2/tickets/363.json",
+          "IgnoreCase": false
+        }
+      ]
+    },
+    "Methods": [
+      "GET"
+    ],
+    "Headers": [
+      {
+        "Name": "Cache-Control",
+        "Matchers": [
+          {
+            "Name": "WildcardMatcher",
+            "Pattern": "no-cache",
+            "IgnoreCase": true
+          }
+        ]
+      },
+      {
+        "Name": "Authorization",
+        "Matchers": [
+          {
+            "Name": "WildcardMatcher",
+            "Pattern": "Basic X19aZW5kZXNrQXBpVXNlcl9fOl9fWmVuZGVza0FwaUtleV9f",
+            "IgnoreCase": true
+          }
+        ]
+      }
+      // Note: No Content-Type header matcher for GET requests
+    ]
+  },
+  "Response": {
+    "StatusCode": 200,
+    "BodyAsJson": {
+      "ticket": {
+        "id": 363,
+        "created_at": "2019-07-23T11:48:13Z",
+        "updated_at": "2019-07-23T11:48:13Z",
+        "subject": "Integration testing Watcher",
+        "description": "Created for testing",
+        "priority": "low",
+        "status": "hold",
+        "requester_id": 361623959700,
+        "submitter_id": 361623959700,
+        "tags": [ "escalated_tag" ],
+        "custom_fields": [
+          {
+            "id": 360002600499,
+            "value": "INC1000001"
+          }
+        ]
+      }
+    },
+    "Headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

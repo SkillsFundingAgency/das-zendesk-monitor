@@ -1,0 +1,76 @@
+{
+  "Guid": "87d7d3c1-c324-41d6-a7d9-e5abbfd11a2f",
+  "Title": "Get Ticket Fields",
+  "Request": {
+    "Path": {
+      "Matchers": [
+        {
+          "Name": "WildcardMatcher",
+          "Pattern": "/api/v2/ticket_fields.json",
+          "IgnoreCase": false
+        }
+      ]
+    },
+    "Methods": [
+      "GET"
+    ]
+  },
+  "Response": {
+    "StatusCode": 200,
+    "BodyAsJson": {
+      "ticket_fields": [
+        {
+          "id": 360002763800,
+          "type": "custom_field_type",
+          "title": "Contact Reason",
+          "active": true,
+          "position": 1,
+          "required": false,
+          "visible_to": [ "end_users" ],
+          "tag": "contact_reason",
+          "created_at": "2023-01-01T00:00:00Z",
+          "updated_at": "2023-01-02T00:00:00Z"
+        },
+        {
+          "id": 360002755879,
+          "type": "custom_field_type",
+          "title": "Service Offering",
+          "active": true,
+          "position": 2,
+          "required": false,
+          "visible_to": [ "end_users" ],
+          "tag": "service_offering",
+          "created_at": "2023-01-01T00:00:00Z",
+          "updated_at": "2023-01-02T00:00:00Z"
+        },
+        {
+          "id": 360002730279,
+          "type": "custom_field_type",
+          "title": "Resolver Group",
+          "active": true,
+          "position": 3,
+          "required": false,
+          "visible_to": [ "end_users" ],
+          "tag": "resolver_group",
+          "created_at": "2023-01-01T00:00:00Z",
+          "updated_at": "2023-01-02T00:00:00Z"
+        },
+        {
+          "id": 360002600499,
+          "type": "custom_field_type",
+          "title": "Service Now Incident Number (auto populated)",
+          "active": true,
+          "position": 3,
+          "required": false,
+          "visible_to": [ "end_users" ],
+          "tag": "resolver_group",
+          "created_at": "2023-01-01T00:00:00Z",
+          "updated_at": "2023-01-02T00:00:00Z"
+        }
+      ]
+    },
+    "Headers": {
+      "Content-Type": "application/json; charset=UTF-8"
+    }
+  }
+}
