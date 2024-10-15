@@ -5,6 +5,7 @@ using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -13,8 +14,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using WireMock.Client;
 using WireMock.Handlers;
+using WireMock.Logging;
 using WireMock.Server;
 using WireMock.Settings;
 
@@ -37,11 +38,10 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             Url = $"https://{instance}.zendesk.com/api/v2",
             SaveMapping = true,
             SaveMappingToFile = true,
-            BlackListedHeaders = new[] { "dnt", "Content-Length", "Authorization", "Host" }
+            ExcludedHeaders = new[] { "dnt", "Content-Length", "Authorization", "Host" }
         };
 
-        private readonly FluentMockServer server;
-        private readonly IFluentMockServerAdmin admin;
+        private readonly WireMockServer server;
         private readonly IApi zendeskApi;
         private readonly ISharingTickets sharing;
         private readonly Lazy<Task<Dictionary<string, long>>> ticketFieldIds;
@@ -59,14 +59,13 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             var token = conf.GetValue<string>("Zendesk:ApiKey");
             var useLiveZendesk = conf.GetValue<bool?>("Zendesk:UseLiveInstance") ?? false;
 
-            server = FluentMockServer.Start(new FluentMockServerSettings
+            server = WireMockServer.Start(new WireMockServerSettings
             {
                 ReadStaticMappings = !useLiveZendesk,
                 FileSystemHandler = new LocalFileSystemHandler(ProjectPath),
                 ProxyAndRecordSettings = useLiveZendesk ? LiveZendeskProxySettings(instance) : null,
                 StartAdminInterface = true
             });
-            admin = RestClient.For<IFluentMockServerAdmin>(server.Urls[0]);
 
             var url = server.Urls.First();
 
