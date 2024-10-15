@@ -71,5 +71,4 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
                 @$"Serialisation has not been implemented for `string` named ""Value""");
         }
     }
-
 }

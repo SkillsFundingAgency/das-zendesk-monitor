@@ -26,10 +26,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
             return new RestClient(httpClient).CreateApi();
         }
 
-        public static IApi CreateApi(HttpClient client)
-        {
-            return new RestClient(client).CreateApi();
-        }
+        public static IApi CreateApi(HttpClient client) => new RestClient(client).CreateApi();
+
     }
 
     public static class ApiFactoryExtensions
