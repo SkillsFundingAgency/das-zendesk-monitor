@@ -11,10 +11,10 @@
     <PackageReference Include="Flurl.Http" Version="4.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
+    <PackageReference Include="Reqnroll" Version="2.1.1" />
+    <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.1.1" />
+    <PackageReference Include="Reqnroll.xUnit" Version="2.1.1" />
     <PackageReference Include="RestEase" Version="1.6.4" />
-    <PackageReference Include="SpecFlow" Version="3.9.74" />
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.74" />
-    <PackageReference Include="SpecFlow.xUnit" Version="3.9.74" />
     <PackageReference Include="WireMock.Net" Version="1.6.6" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
@@ -36,7 +36,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="MiddlewareReceiveTicketUpdates.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <Generator>ReqnrollGenerator</Generator>
       <LastGenOutput>MiddlewareReceiveTicketUpdates.feature.cs</LastGenOutput>
     </None>
     <None Update="WireMockMappings\__admin\mappings\1.Create.json">
