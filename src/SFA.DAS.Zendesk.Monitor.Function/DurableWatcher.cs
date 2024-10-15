@@ -1,5 +1,5 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Zendesk.Monitor;
 using System;
@@ -16,19 +16,19 @@ namespace ZenWatchFunction
             this.log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        [FunctionName(nameof(SearchTickets))]
-        public async Task<long[]> SearchTickets([ActivityTrigger] IDurableActivityContext context)
+        [Function(nameof(SearchTickets))]
+        public async Task<long[]> SearchTickets([ActivityTrigger] DurableTaskClient context)
         {
             log.LogInformation($"Searching for tickets");
             var tickets = await watcher.GetTicketsForSharing();
-            log.LogInformation($"Found {tickets.Count()}");
+            log.LogInformation("Found {TicketCount}", tickets.Length);
             return tickets.ToArray();
         }
 
-        [FunctionName(nameof(ShareTicket))]
+        [Function(nameof(ShareTicket))]
         public Task ShareTicket([ActivityTrigger] long id)
         {
-            log.LogInformation($"Sharing ticket {id}");
+            log.LogInformation("Sharing ticket {TicketId}", id);
             return watcher.ShareTicket(id);
         }
 
