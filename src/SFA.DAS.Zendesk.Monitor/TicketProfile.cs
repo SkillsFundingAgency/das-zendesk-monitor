@@ -40,10 +40,7 @@ namespace SFA.DAS.Zendesk.Monitor
                 ;
 
             CreateMap<Zendesk.Model.UserFields, Middleware.Model.UserFields>()
-                .ForMember(dest => dest.AddressLine1, src => src.NullSubstitute(""))
-                .ForMember(dest => dest.AddressLine2, src => src.NullSubstitute(""))
-                .ForMember(dest => dest.AddressLine3, src => src.NullSubstitute(""))
-                .ForAllOtherMembers(src => src.NullSubstitute(""))
+                .ForAllMembers(src => src.NullSubstitute(""))
                 ;
 
             CreateMap<Zendesk.Model.Organization, Middleware.Model.Organisation>();

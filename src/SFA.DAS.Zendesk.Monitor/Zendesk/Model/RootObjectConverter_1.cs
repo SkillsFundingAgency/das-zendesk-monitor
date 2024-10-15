@@ -24,13 +24,13 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
         public override object ReadJson(
             JsonReader reader,
             Type objectType,
-            object existingValue,
+            object? existingValue,
             JsonSerializer serializer)
         => throw new NotImplementedException("Deserialising is not supported");
 
         public override void WriteJson(
             JsonWriter writer,
-            object value,
+            object? value,
             JsonSerializer serializer)
         {
             if (writer == null)
@@ -62,6 +62,8 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk.Model
                 .GetProperties()
                 .ToDictionary(
                     x => x.Name,
-                    x => x.GetValue(t));
+                    x => x.GetValue(t),
+                    StringComparer.OrdinalIgnoreCase);
     }
+
 }

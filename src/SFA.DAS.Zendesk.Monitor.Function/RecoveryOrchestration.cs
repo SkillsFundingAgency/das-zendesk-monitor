@@ -1,31 +1,31 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace ZenWatchFunction
 {
-    public class RecoveryOrchestration
+    public static class RecoveryOrchestration
     {
         private static readonly string WatcherInstance = "{8B2772F1-0A07-4D64-BEBE-1402520C0BD0}";
 
-        [FunctionName("BackgroundTaskEntryPoint")]
+        [Function("BackgroundTaskEntryPoint")]
         public static Task Run(
             [TimerTrigger("%MonitorCronSetting%")] TimerInfo timer,
-            [DurableClient] IDurableOrchestrationClient starter,
+            [DurableClient] DurableTaskClient starter,
             ILogger log)
         {
             return GetSingleInstance(starter, log);
         }
 
-        private static async Task<DurableOrchestrationStatus> GetSingleInstance(IDurableOrchestrationClient starter, ILogger log)
+        private static async Task<OrchestrationMetadata> GetSingleInstance(DurableTaskClient starter, ILogger log)
         {
-            var instance = await starter.GetStatusAsync(WatcherInstance);
+            var instance = await starter.GetInstanceAsync(WatcherInstance);
 
-            if (instance?.OrchestrationIsRunning() != true)
+            if (instance?.RuntimeStatus.OrchestrationIsRunning() != true)
             {
                 log.LogInformation("Starting Watcher orchestration");
-                await starter.StartNewAsync(nameof(WatcherOrchestration.ShareAllTickets), WatcherInstance);
+                await starter.ScheduleNewOrchestrationInstanceAsync(nameof(WatcherOrchestration.ShareAllTickets), WatcherInstance);
             }
             else
             {

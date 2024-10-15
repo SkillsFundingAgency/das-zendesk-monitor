@@ -1,8 +1,6 @@
 {
   "Guid": "c9aef75f-ee1c-455b-b5ae-3bee5659d60d",
-  "Title": "",
-  "Scenario": "Happy Path",
-  "SetStateTo": "Happy Path Ticket Created",
+  "Title": "Create ticket",
   "Request": {
     "Path": {
       "Matchers": [

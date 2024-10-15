@@ -1,8 +1,8 @@
 {
   "Guid": "3472e40e-a450-465c-942e-5e6a4b14479f",
   "Title": "",
-  "Scenario": "Happy Path",
-  "WhenStateIs": "Added sharing tag",
+  //"Scenario": "Happy Path",
+  //"WhenStateIs": "Added sharing tag",
   "Request": {
     "Path": {
       "Matchers": [
@@ -15,19 +15,7 @@
     },
     "Methods": [
       "GET"
-    ],
-    "Params": [
-      {
-        "Name": "query",
-        "Matchers": [
-          {
-            "Name": "ExactMatcher",
-            "Pattern": "tags:pending_middleware"
-          }
-        ]
-      }
-    ],
-    "Body": {}
+    ]
   },
   "Response": {
     "StatusCode": 200,
@@ -68,7 +56,7 @@
           "is_public": true,
           "due_at": null,
           "tags": [
-            "pending_middleware"
+            "pending_middleware_escalated"
           ],
           "custom_fields": [
             {
