@@ -29,13 +29,20 @@ jobs:
       projectName: "$(Build.DefinitionName)"
       projectKey: SkillsFundingAgency_das-zendesk-monitor
 
-      
+  - task: UseDotNet@2
+    displayName: 'Install .NET 8.0 SDK'
+    inputs:
+      packageType: 'sdk'
+      version: '8.0.x'
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
   - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
       command: restore
       projects: 'src/**/*.csproj'
       noCache: true
+      arguments: '--use-current-runtime'
 
   - task: DotNetCoreCLI@2
     displayName: Build
@@ -43,14 +50,14 @@ jobs:
       MSBUILDSINGLELOADCONTEXT: 1
     inputs:
       projects: 'src/**/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --no-restore'
+      arguments: '--configuration $(buildConfiguration) --no-restore --use-current-runtime'
 
   - task: DotNetCoreCLI@2
     displayName: Test
     inputs:
       command: test
       projects: '**/*.UnitTests.csproj'
-      arguments: '--configuration $(buildConfiguration) --no-build'
+      arguments: '--configuration $(buildConfiguration) --no-build --use-current-runtime'
 
   - task: DotNetCoreCLI@2
     displayName: 'Publish Function App'
@@ -58,7 +65,7 @@ jobs:
       command: publish
       publishWebProjects: false
       projects: 'src/SFA.DAS.Zendesk.Monitor.Function/SFA.DAS.Zendesk.Monitor.Function.csproj'
-      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
+      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build --use-current-runtime'
 
   - task: DotNetCoreCLI@2
     displayName: 'Publish User Acceptance Tests'
@@ -66,7 +73,7 @@ jobs:
       command: publish
       publishWebProjects: false
       projects: 'src/SFA.DAS.Zendesk.Monitor.UserAcceptanceTests/SFA.DAS.Zendesk.Monitor.UserAcceptanceTests.csproj'
-      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
+      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build --use-current-runtime'
 
   - task: SonarCloudAnalyze@2
     displayName: Run SonarCloud analysis
