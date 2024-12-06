@@ -1,9 +1,7 @@
 jobs:
 - job: 'CodeBuild'
   pool:
-    name: 'DAS - Continuous Integration'
-    demands:
-      - Agent.OS -equals Windows_NT
+    name: DAS - Continuous Integration Agents
   workspace:
     clean: all
   variables:
