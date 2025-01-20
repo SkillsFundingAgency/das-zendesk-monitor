@@ -88,8 +88,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         [Theory]
         [InlineData(@"""123456""", "123456")]
         [InlineData(@"[""123"", ""456""]", "123,456")]
-        [InlineData(@"{""minutes"":3600,""in_business_hours"":true}", 
-            "{\r\n  \"minutes\": 3600,\r\n  \"in_business_hours\": true\r\n}")]
+        [InlineData(@"{""minutes"":3600,""in_business_hours"":true}",
+            "{\"minutes\":3600,\"in_business_hours\":true}")]
         [InlineData(@"123456", "123456")]
         [InlineData(@"null", null)]
         public void TestCustomDeserialisationOfEventValue2(

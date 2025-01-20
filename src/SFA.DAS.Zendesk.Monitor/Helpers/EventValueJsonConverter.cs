@@ -61,7 +61,10 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
         }
 
         private static string DeserialiseObject(JsonReader reader)
-            => JToken.Load(reader).ToObject<object>()?.ToString() ?? "";
+        {
+            var token = JToken.Load(reader);
+            return token.Type == JTokenType.Null ? string.Empty : token.ToString(Formatting.None);
+        }
 
         public override bool CanWrite => false;
 
