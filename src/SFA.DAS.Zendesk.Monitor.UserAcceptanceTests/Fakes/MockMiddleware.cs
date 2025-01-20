@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using RestEase;
 using SFA.DAS.Zendesk.Monitor.Middleware;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WireMock.Client;
+using WireMock.Admin;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -14,13 +15,12 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
 {
     internal class MockMiddleware : Middleware.IApi
     {
-        private readonly FluentMockServer server;
+        private readonly WireMockServer server;
         private readonly Middleware.IApi client;
-        private readonly IFluentMockServerAdmin admin;
 
         public MockMiddleware()
         {
-            server = FluentMockServer.Start(new FluentMockServerSettings
+            server = WireMockServer.Start(new WireMockServerSettings
             {
                 StartAdminInterface = true,
             });
@@ -30,8 +30,6 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
                 .RespondWith(Response.Create().WithSuccess());
 
             client = RestClient.For<Middleware.IApi>(server.Urls[0]);
-
-            admin = RestClient.For<IFluentMockServerAdmin>(server.Urls[0]);
         }
 
         public string SubscriptionKey { get; set; }
@@ -47,11 +45,17 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance
 
         public async Task<IReadOnlyList<Zendesk.Model.Ticket>> TicketEvents()
         {
-            var entries = await admin.GetRequestsAsync();
-            return entries
-                .Where(x => x.Request.Url.EndsWith("/event"))
-                .Select(x => JsonConvert.DeserializeObject<Zendesk.Model.TicketResponse>(x.Request.Body).Ticket)
+            var logEntries = server.LogEntries
+                .Where(entry => entry.RequestMessage.Url.EndsWith("/event", StringComparison.OrdinalIgnoreCase))
                 .ToList();
+
+            var tickets = logEntries
+                .Select(x => JsonConvert.DeserializeObject<Zendesk.Model.TicketResponse>(x.RequestMessage.Body))
+                .Where(ticketResponse => ticketResponse != null)
+                .Select(ticketResponse => ticketResponse.Ticket)
+                .ToList();
+
+            return tickets;
         }
     }
 }
