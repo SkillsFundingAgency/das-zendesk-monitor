@@ -35,8 +35,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 Status = "solved",
                 RequesterId = 363003813860,
                 OrganizationId = 362277482460,
-                Tags = new[]
-                {
+                Tags = new[] {
                     "hmrc____government_gateway_paye_link",
                     "query",
                 },
@@ -44,7 +43,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             j.Ticket.CustomFields.Should().ContainEquivalentOf(
                 new { Id = 360004171439, Value = "INC01167381" }
-                                                              );
+            );
 
             j.Users.Should().ContainEquivalentOf(new
             {
@@ -89,7 +88,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         [InlineData(@"""123456""", "123456")]
         [InlineData(@"[""123"", ""456""]", "123,456")]
         [InlineData(@"{""minutes"":3600,""in_business_hours"":true}", 
-            "{\r\n  \"minutes\": 3600,\r\n  \"in_business_hours\": true\r\n}")]
+            "{\"minutes\": 3600, \"in_business_hours\": true}")]
         [InlineData(@"123456", "123456")]
         [InlineData(@"null", null)]
         public void TestCustomDeserialisationOfEventValue2(
@@ -104,10 +103,13 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             var j = JsonConvert.DeserializeObject<Zendesk.Model.AuditResponse>(
                 json, Zendesk.ApiFactoryExtensions.serialiser);
 
+            // Deserialize expected into an object to compare it with the deserialized Value
+            var expectedValue = JsonConvert.DeserializeObject<JObject>(expected);
+
             j.Audits.SelectMany(x => x.Events).Should()
-                .ContainEquivalentOf(new { Value = expected });
+                .ContainEquivalentOf(new { Value = expectedValue });
         }
-        
+
         [Fact]
         public void Main_phone_with_alpha_characters()
         {
@@ -159,7 +161,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
 
             j.Ticket.CustomFields.Should().ContainEquivalentOf(
                 new { Id = 360002764900, Value = new JArray("7") }
-                );
+            );
         }
     }
 
