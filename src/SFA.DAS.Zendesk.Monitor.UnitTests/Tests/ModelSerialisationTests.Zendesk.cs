@@ -35,15 +35,11 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 Status = "solved",
                 RequesterId = 363003813860,
                 OrganizationId = 362277482460,
-                Tags = new[] {
-                    "hmrc____government_gateway_paye_link",
-                    "query",
-                },
+                Tags = new[] { "hmrc____government_gateway_paye_link", "query" },
             });
 
             j.Ticket.CustomFields.Should().ContainEquivalentOf(
-                new { Id = 360004171439, Value = "INC01167381" }
-            );
+                new { Id = 360004171439, Value = "INC01167381" });
 
             j.Users.Should().ContainEquivalentOf(new
             {
@@ -103,13 +99,14 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             var j = JsonConvert.DeserializeObject<Zendesk.Model.AuditResponse>(
                 json, Zendesk.ApiFactoryExtensions.serialiser);
 
-            // Deserialize expected into an object to compare it with the deserialized Value
-            var expectedValue = JsonConvert.DeserializeObject<JObject>(expected);
+            // Deserialize both the value and expected into JToken to handle both simple and complex JSON structures
+            JToken expectedValue = expected == null ? null : JToken.Parse(expected);
 
+            // Ensure that the value matches the expected value (it could be a string or a more complex object)
             j.Audits.SelectMany(x => x.Events).Should()
                 .ContainEquivalentOf(new { Value = expectedValue });
         }
-
+        
         [Fact]
         public void Main_phone_with_alpha_characters()
         {
@@ -160,8 +157,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 a, Zendesk.ApiFactoryExtensions.serialiser);
 
             j.Ticket.CustomFields.Should().ContainEquivalentOf(
-                new { Id = 360002764900, Value = new JArray("7") }
-            );
+                new { Id = 360002764900, Value = new JArray("7") });
         }
     }
 
