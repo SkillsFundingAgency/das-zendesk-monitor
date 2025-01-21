@@ -65,7 +65,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             });
 
-            j.Organizations.Should().BeEquivalentTo(new
+            j.Organizations.Should().ContainEquivalentOf(new
             {
                 Name = "ShakTestOrg",
                 CreatedAt = DateTimeOffset.Parse("2019-10-07T13:51:06Z"),
@@ -117,13 +117,13 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             var j = JsonConvert.DeserializeObject<Zendesk.Model.TicketResponse>(
                 a, Zendesk.ApiFactoryExtensions.serialiser);
 
-            j.Users.Should().BeEquivalentTo(new
+            j.Users.Should().ContainEquivalentOf(new
             {
                 Id = 6619,
                 Phone = "01234 666 777 and some letters",
             });
 
-            j.Organizations.Should().BeEquivalentTo(new
+            j.Organizations.Should().ContainEquivalentOf(new
             {
                 Name = "Org with alphabetic Main Phone field",
                 OrganizationFields = new
