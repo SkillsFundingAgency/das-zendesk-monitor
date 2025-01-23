@@ -51,10 +51,5 @@ jobs:
         - template: azure-pipelines-templates/deploy/step/function-deploy.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
-            FunctionAppName: $(functionAppName)
-            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/SFA.DAS.Zendesk.Monitor.Function.zip
-        - template: azure-pipelines-templates/deploy/step/function-deploy.yml@das-platform-building-blocks
-          parameters:
-            ServiceConnection: ${{ parameters.ServiceConnection }}
-            FunctionAppName: $(commitmentsFunctionAppName)
+            FunctionAppName: $(workerFunctionAppName)
             DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/SFA.DAS.Zendesk.Monitor.Function.zip
