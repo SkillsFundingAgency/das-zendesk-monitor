@@ -17,12 +17,10 @@ namespace ZenWatchFunction
         }
 
         [Function(nameof(SearchTickets))]
-        public async Task<long[]> SearchTickets([ActivityTrigger] DurableTaskClient context)
+        public async Task<long[]> SearchTickets([ActivityTrigger] string input)
         {
-            log.LogInformation($"Searching for tickets");
             var tickets = await watcher.GetTicketsForSharing();
-            log.LogInformation("Found {TicketCount}", tickets.Length);
-            return tickets.ToArray();
+            return tickets?.ToArray() ?? Array.Empty<long>();
         }
 
         [Function(nameof(ShareTicket))]

@@ -27,12 +27,11 @@ namespace ZenWatchFunction
             return services;
         }
 
-        private static LoggingConfiguration LoggingConfiguration(
-            IConfiguration configuration)
+        private static LoggingConfiguration LoggingConfiguration(IConfiguration configuration)
         {
+            var appName = configuration?.GetValue<string>("AppName") ?? "das-zendesk-monitor";
             var loggingConf = new LoggingConfiguration();
-            loggingConf.AddRedis(
-                configuration.GetValue("AppName", "das-zendesk-monitor"));
+            loggingConf.AddRedis(appName);
             return loggingConf;
         }
 

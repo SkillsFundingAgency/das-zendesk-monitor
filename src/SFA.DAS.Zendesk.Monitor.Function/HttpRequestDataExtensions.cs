@@ -19,6 +19,11 @@ namespace ZenWatchFunction
                 var content = await reader.ReadToEndAsync();
                 var model = JsonSerializer.Deserialize<TModel>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
+                if (model == null)
+                {
+                    return new Result<TModel>(new Exception("Deserialized model is null."));
+                }
+
                 var validator = new TValidator();
                 var validationResult = validator.Validate(model);
 

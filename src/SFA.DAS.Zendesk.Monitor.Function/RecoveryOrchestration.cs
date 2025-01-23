@@ -1,7 +1,5 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace ZenWatchFunction
 {
@@ -10,29 +8,21 @@ namespace ZenWatchFunction
         private static readonly string WatcherInstance = "{8B2772F1-0A07-4D64-BEBE-1402520C0BD0}";
 
         [Function("BackgroundTaskEntryPoint")]
-        public static Task Run(
-            [TimerTrigger("%MonitorCronSetting%")] TimerInfo timer,
-            [DurableClient] DurableTaskClient starter,
-            ILogger log)
+        public static async Task Run(
+            [TimerTrigger("0 55 13 * * *", RunOnStartup =true)] TimerInfo timer,
+            [DurableClient] DurableTaskClient starter)
         {
-            return GetSingleInstance(starter, log);
+            await GetSingleInstance(starter);
         }
 
-        private static async Task<OrchestrationMetadata> GetSingleInstance(DurableTaskClient starter, ILogger log)
+        private static async Task GetSingleInstance(DurableTaskClient starter)
         {
             var instance = await starter.GetInstanceAsync(WatcherInstance);
 
-            if (instance?.RuntimeStatus.OrchestrationIsRunning() != true)
+            if (instance == null || instance.RuntimeStatus.OrchestrationIsRunning() != true)
             {
-                log.LogInformation("Starting Watcher orchestration");
                 await starter.ScheduleNewOrchestrationInstanceAsync(nameof(WatcherOrchestration.ShareAllTickets), WatcherInstance);
             }
-            else
-            {
-                log.LogWarning("Watcher orchestration is already running");
-            }
-
-            return instance;
         }
     }
 }

@@ -1,8 +1,6 @@
-using DurableTask.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
-using System;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace ZenWatchFunction
 {
@@ -16,21 +14,42 @@ namespace ZenWatchFunction
         [Function(nameof(ShareAllTickets))]
         public static async Task ShareAllTickets([OrchestrationTrigger] TaskOrchestrationContext context)
         {
-            var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), null);
-            await ShareTickets(context, tickets);
+            var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), string.Empty);
+            await ShareTickets(context,tickets);
         }
 
         [Function(nameof(ShareListedTickets))]
         public static async Task ShareListedTickets([OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var tickets = context.GetInput<long[]>();
+            if (tickets == null || tickets.Length == 0)
+            {
+                return;
+            }
             await ShareTickets(context, tickets);
         }
 
-        private static async Task ShareTickets(TaskOrchestrationContext context, long[] tickets)
+        private static async Task ShareTickets(TaskOrchestrationContext context, long[] ticketIds)
         {
-            foreach (var ticket in tickets)
-                await context.CallActivityAsync(nameof(DurableWatcher.ShareTicket), ticket, retryOptions);
+            const int batchSize = 10;
+            var logger = context.CreateReplaySafeLogger(nameof(ShareTickets));
+
+            for (int i = 0; i < ticketIds.Length; i += batchSize)
+            {
+                var batch = ticketIds.Skip(i).Take(batchSize).ToList();
+
+                var tasks = batch.Select(ticket => context.CallActivityAsync(nameof(DurableWatcher.ShareTicket), ticket));
+
+                try
+                {
+                    await Task.WhenAll(tasks);
+
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error while processing batch of tickets.");
+                }
+            }
         }
     }
 }

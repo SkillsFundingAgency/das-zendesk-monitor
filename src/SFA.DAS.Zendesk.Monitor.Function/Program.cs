@@ -1,48 +1,24 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.Zendesk.Monitor;
-using MW = SFA.DAS.Zendesk.Monitor.Middleware;
-using ZD = SFA.DAS.Zendesk.Monitor.Zendesk;
-using System;
+using Microsoft.Extensions.Hosting;
+using SFA.DAS.Zendesk.Monitor.Function.Extensions;
 using ZenWatchFunction;
 
-namespace ZenWatchFunction
-{
-    static class Program
+var host = new HostBuilder()
+    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureAppConfiguration((context, configBuilder) =>
     {
-        public static void Main(string[] args)
-        {
-            var host = new HostBuilder()
-                .ConfigureFunctionsWorkerDefaults((context, builder) =>
-                {
-                    var config = context.Configuration;
+        configBuilder.AddConfiguration();
+    })
+    .ConfigureServices((context, services) =>
+    {
+        var config = context.Configuration;
 
-                    builder.Services.AddLogging();
-                    builder.Services.AddTransient<DurableWatcher>();
-                    builder.Services.AddTransient<Watcher>();
-                    builder.Services.AddTransient<ZD.SharingTickets>();
-                    builder.Services.AddTransient<ZD.ISharingTickets>(
-                        s => s.GetRequiredService<ZD.SharingTickets>());
+        services.AddLogging();
 
-                    builder.Services
-                        .AddHttpClient<ZD.IApi>("ZendeskAPI")
-                        .AddTypedClient(client =>
-                            ZD.ApiFactory.CreateApi(client,
-                                new Uri(config["Zendesk:Url"]),
-                                config["Zendesk:ApiUser"],
-                                config["Zendesk:ApiKey"]));
+        services.AddAllServices(config);
 
-                    builder.Services
-                        .AddHttpClient<MW.IApi>("MiddlewareAPI")
-                        .AddTypedClient(client =>
-                            MW.ApiFactory.CreateApi(client,
-                                new Uri(config["Middleware:Url"]),
-                                config["Middleware:SubscriptionKey"],
-                                config["Middleware:ApiBasicAuth"]));
-                })
-                .Build();
+    }).Build();
 
-            host.Run();
-        }
-    }
-}
+host.Run();
+

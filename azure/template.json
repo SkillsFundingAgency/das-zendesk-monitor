@@ -35,24 +35,6 @@
         "configurationStorageConnectionString": {
             "type": "securestring"
         },
-        "ZenDeskUrl": {
-            "type": "string"
-        },
-        "ApiUser": {
-            "type": "string"
-        },
-        "ApiKey": {
-            "type": "securestring"
-        },
-        "MiddlewareUrl": {
-            "type": "string"
-        },
-        "MiddlewareSubscriptionKey": {
-            "type": "securestring"
-        },
-        "MiddlewareApiBasicAuth": {
-            "type": "securestring"
-        },
         "MonitorCronSetting": {
             "type": "string"
         },
@@ -89,7 +71,8 @@
         "storageAccountName": "[toLower(concat('das', parameters('resourceEnvironmentName'), parameters('serviceName'), 'str'))]",
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "workerFunctionAppName": "[concat(variables('resourceNamePrefix'),'-wkr-fa')]",
-        "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]"
+        "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
+        "configNames": "SFA.DAS.ZendeskMonitor"
     },
     "resources": [
         {
@@ -231,6 +214,18 @@
                         "value": {
                             "array": [
                                 {
+                                    "name": "EnvironmentName",
+                                    "value": "[toUpper(parameters('environmentName'))]"
+                                },
+                                {
+                                    "name": "ConfigNames",
+                                    "value": "[variables('configNames')]"
+                                },
+                                {
+                                    "name": "Version",
+                                    "value": "1.0"
+                                },
+                                {
                                     "name": "AzureWebJobsStorage",
                                     "value": "[reference(concat('storage-account-', parameters('utcValue'))).outputs.storageConnectionString.value]"
                                 },
@@ -244,44 +239,16 @@
                                 },
                                 {
                                     "name": "FUNCTIONS_WORKER_RUNTIME",
-                                    "value": "dotnet"
-                                },
-                                {
-                                    "name": "EnvironmentName",
-                                    "value": "[toUpper(parameters('environmentName'))]"
+                                    "value": "dotnet-isolated"
                                 },
                                 {
                                     "name": "LoggingRedisConnectionString",
                                     "value": "[parameters('loggingRedisConnectionString')]"
                                 },
-                                {
+                                  {
                                     "name": "ConfigurationStorageConnectionString",
                                     "value": "[parameters('configurationStorageConnectionString')]"
-                                },
-                                {
-                                    "name": "Zendesk:Url",
-                                    "value": "[parameters('ZenDeskUrl')]"
-                                },
-                                {
-                                    "name": "Zendesk:ApiUser",
-                                    "value": "[parameters('ApiUser')]"
-                                },
-                                {
-                                    "name": "Zendesk:ApiKey",
-                                    "value": "[parameters('ApiKey')]"
-                                },
-                                {
-                                    "name": "Middleware:Url ",
-                                    "value": "[parameters('MiddlewareUrl')]"
-                                },
-                                {
-                                    "name": "Middleware:SubscriptionKey ",
-                                    "value": "[parameters('MiddlewareSubscriptionKey')]"
-                                },
-                                {
-                                    "name": "Middleware:ApiBasicAuth",
-                                    "value": "[parameters('MiddlewareApiBasicAuth')]"
-                                },
+                                  },
                                 {
                                     "name": "MonitorCronSetting",
                                     "value": "[parameters('MonitorCronSetting')]"
