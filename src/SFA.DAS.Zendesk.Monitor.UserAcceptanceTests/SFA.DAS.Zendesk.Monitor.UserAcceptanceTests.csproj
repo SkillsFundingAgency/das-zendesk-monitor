@@ -15,7 +15,7 @@
     <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.2.1" />
     <PackageReference Include="Reqnroll.xUnit" Version="2.2.1" />
     <PackageReference Include="RestEase" Version="1.6.4" />
-    <PackageReference Include="WireMock.Net" Version="1.6.11" />
+    <PackageReference Include="WireMock.Net" Version="1.7.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1">
       <PrivateAssets>all</PrivateAssets>
