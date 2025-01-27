@@ -27,8 +27,8 @@ namespace SFA.DAS.Zendesk.Monitor.Function.Extensions
             IConfiguration config)
         {
             var zendeskUrl = config["ZendeskUrl"] ?? throw new ArgumentNullException("ZendeskUrl", "Zendesk URL is not configured.");
-            var zendeskApiUser = config["ZendeskApiUser"] ?? throw new ArgumentNullException("ZendeskApiUser", "Zendesk API user is not configured.");
-            var zendeskApiKey = config["ZendeskApiKey"] ?? throw new ArgumentNullException("ZendeskApiKey", "Zendesk API key is not configured.");
+            var zendeskApiUser = config["ApiUser"] ?? throw new ArgumentNullException("ApiUser", "Zendesk API user is not configured.");
+            var zendeskApiKey = config["ApiKey"] ?? throw new ArgumentNullException("ApiKey", "Zendesk API key is not configured.");
 
             services
                 .AddHttpClient<ZD.IApi>("ZendeskAPI")

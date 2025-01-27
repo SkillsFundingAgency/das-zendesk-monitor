@@ -9,7 +9,7 @@ namespace ZenWatchFunction
 
         [Function("BackgroundTaskEntryPoint")]
         public static async Task Run(
-            [TimerTrigger("0 55 13 * * *", RunOnStartup =true)] TimerInfo timer,
+            [TimerTrigger("%MonitorCronSetting%", RunOnStartup = false)] TimerInfo timer,
             [DurableClient] DurableTaskClient starter)
         {
             await GetSingleInstance(starter);
