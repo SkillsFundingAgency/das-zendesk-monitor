@@ -63,6 +63,10 @@
         },
         "workerAccessRestrictions": {
             "type": "array"
+        },
+        "netFrameworkVersion": {
+            "type": "string",
+            "defaultValue": "v8.0"
         }
     },
     "variables": {
@@ -209,6 +213,9 @@
                     },
                     "ipSecurityRestrictions": {
                         "value": "[parameters('workerAccessRestrictions')]"
+                    },
+                    "netFrameworkVersion": {
+                        "value": "[parameters('netFrameworkVersion')]"
                     },
                     "functionAppAppSettings": {
                         "value": {
