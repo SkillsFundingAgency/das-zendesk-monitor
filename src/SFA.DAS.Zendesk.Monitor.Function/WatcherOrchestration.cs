@@ -33,22 +33,36 @@ namespace ZenWatchFunction
         {
             const int batchSize = 10;
             var logger = context.CreateReplaySafeLogger(nameof(ShareTickets));
+            int maxConcurrentActivities = 5; 
 
             for (int i = 0; i < ticketIds.Length; i += batchSize)
             {
                 var batch = ticketIds.Skip(i).Take(batchSize).ToList();
 
-                var tasks = batch.Select(ticket => context.CallActivityAsync(nameof(DurableWatcher.ShareTicket), ticket));
+                var semaphore = new SemaphoreSlim(maxConcurrentActivities, maxConcurrentActivities);
 
-                try
+                var tasks = batch.Select(async ticket =>
                 {
-                    await Task.WhenAll(tasks);
+                    try
+                    {
+                        await semaphore.WaitAsync(); 
 
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Error while processing batch of tickets.");
-                }
+                        logger.LogInformation($"Starting Activity for ticket {ticket}");
+                        await context.CallActivityAsync(nameof(DurableWatcher.ShareTicket), ticket);
+                        logger.LogInformation($"Completed Activity for ticket {ticket}");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, $"Error processing ticket {ticket}"); 
+                        throw;
+                    }
+                    finally
+                    {
+                        semaphore.Release(); 
+                    }
+                });
+
+                await Task.WhenAll(tasks);
             }
         }
     }
