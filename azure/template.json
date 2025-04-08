@@ -67,6 +67,19 @@
         "netFrameworkVersion": {
             "type": "string",
             "defaultValue": "v8.0"
+        },
+        "EnableRouteTableAssociation": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Determines whether to enable route table association on subnet"
+            }
+        },
+        "SharedRouteTableName": {
+            "type": "string",
+            "metadata": {
+                "description": "Determines whether to enable route table association on subnet"
+            }
         }
     },
     "variables": {
@@ -76,7 +89,11 @@
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "workerFunctionAppName": "[concat(variables('resourceNamePrefix'),'-wkr-fa')]",
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
-        "configNames": "SFA.DAS.ZendeskMonitor"
+        "configNames": "SFA.DAS.ZendeskMonitor",
+        "routeTableId": {
+            "id": "[resourceId(subscription().subscriptionId, parameters('sharedEnvResourceGroup'), 'Microsoft.Network/routeTables', parameters('SharedRouteTableName'))]"
+        },
+        "emptyObject": {}
     },
     "resources": [
         {
@@ -114,6 +131,9 @@
                     },
                     "delegations": {
                         "value": "[parameters('subnetDelegations')]"
+                    },
+                    "routeTable": {
+                        "value": "[if(parameters('enableRouteTableAssociation'), variables('routeTableId') , variables('emptyObject'))]"
                     }
                 }
             }
@@ -252,10 +272,10 @@
                                     "name": "LoggingRedisConnectionString",
                                     "value": "[parameters('loggingRedisConnectionString')]"
                                 },
-                                  {
+                                {
                                     "name": "ConfigurationStorageConnectionString",
                                     "value": "[parameters('configurationStorageConnectionString')]"
-                                  },
+                                },
                                 {
                                     "name": "MonitorCronSetting",
                                     "value": "[parameters('MonitorCronSetting')]"
