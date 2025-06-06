@@ -20,7 +20,7 @@ namespace ZenWatchFunction
 
             builder.Services.AddApplicationInsightsTelemetryWorkerService(options =>
             {
-                options.ConnectionString = config["APPINSIGHTS_CONNECTIONSTRING"];
+                options.ConnectionString = config["APPINSIGHTS_INSTRUMENTATIONKEY"];
             });
 
             builder.Services.AddLogging(loggingBuilder =>
