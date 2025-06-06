@@ -20,7 +20,7 @@ namespace ZenWatchFunction
 
             builder.Services.AddApplicationInsightsTelemetryWorkerService(options =>
             {
-                options.ConnectionString = config["APPINSIGHTS_INSTRUMENTATIONKEY"];
+                options.ConnectionString = config["APPLICATIONINSIGHTS_CONNECTION_STRING"];
             });
 
             builder.Services.AddTransient<DurableWatcher>();
