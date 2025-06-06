@@ -23,10 +23,10 @@ namespace ZenWatchFunction
                 options.ConnectionString = config["APPINSIGHTS_INSTRUMENTATIONKEY"];
             });
 
-            builder.Services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.AddApplicationInsights();
-            });
+            //builder.Services.AddLogging(loggingBuilder =>
+            //{
+            //    loggingBuilder.AddApplicationInsights();
+            //});
 
             builder.Services.AddTransient<DurableWatcher>();
             builder.Services.AddTransient<Watcher>();
