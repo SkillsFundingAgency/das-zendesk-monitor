@@ -11,7 +11,7 @@
       "default": "Information",
       "Host.Results": "Error",
       "Function": "Information",
-      "Host.Aggregator": "Trace"
+      "Host.Aggregator": "Information"
     }
   },
   "extensions": {
