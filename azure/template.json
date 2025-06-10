@@ -17,6 +17,9 @@
         "resourceGroupLocation": {
             "type": "string"
         },
+        "deployPrivateLinkedScopedResource": {
+            "type": "bool"
+        },
         "workerAspSize": {
             "type": "string",
             "defaultValue": "1"
@@ -35,12 +38,30 @@
         "configurationStorageConnectionString": {
             "type": "securestring"
         },
+        "ZenDeskUrl": {
+            "type": "string"
+        },
+        "ApiUser": {
+            "type": "string"
+        },
+        "ApiKey": {
+            "type": "securestring"
+        },
+        "MiddlewareUrl": {
+            "type": "string"
+        },
+        "MiddlewareSubscriptionKey": {
+            "type": "securestring"
+        },
+        "MiddlewareApiBasicAuth": {
+            "type": "securestring"
+        },
         "MonitorCronSetting": {
             "type": "string"
         },
         "functionsExtensionVersion": {
             "type": "string",
-            "defaultValue": "~4"
+            "defaultValue": "~3"
         },
         "sharedEnvResourceGroup": {
             "type": "string"
@@ -64,22 +85,9 @@
         "workerAccessRestrictions": {
             "type": "array"
         },
-        "netFrameworkVersion": {
+         "netFrameworkVersion": {
             "type": "string",
             "defaultValue": "v8.0"
-        },
-        "EnableRouteTableAssociation": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Determines whether to enable route table association on subnet"
-            }
-        },
-        "SharedRouteTableName": {
-            "type": "string",
-            "metadata": {
-                "description": "Determines whether to enable route table association on subnet"
-            }
         }
     },
     "variables": {
@@ -89,11 +97,7 @@
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "workerFunctionAppName": "[concat(variables('resourceNamePrefix'),'-wkr-fa')]",
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
-        "configNames": "SFA.DAS.ZendeskMonitor",
-        "routeTableId": {
-            "id": "[resourceId(subscription().subscriptionId, parameters('sharedEnvResourceGroup'), 'Microsoft.Network/routeTables', parameters('SharedRouteTableName'))]"
-        },
-        "emptyObject": {}
+        "privateLinkScopeName": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-shared-ampls'))]"
     },
     "resources": [
         {
@@ -131,9 +135,6 @@
                     },
                     "delegations": {
                         "value": "[parameters('subnetDelegations')]"
-                    },
-                    "routeTable": {
-                        "value": "[if(parameters('enableRouteTableAssociation'), variables('routeTableId') , variables('emptyObject'))]"
                     }
                 }
             }
@@ -208,6 +209,31 @@
             }
         },
         {
+            "condition": "[parameters('deployPrivateLinkedScopedResource')]",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('workerFunctionAppName'), '-private-link-scoped-', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'private-linked-scoped-resource.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "privateLinkScopeName": {
+                        "value": "[variables('privateLinkScopeName')]"
+                    },
+                    "scopedResourceName": {
+                        "value": "[variables('workerFunctionAppName')]"
+                    },
+                    "scopedResourceId": {
+                        "value": "[reference(concat('worker-function-app-insights-', parameters('utcValue'))).outputs.AppInsightsResourceId.value]"
+                    }
+                }
+            }
+        },
+        {
             "apiVersion": "2020-06-01",
             "name": "[concat('worker-function-app-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
@@ -234,24 +260,12 @@
                     "ipSecurityRestrictions": {
                         "value": "[parameters('workerAccessRestrictions')]"
                     },
-                    "netFrameworkVersion": {
+                     "netFrameworkVersion": {
                         "value": "[parameters('netFrameworkVersion')]"
                     },
                     "functionAppAppSettings": {
                         "value": {
                             "array": [
-                                {
-                                    "name": "EnvironmentName",
-                                    "value": "[toUpper(parameters('environmentName'))]"
-                                },
-                                {
-                                    "name": "ConfigNames",
-                                    "value": "[variables('configNames')]"
-                                },
-                                {
-                                    "name": "Version",
-                                    "value": "1.0"
-                                },
                                 {
                                     "name": "AzureWebJobsStorage",
                                     "value": "[reference(concat('storage-account-', parameters('utcValue'))).outputs.storageConnectionString.value]"
@@ -269,12 +283,40 @@
                                     "value": "dotnet-isolated"
                                 },
                                 {
+                                    "name": "EnvironmentName",
+                                    "value": "[toUpper(parameters('environmentName'))]"
+                                },
+                                {
                                     "name": "LoggingRedisConnectionString",
                                     "value": "[parameters('loggingRedisConnectionString')]"
                                 },
                                 {
                                     "name": "ConfigurationStorageConnectionString",
                                     "value": "[parameters('configurationStorageConnectionString')]"
+                                },
+                                {
+                                    "name": "Zendesk:Url",
+                                    "value": "[parameters('ZenDeskUrl')]"
+                                },
+                                {
+                                    "name": "Zendesk:ApiUser",
+                                    "value": "[parameters('ApiUser')]"
+                                },
+                                {
+                                    "name": "Zendesk:ApiKey",
+                                    "value": "[parameters('ApiKey')]"
+                                },
+                                {
+                                    "name": "Middleware:Url ",
+                                    "value": "[parameters('MiddlewareUrl')]"
+                                },
+                                {
+                                    "name": "Middleware:SubscriptionKey ",
+                                    "value": "[parameters('MiddlewareSubscriptionKey')]"
+                                },
+                                {
+                                    "name": "Middleware:ApiBasicAuth",
+                                    "value": "[parameters('MiddlewareApiBasicAuth')]"
                                 },
                                 {
                                     "name": "MonitorCronSetting",
