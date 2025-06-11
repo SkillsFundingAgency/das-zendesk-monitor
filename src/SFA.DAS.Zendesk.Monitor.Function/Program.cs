@@ -1,8 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Zendesk.Monitor.Function.Extensions;
-using ZenWatchFunction;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -14,10 +12,18 @@ var host = new HostBuilder()
     {
         var config = context.Configuration;
 
-        services.AddLogging();
+        services.AddOpenTelemetryRegistration(context.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]!);
 
         services.AddAllServices(config);
 
+    })
+    .ConfigureLogging((hostingContext, logging) =>
+    {
+        logging.SetMinimumLevel(LogLevel.Information);
+
+        logging.AddFilter("Microsoft", LogLevel.Warning);
+        logging.AddFilter("System", LogLevel.Warning);
+        logging.AddFilter("SFA.DAS.Assessor.Functions", LogLevel.Information);
     }).Build();
 
 host.Run();

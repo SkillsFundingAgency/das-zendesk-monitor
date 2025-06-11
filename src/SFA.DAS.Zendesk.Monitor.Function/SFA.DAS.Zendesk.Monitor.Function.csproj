@@ -11,6 +11,7 @@
     <WarningsAsErrors />
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.2.2" />
@@ -18,14 +19,11 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
     <PackageReference Include="Microsoft.DurableTask.Client" Version="1.5.0" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.15" />
-    <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
-    <PackageReference Include="SFA.DAS.Configuration" Version="17.1.113" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.113" />
   </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\SFA.DAS.Zendesk.Monitor\SFA.DAS.Zendesk.Monitor.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Zendesk.Monitor\SFA.DAS.Zendesk.Monitor.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -6,6 +6,12 @@
     }
   },
   "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "maxTelemetryItemsPerSecond": 5
+      }
+    },
     "fileLoggingMode": "always",
     "logLevel": {
       "default": "Information",
@@ -24,7 +30,7 @@
         "Content-Security-Policy": "default-src 'none';",
         "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection":  0
+        "X-XSS-Protection": 0
       }
     }
   }

@@ -26,12 +26,4 @@
     <PackageReference Include="RestEase" Version="1.6.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!--Transitive references can be removed when SFA.DAS.NLog.Targets.Redis is upgraded--><!--
-    --><!--Deprecated warning for NLog.Config will be resolved when SFA.DAS.NLog.Targets.Redis is upgraded--><!--
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Net.Security" Version="4.3.2" />-->
-  </ItemGroup>
-
 </Project>
