@@ -271,8 +271,8 @@
                                     "value": "[reference(concat('storage-account-', parameters('utcValue'))).outputs.storageConnectionString.value]"
                                 },
                                 {
-                                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                    "value": "[reference(concat('worker-function-app-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value]"
+                                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                                    "value": "[reference(concat('worker-function-app-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
                                 },
                                 {
                                     "name": "FUNCTIONS_EXTENSION_VERSION",
