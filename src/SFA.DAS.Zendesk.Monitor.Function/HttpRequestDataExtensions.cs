@@ -1,8 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using FluentValidation;
 using LanguageExt.Common;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -11,7 +8,9 @@ namespace ZenWatchFunction
 {
     public static class HttpRequestDataExtensions
     {
-        public static async Task<Result<TModel>> GetJsonBody<TModel, TValidator>(this HttpRequestData request) where TValidator : AbstractValidator<TModel>, new()
+        public static async Task<Result<TModel>> GetJsonBody<TModel, TValidator>(this HttpRequestData request)
+            where TValidator : AbstractValidator<TModel>, new()
+            where TModel : class
         {
             try
             {
