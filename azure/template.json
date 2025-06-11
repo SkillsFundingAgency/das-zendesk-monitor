@@ -97,7 +97,7 @@
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "workerFunctionAppName": "[concat(variables('resourceNamePrefix'),'-wkr-fa')]",
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
-	      "ConfigNames": "SFA.DAS.ZendeskMonitor",
+	"configNames": "SFA.DAS.ZendeskMonitor",
         "privateLinkScopeName": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-shared-ampls'))]"
     },
     "resources": [
@@ -282,6 +282,10 @@
                                 {
                                     "name": "FUNCTIONS_WORKER_RUNTIME",
                                     "value": "dotnet-isolated"
+                                },
+    				{
+                                    "name": "ConfigNames",
+                                    "value": "[variables('configNames')]"
                                 },
                                 {
                                     "name": "EnvironmentName",
