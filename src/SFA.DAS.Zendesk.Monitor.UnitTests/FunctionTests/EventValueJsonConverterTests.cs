@@ -38,7 +38,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
         {
             var json = "\"test-value\"";
             var reader = new JsonTextReader(new System.IO.StringReader(json));
-            reader.Read(); 
+            reader.Read();
 
             var result = _converter.ReadJson(reader, typeof(string), null, new JsonSerializer());
 
@@ -111,5 +111,72 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
             Assert.Throws<ArgumentNullException>(() =>
                 _converter.ReadJson(null, typeof(string), null, new JsonSerializer()));
         }
+
+        [Fact]
+        public void ReadJson_DeeplyNestedObject_ReturnsMinifiedJson()
+        {
+            var json = "{\"outer\":{\"inner\":{\"value\":123}}}";
+            var reader = new JsonTextReader(new System.IO.StringReader(json));
+            reader.Read();
+
+            var result = _converter.ReadJson(reader, typeof(string), null, new JsonSerializer());
+
+            Assert.Equal("{\"outer\":{\"inner\":{\"value\":123}}}", result);
+        }
+
+        [Fact]
+        public void ReadJson_NumberValue_ReturnsNumberAsString()
+        {
+            var json = "12345";
+            var reader = new JsonTextReader(new System.IO.StringReader(json));
+            reader.Read();
+
+            var result = _converter.ReadJson(reader, typeof(string), null, new JsonSerializer());
+
+            Assert.Equal("12345", result);
+        }
+
+        [Fact]
+        public void ReadJson_BooleanValue_ReturnsBooleanAsString()
+        {
+            var json = "true";
+            var reader = new JsonTextReader(new System.IO.StringReader(json));
+            reader.Read();
+
+            var result = _converter.ReadJson(reader, typeof(string), null, new JsonSerializer());
+
+            Assert.Equal("true", result);
+        }
+
+        [Fact]
+        public void ReadJson_EmptyString_ReturnsEmptyString()
+        {
+            var json = "\"\"";
+            var reader = new JsonTextReader(new System.IO.StringReader(json));
+            reader.Read();
+
+            var result = _converter.ReadJson(reader, typeof(string), null, new JsonSerializer());
+
+            Assert.Equal(string.Empty, result);
+        }
+
+        [Fact]
+        public void ReadJson_WhitespaceString_ReturnsWhitespace()
+        {
+            var json = "\"   \"";
+            var reader = new JsonTextReader(new System.IO.StringReader(json));
+            reader.Read();
+
+            var result = _converter.ReadJson(reader, typeof(string), null, new JsonSerializer());
+
+            Assert.Equal("   ", result);
+        }
+
+        [Fact]
+        public void CanConvert_NullType_ReturnsFalse()
+        {
+            Assert.False(_converter.CanConvert(null));
+        }
+
     }
 }
