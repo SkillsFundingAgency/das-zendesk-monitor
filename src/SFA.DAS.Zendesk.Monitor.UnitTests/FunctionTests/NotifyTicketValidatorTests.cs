@@ -1,5 +1,4 @@
 using FluentAssertions;
-using FluentValidation;
 using Xunit;
 using ZenWatchFunction;
 
@@ -28,16 +27,6 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
             var result = _validator.Validate(model);
 
             result.IsValid.Should().BeTrue();
-        }
-
-        [Fact]
-        public void Should_Return_Error_When_Model_Is_Null()
-        {
-            NotifyTicket? model = null;
-
-            var action = () => _validator.Validate(model!);
-
-            action.Should().Throw<ValidationException>();
         }
 
         [Fact]

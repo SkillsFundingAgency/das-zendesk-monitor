@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using Xunit;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
 {
     public class EventValueJsonConverterTests
     {
