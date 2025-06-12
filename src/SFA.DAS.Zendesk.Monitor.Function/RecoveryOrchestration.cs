@@ -1,10 +1,8 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
-using System.Diagnostics.CodeAnalysis;
 
 namespace ZenWatchFunction
 {
-    [ExcludeFromCodeCoverage]
     public static class RecoveryOrchestration
     {
         private static readonly string WatcherInstance = "{8B2772F1-0A07-4D64-BEBE-1402520C0BD0}";
