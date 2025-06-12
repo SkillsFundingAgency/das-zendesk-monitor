@@ -1,10 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Worker;
-using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Zendesk.Monitor;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ZenWatchFunction
 {

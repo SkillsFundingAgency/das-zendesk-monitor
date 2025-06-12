@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 using ZenWatchFunction;
 using MW = SFA.DAS.Zendesk.Monitor.Middleware;
 using ZD = SFA.DAS.Zendesk.Monitor.Zendesk;
 
 namespace SFA.DAS.Zendesk.Monitor.Function.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class AddServicesExtensions
     {
         public static IServiceCollection AddAllServices(

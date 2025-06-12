@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 
 namespace SFA.DAS.Zendesk.Monitor.Function.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class ConfigurationExtensions
     {
         public static void AddConfiguration(this IConfigurationBuilder builder)
