@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Zendesk.Monitor.Function.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class AddOpenTelemetryExtensions
     {
         /// <summary>
