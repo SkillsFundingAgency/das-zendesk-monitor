@@ -1,17 +1,20 @@
 {
   "version": "2.0",
-  "Logging": {
-    "LogLevel": {
-      "Default": "Warning"
-    }
-  },
   "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "maxTelemetryItemsPerSecond": 5,
+        "excludedTypes": "Request"
+      },
+      "enableLiveMetricsFilters": true
+    },
     "fileLoggingMode": "always",
     "logLevel": {
       "default": "Information",
-      "Host.Results": "Error",
+      "Host.Results": "Information",
       "Function": "Information",
-      "Host.Aggregator": "Trace"
+      "Host.Aggregator": "Information"
     }
   },
   "extensions": {
@@ -24,7 +27,7 @@
         "Content-Security-Policy": "default-src 'none';",
         "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection":  0
+        "X-XSS-Protection": 0
       }
     }
   }

@@ -1,9 +1,11 @@
 using LanguageExt;
 using Microsoft.Extensions.Configuration;
+using RestEase;
 using SFA.DAS.Zendesk.Monitor.Zendesk;
 using SFA.DAS.Zendesk.Monitor.Zendesk.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -13,6 +15,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WireMock.Handlers;
+using WireMock.Logging;
 using WireMock.Server;
 using WireMock.Settings;
 
@@ -35,10 +38,10 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             Url = $"https://{instance}.zendesk.com/api/v2",
             SaveMapping = true,
             SaveMappingToFile = true,
-            BlackListedHeaders = new[] { "dnt", "Content-Length", "Authorization", "Host" }
+            ExcludedHeaders = new[] { "dnt", "Content-Length", "Authorization", "Host" }
         };
 
-        private readonly FluentMockServer server;
+        private readonly WireMockServer server;
         private readonly IApi zendeskApi;
         private readonly ISharingTickets sharing;
         private readonly Lazy<Task<Dictionary<string, long>>> ticketFieldIds;
@@ -56,18 +59,28 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
             var token = conf.GetValue<string>("Zendesk:ApiKey");
             var useLiveZendesk = conf.GetValue<bool?>("Zendesk:UseLiveInstance") ?? false;
 
-            server = FluentMockServer.Start(new FluentMockServerSettings
+            server = WireMockServer.Start(new WireMockServerSettings
             {
                 ReadStaticMappings = !useLiveZendesk,
                 FileSystemHandler = new LocalFileSystemHandler(ProjectPath),
                 ProxyAndRecordSettings = useLiveZendesk ? LiveZendeskProxySettings(instance) : null,
+                StartAdminInterface = true
             });
 
             var url = server.Urls.First();
 
-            var httpClient = new HttpClient
+            var baseAddress = useLiveZendesk ?
+                $"https://{instance}.zendesk.com/api/v2/" :
+                $"{server.Urls.First()}/api/v2/";
+
+            var httpClient = new HttpClient()
             {
-                BaseAddress = new Uri($"https://{instance}.zendesk.com/api/v2")
+                BaseAddress = new Uri(baseAddress)
+            };
+
+            httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+            {
+                NoCache = true
             };
 
             httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
@@ -98,7 +111,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
         {
             var ticket = new Ticket
             {
-                Subject = $"Integration testing Watcher {Guid.NewGuid()}",
+                Subject = $"Integration testing Watcher",
                 Comment = new Comment { Body = "Created for testing" },
             };
 
@@ -144,7 +157,7 @@ namespace SFA.DAS.Zendesk.Monitor.Acceptance.Fakes
                 : throw new Exception($"Field `{field}` not found in \n{String.Join(",", fieldIds.Keys)}");
         }
 
-        internal async Task Solve(Ticket ticket, string comment = "this ticket is has been solved by an automated test.")
+        internal async Task Solve(Ticket ticket, string comment = "this ticket has been solved by an automated test.")
         {
             ticket.Status = "solved";
             ticket.Comment = new Comment

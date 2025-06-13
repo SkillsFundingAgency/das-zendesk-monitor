@@ -22,38 +22,56 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
     ///     "in_business_hours": true
     ///  }
     /// </summary>
-    public class EventValueJsonConverter : JsonConverter<string>
+    public class EventValueJsonConverter : JsonConverter
     {
-        public override string ReadJson(
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(string);
+        }
+
+        public override object? ReadJson(
             JsonReader reader,
             Type objectType,
-            string existingValue,
-            bool hasExistingValue,
+            object? existingValue,
             JsonSerializer serializer)
-        =>
-            reader.TokenType switch
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException(nameof(reader), "JsonReader cannot be null.");
+            }
+            
+            return reader.TokenType switch
             {
                 JsonToken.String => DeserialiseString(reader),
                 JsonToken.StartArray => DeserialiseArray(reader),
                 _ => DeserialiseObject(reader),
             };
+        }
 
         private static string DeserialiseString(JsonReader reader)
-            => JToken.Load(reader).ToObject<string>();
+        {
+            var token = JToken.Load(reader);
+            return token.Type == JTokenType.Null ? string.Empty : token.ToObject<string>() ?? string.Empty;
+        }
 
         private static string DeserialiseArray(JsonReader reader)
         {
             var values = JArray.Load(reader).ToObject<IList<object>>();
-            return string.Join(",", values);
+            return values != null ? string.Join(",", values) : string.Empty;
         }
 
         private static string DeserialiseObject(JsonReader reader)
-            => JToken.Load(reader).ToObject<object>()?.ToString() ?? "";
+        {
+            var token = JToken.Load(reader);
+            return token.Type == JTokenType.Null ? string.Empty : token.ToString(Formatting.None);
+        }
 
         public override bool CanWrite => false;
 
-        public override void WriteJson(JsonWriter writer, string value, JsonSerializer serializer)
-            => throw new NotImplementedException(
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException(
                 @$"Serialisation has not been implemented for `string` named ""Value""");
+        }
     }
 }

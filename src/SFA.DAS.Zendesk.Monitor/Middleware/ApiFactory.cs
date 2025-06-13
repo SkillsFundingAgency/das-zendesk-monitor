@@ -35,6 +35,11 @@ namespace SFA.DAS.Zendesk.Monitor.Middleware
 
         public static IApi CreateApi(this RestClient client)
         {
+            if (client == null)
+            {
+                throw new ArgumentNullException(nameof(client), "RestClient cannot be null.");
+            }
+
             client.JsonSerializerSettings = serialiser;
             return client.For<IApi>();
         }
