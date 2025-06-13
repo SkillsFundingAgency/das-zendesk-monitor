@@ -1,8 +1,9 @@
 using FluentAssertions;
+using SFA.DAS.Zendesk.Monitor.UnitTests;
 using Xunit;
 using ZenWatchFunction;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
 {
     public class NotifyTicketValidatorTests
     {

@@ -7,7 +7,7 @@ using Microsoft.DurableTask.Client;
 using Xunit;
 using ZenWatchFunction;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
 {
     public class RecoveryOrchestrationTests
     {
@@ -40,13 +40,13 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
 
         public override Task<string> ScheduleNewOrchestrationInstanceAsync(
             TaskName orchestratorName,
-            object? input = null,
-            StartOrchestrationOptions? options = null,
+            object input = null,
+            StartOrchestrationOptions options = null,
             CancellationToken cancellation = default)
             => Task.FromResult("fake-instance-id");
 
         public override Task RaiseEventAsync(
-            string instanceId, string eventName, object? eventPayload = null, CancellationToken cancellation = default)
+            string instanceId, string eventName, object eventPayload = null, CancellationToken cancellation = default)
             => Task.CompletedTask;
 
         public override Task<OrchestrationMetadata> WaitForInstanceStartAsync(
@@ -58,18 +58,18 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
             => Task.FromResult<OrchestrationMetadata>(null);
 
         public override Task SuspendInstanceAsync(
-            string instanceId, string? reason = null, CancellationToken cancellation = default)
+            string instanceId, string reason = null, CancellationToken cancellation = default)
             => Task.CompletedTask;
 
         public override Task ResumeInstanceAsync(
-            string instanceId, string? reason = null, CancellationToken cancellation = default)
+            string instanceId, string reason = null, CancellationToken cancellation = default)
             => Task.CompletedTask;
 
-        public override Task<OrchestrationMetadata?> GetInstancesAsync(
+        public override Task<OrchestrationMetadata> GetInstancesAsync(
             string instanceId, bool getInputsAndOutputs = false, CancellationToken cancellation = default)
-            => Task.FromResult<OrchestrationMetadata?>(null);
+            => Task.FromResult<OrchestrationMetadata>(null);
 
-        public override AsyncPageable<OrchestrationMetadata> GetAllInstancesAsync(OrchestrationQuery? filter = null)
+        public override AsyncPageable<OrchestrationMetadata> GetAllInstancesAsync(OrchestrationQuery filter = null)
             => new EmptyAsyncPageable<OrchestrationMetadata>();
 
         public override ValueTask DisposeAsync() => ValueTask.CompletedTask;
@@ -77,7 +77,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
 
     public class EmptyAsyncPageable<T> : AsyncPageable<T>
     {
-        public override IAsyncEnumerable<Page<T>> AsPages(string? continuationToken = null, int? pageSizeHint = null)
+        public override IAsyncEnumerable<Page<T>> AsPages(string continuationToken = null, int? pageSizeHint = null)
         {
             return GetEmptyPages();
 

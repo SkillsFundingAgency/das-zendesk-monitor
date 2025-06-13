@@ -7,7 +7,7 @@ using SFA.DAS.Zendesk.Monitor.Zendesk;
 using Xunit;
 using ZenWatchFunction;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
 {
     public class DurableWatcherTests
     {

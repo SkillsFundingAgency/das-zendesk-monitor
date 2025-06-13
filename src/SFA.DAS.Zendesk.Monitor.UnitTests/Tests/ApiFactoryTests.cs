@@ -4,7 +4,7 @@ using RestEase;
 using SFA.DAS.Zendesk.Monitor.Middleware;
 using Xunit;
 
-namespace SFA.DAS.Zendesk.Monitor.UnitTests.FunctionTests
+namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
 {
     public class ApiFactoryTests
     {
