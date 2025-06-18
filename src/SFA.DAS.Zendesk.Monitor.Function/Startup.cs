@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Zendesk.Monitor;
 using System;
 using MW = SFA.DAS.Zendesk.Monitor.Middleware;
@@ -17,7 +18,11 @@ namespace ZenWatchFunction
             var config = builder.Services.BuildServiceProvider()
                 .GetRequiredService<IConfiguration>();
 
-            builder.Services.AddLogging(config);
+            builder.Services.AddApplicationInsightsTelemetryWorkerService(options =>
+            {
+                options.ConnectionString = config["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+            });
+
             builder.Services.AddTransient<DurableWatcher>();
             builder.Services.AddTransient<Watcher>();
             builder.Services.AddTransient<ZD.SharingTickets>();
