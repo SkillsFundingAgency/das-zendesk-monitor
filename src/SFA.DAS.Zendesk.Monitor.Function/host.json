@@ -1,21 +1,21 @@
 {
   "version": "2.0",
   "logging": {
-    "logLevel": {
-      "default": "Information",
-      "Host.Results": "Error",
-      "Function": "Information",
-      "Host.Aggregator": "Information"
-    },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,
-        "excludedTypes": "Request",
-        "maxTelemetryItemsPerSecond": 5
+        "maxTelemetryItemsPerSecond": 5,
+        "excludedTypes": "Request"
       },
       "enableLiveMetricsFilters": true
     },
-    "fileLoggingMode": "always"
+    "fileLoggingMode": "always",
+    "logLevel": {
+      "default": "Information",
+      "Host.Results": "Information",
+      "Function": "Information",
+      "Host.Aggregator": "Information"
+    }
   },
   "extensions": {
     "http": {

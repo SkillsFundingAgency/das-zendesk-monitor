@@ -355,3 +355,4 @@ healthchecksdb
 
 #SpecFlow
 *.feature.cs
+/src/SFA.DAS.Zendesk.Monitor.Function/Properties/launchSettings.json
