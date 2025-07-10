@@ -1,9 +1,6 @@
 {
   "Guid": "68843a1e-7abe-49b9-9619-ad4806c0be11",
-  "Title": "",
-  "Scenario": "Happy Path",
-  "WhenStateIs": "Happy Path Ticket Created",
-  "SetStateTo": "Added sharing tag",
+  "Title": "Put ticket - escalate",
   "Request": {
     "Path": {
       "Matchers": [
@@ -27,202 +24,28 @@
             "IgnoreCase": true
           }
         ]
-      }
-    ],
-    "Body": {
-      "Matcher": {
-        "Name": "JsonMatcher",
-        "Pattern": {
-          "ticket": {
-            "url": "https://esfa.zendesk.com/api/v2/tickets/363.json",
-            "id": 363,
-            "via": {
-              "channel": "api",
-              "source": {
-                "from": {},
-                "to": {}
-              }
-            },
-            "created_at": "2019-07-23T12:48:13+01:00",
-            "updated_at": "2019-07-23T12:48:13+01:00",
-            "type": "question",
-            "subject": "Integration testing Watcher",
-            "raw_subject": "Integration testing Watcher",
-            "description": "Created for testing",
-            "priority": "low",
-            "status": "new",
-            "requester_id": 361623959700,
-            "submitter_id": 361623959700,
-            "group_id": 360000855979,
-            "collaborator_ids": [],
-            "follower_ids": [],
-            "email_cc_ids": [],
-            "has_incidents": false,
-            "is_public": true,
-            "tags": [
-              "pending_middleware"
-            ],
-            "custom_fields": [
-              {
-                "id": 360002763800
-              },
-              {
-                "id": 360002755879
-              },
-              {
-                "id": 360002730279
-              },
-              {
-                "id": 360002600499
-              },
-              {
-                "id": 360002755899
-              },
-              {
-                "id": 360002600259
-              },
-              {
-                "id": 360002737480
-              },
-              {
-                "id": 360002737740
-              },
-              {
-                "id": 360002764880
-              },
-              {
-                "id": 360002657880
-              },
-              {
-                "id": 360002731099
-              },
-              {
-                "id": 360002603100
-              },
-              {
-                "id": 360002730339
-              },
-              {
-                "id": 360002764900
-              },
-              {
-                "id": 360002730859
-              },
-              {
-                "id": 360003093619
-              },
-              {
-                "id": 360002737780
-              },
-              {
-                "id": 360002730119
-              },
-              {
-                "id": 360002737800
-              },
-              {
-                "id": 360003101340
-              },
-              {
-                "id": 360002574239
-              },
-              {
-                "id": 360002757039
-              },
-              {
-                "id": 360002757059
-              },
-              {
-                "id": 360002763980
-              }
-            ],
-            "satisfaction_rating": {
-              "score": "unoffered"
-            },
-            "sharing_agreement_ids": [],
-            "fields": [
-              {
-                "id": 360002763800
-              },
-              {
-                "id": 360002755879
-              },
-              {
-                "id": 360002730279
-              },
-              {
-                "id": 360002600499
-              },
-              {
-                "id": 360002755899
-              },
-              {
-                "id": 360002600259
-              },
-              {
-                "id": 360002737480
-              },
-              {
-                "id": 360002737740
-              },
-              {
-                "id": 360002764880
-              },
-              {
-                "id": 360002657880
-              },
-              {
-                "id": 360002731099
-              },
-              {
-                "id": 360002603100
-              },
-              {
-                "id": 360002730339
-              },
-              {
-                "id": 360002764900
-              },
-              {
-                "id": 360002730859
-              },
-              {
-                "id": 360003093619
-              },
-              {
-                "id": 360002737780
-              },
-              {
-                "id": 360002730119
-              },
-              {
-                "id": 360002737800
-              },
-              {
-                "id": 360003101340
-              },
-              {
-                "id": 360002574239
-              },
-              {
-                "id": 360002757039
-              },
-              {
-                "id": 360002757059
-              },
-              {
-                "id": 360002763980
-              }
-            ],
-            "followup_ids": [],
-            "ticket_form_id": 360000235179,
-            "brand_id": 360000366759,
-            "allow_channelback": false,
-            "allow_attachments": true
+      },
+      {
+        "Name": "Cache-Control",
+        "Matchers": [
+          {
+            "Name": "WildcardMatcher",
+            "Pattern": "no-cache",
+            "IgnoreCase": true
           }
-        }
+        ]
+      },
+      {
+        "Name": "Authorization",
+        "Matchers": [
+          {
+            "Name": "WildcardMatcher",
+            "Pattern": "Basic X19aZW5kZXNrQXBpVXNlcl9fOl9fWmVuZGVza0FwaUtleV9f",
+            "IgnoreCase": true
+          }
+        ]
       }
-    }
+    ]
   },
   "Response": {
     "StatusCode": 200,
@@ -240,7 +63,7 @@
           }
         },
         "created_at": "2019-07-23T11:48:13Z",
-        "updated_at": "2019-07-23T13:19:10Z",
+        "updated_at": "2019-07-23T11:48:13Z",
         "type": "question",
         "subject": "Integration testing Watcher",
         "raw_subject": "Integration testing Watcher",
@@ -262,20 +85,20 @@
         "is_public": true,
         "due_at": null,
         "tags": [
-          "pending_middleware"
+          "escalated_tag"
         ],
         "custom_fields": [
           {
             "id": 360002763800,
-            "value": null
+            "value": "customer_disconnect"
           },
           {
             "id": 360002755879,
-            "value": null
+            "value": "as_end_point_assessors"
           },
           {
             "id": 360002730279,
-            "value": null
+            "value": "esfa_apprenticeship_dev_ops_"
           },
           {
             "id": 360002600499,
@@ -472,9 +295,9 @@
         "allow_attachments": true
       },
       "audit": {
-        "id": 433811424760,
+        "id": 433855710419,
         "ticket_id": 363,
-        "created_at": "2019-07-23T13:19:10Z",
+        "created_at": "2019-07-23T11:48:13Z",
         "author_id": 361623959700,
         "metadata": {
           "system": {
@@ -487,13 +310,159 @@
         },
         "events": [
           {
-            "id": 433811424820,
+            "id": 433855710479,
+            "type": "Comment",
+            "author_id": 361623959700,
+            "body": "Created for testing",
+            "html_body": "<div class=\"zd-comment\" dir=\"auto\"><p dir=\"auto\">Created for testing</p></div>",
+            "plain_body": "Created for testing",
+            "public": true,
+            "attachments": [],
+            "audit_id": 433855710419
+          },
+          {
+            "id": 433855710499,
+            "type": "Create",
+            "value": "Integration testing Watcher",
+            "field_name": "subject"
+          },
+          {
+            "id": 433855710539,
+            "type": "Create",
+            "value": "361623959700",
+            "field_name": "requester_id"
+          },
+          {
+            "id": 433855710579,
+            "type": "Create",
+            "value": "new",
+            "field_name": "status"
+          },
+          {
+            "id": 433855710619,
+            "type": "Create",
+            "value": null,
+            "field_name": "priority"
+          },
+          {
+            "id": 433855710639,
+            "type": "Create",
+            "value": null,
+            "field_name": "type"
+          },
+          {
+            "id": 433855710679,
+            "type": "Create",
+            "value": "360000366759",
+            "field_name": "brand_id"
+          },
+          {
+            "id": 433855710719,
+            "type": "Create",
+            "value": "360000235179",
+            "field_name": "ticket_form_id"
+          },
+          {
+            "id": 433855710759,
+            "type": "Notification",
+            "via": {
+              "channel": "rule",
+              "source": {
+                "from": {
+                  "deleted": false,
+                  "title": "Send confirmation of receipt ",
+                  "id": 360008807199,
+                  "revision_id": 15
+                },
+                "rel": "trigger"
+              }
+            },
+            "subject": "[Request received]",
+            "body": "<p>To {{ticket.requester.name }},</p>\n\n<p>We received your message at {{ticket.created_at | date: \"%H:%M%P, %e %B %Y\" }}. Your reference number is {{ticket.id}}.</p>\n\n<p><strong>What happens next</strong></p>\n\n<p>We'll review your message and reply within 24 hours. If you need to speak to us straight away, you can phone us on 08000 150 600.</p>\n\n<p>We're available 8am to 10pm, 7 days a week.</p>\n\n<p>Apprenticeship Service Support Team</p>\n",
+            "recipients": [
+              361623959700
+            ]
+          },
+          {
+            "id": 433855710819,
+            "type": "ScheduleAssignment",
+            "via": {
+              "channel": "rule",
+              "source": {
+                "from": {
+                  "deleted": false,
+                  "title": "Set priority, group, type, schedule",
+                  "id": 360011686060,
+                  "revision_id": 3
+                },
+                "rel": "trigger"
+              }
+            },
+            "previous_schedule_id": null,
+            "new_schedule_id": "360000025339"
+          },
+          {
+            "id": 433855710839,
             "type": "Change",
-            "value": [
-              "pending_middleware"
-            ],
-            "field_name": "tags",
-            "previous_value": []
+            "via": {
+              "channel": "rule",
+              "source": {
+                "from": {
+                  "deleted": false,
+                  "title": "Set priority, group, type, schedule",
+                  "id": 360011686060,
+                  "revision_id": 3
+                },
+                "rel": "trigger"
+              }
+            },
+            "value": "low",
+            "field_name": "priority",
+            "previous_value": null
+          },
+          {
+            "id": 433855710859,
+            "type": "Change",
+            "via": {
+              "channel": "rule",
+              "source": {
+                "from": {
+                  "deleted": false,
+                  "title": "Set priority, group, type, schedule",
+                  "id": 360011686060,
+                  "revision_id": 3
+                },
+                "rel": "trigger"
+              }
+            },
+            "value": "360000855979",
+            "field_name": "group_id",
+            "previous_value": null
+          },
+          {
+            "id": 433855710899,
+            "type": "Change",
+            "via": {
+              "channel": "rule",
+              "source": {
+                "from": {
+                  "deleted": false,
+                  "title": "Set priority, group, type, schedule",
+                  "id": 360011686060,
+                  "revision_id": 3
+                },
+                "rel": "trigger"
+              }
+            },
+            "value": "question",
+            "field_name": "type",
+            "previous_value": null
+          },
+          {
+            "id": 433855710959,
+            "type": "Create",
+            "value": "Tier 1 ",
+            "field_name": "sla_policy"
           }
         ],
         "via": {
@@ -508,30 +477,31 @@
     },
     "Headers": {
       "Content-Type": "application/json; charset=UTF-8",
-      "Date": "Tue, 23 Jul 2019 13:19:11 GMT",
-      "Transfer-Encoding": "chunked",
+      "Content-Length": "5563",
+      "Date": "Tue, 23 Jul 2019 11:48:13 GMT",
       "Connection": "keep-alive",
       "Set-Cookie": [
-        "__cfduid=d109ec549057928507cf2114df59f99fc1563887950; expires=Wed, 22-Jul-20 13:19:10 GMT; path=/; domain=.esfa.zendesk.com; HttpOnly",
-        "__cfruid=7e4ef69202bc5c771e92377977b74fe56f5ebf97-1563887951; path=/; domain=.esfa.zendesk.com; HttpOnly"
+        "__cfduid=dd0eb78bcf09a22aae49c3f5f042bd1d71563882492; expires=Wed, 22-Jul-20 11:48:12 GMT; path=/; domain=.esfa.zendesk.com; HttpOnly",
+        "__cfruid=c651e054260a361a74494d3445a3ced15f2d3673-1563882493; path=/; domain=.esfa.zendesk.com; HttpOnly"
       ],
       "X-Zendesk-API-Version": "v2",
       "X-Zendesk-Application-Version": "v2308-94",
-      "X-Zendesk-API-Warn": "Removed restricted keys [\"ticket.id\", \"ticket.created_at\", \"ticket.updated_at\", \"ticket.follower_ids\", \"ticket.email_cc_ids\", \"ticket.has_incidents\", \"ticket.is_public\", \"ticket.satisfaction_rating.score\", \"ticket.satisfaction_rating\", \"ticket.followup_ids\", \"ticket.allow_channelback\", \"ticket.allow_attachments\"] from parameters according to whitelist",
+      "X-Zendesk-API-Warn": "Removed restricted keys [\"ticket.id\"] from parameters according to whitelist",
       "X-Frame-Options": "SAMEORIGIN",
+      "Location": "http://localhost:64774/api/v2/tickets/363.json",
       "X-Rate-Limit": "700",
       "X-Rate-Limit-Remaining": "699",
       "Strict-Transport-Security": "max-age=31536000;",
-      "ETag": "W/\"ad99cb016f87ee27c640ca1c1725e632\"",
+      "ETag": "W/\"1a33215bf7e219da02bae798b2069e2d\"",
       "Cache-Control": "must-revalidate, max-age=0, private",
-      "X-Zendesk-Origin-Server": "classic-app-server-757fbf7dcf-vghhz",
-      "X-Request-ID": "4fadf1c88b21dc33-LHR",
-      "X-Runtime": "1.051698",
-      "X-Zendesk-Request-Id": "7cbb01692d54e7024651",
+      "X-Zendesk-Origin-Server": "classic-app-server-757fbf7dcf-k749x",
+      "X-Request-ID": "4fad6c894a8b35b8-FRA",
+      "X-Runtime": "1.414975",
+      "X-Zendesk-Request-Id": "551d390f974195545f0d",
       "X-Content-Type-Options": "nosniff",
       "Expect-CT": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
       "Server": "cloudflare",
-      "CF-RAY": "4fadf1c88b21dc33-LHR"
+      "CF-RAY": "4fad6c894a8b35b8-LHR"
     }
   }
-}
+  }

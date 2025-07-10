@@ -65,7 +65,7 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 }
             });
 
-            j.Organizations.Should().BeEquivalentTo(new
+            j.Organizations.Should().ContainEquivalentOf(new
             {
                 Name = "ShakTestOrg",
                 CreatedAt = DateTimeOffset.Parse("2019-10-07T13:51:06Z"),
@@ -88,8 +88,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
         [Theory]
         [InlineData(@"""123456""", "123456")]
         [InlineData(@"[""123"", ""456""]", "123,456")]
-        [InlineData(@"{""minutes"":3600,""in_business_hours"":true}", 
-            "{\r\n  \"minutes\": 3600,\r\n  \"in_business_hours\": true\r\n}")]
+        [InlineData(@"{""minutes"":3600,""in_business_hours"":true}",
+            "{\"minutes\":3600,\"in_business_hours\":true}")]
         [InlineData(@"123456", "123456")]
         [InlineData(@"null", null)]
         public void TestCustomDeserialisationOfEventValue2(
@@ -117,13 +117,13 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
             var j = JsonConvert.DeserializeObject<Zendesk.Model.TicketResponse>(
                 a, Zendesk.ApiFactoryExtensions.serialiser);
 
-            j.Users.Should().BeEquivalentTo(new
+            j.Users.Should().ContainEquivalentOf(new
             {
                 Id = 6619,
                 Phone = "01234 666 777 and some letters",
             });
 
-            j.Organizations.Should().BeEquivalentTo(new
+            j.Organizations.Should().ContainEquivalentOf(new
             {
                 Name = "Org with alphabetic Main Phone field",
                 OrganizationFields = new

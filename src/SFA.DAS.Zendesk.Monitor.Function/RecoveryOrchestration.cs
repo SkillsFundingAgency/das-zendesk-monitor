@@ -1,38 +1,28 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 
 namespace ZenWatchFunction
 {
-    public class RecoveryOrchestration
+    public static class RecoveryOrchestration
     {
         private static readonly string WatcherInstance = "{8B2772F1-0A07-4D64-BEBE-1402520C0BD0}";
 
-        [FunctionName("BackgroundTaskEntryPoint")]
-        public static Task Run(
-            [TimerTrigger("%MonitorCronSetting%")] TimerInfo timer,
-            [DurableClient] IDurableOrchestrationClient starter,
-            ILogger log)
+        [Function("BackgroundTaskEntryPoint")]
+        public static async Task Run(
+            [TimerTrigger("%MonitorCronSetting%", RunOnStartup = false)] TimerInfo timer,
+            [DurableClient] DurableTaskClient starter)
         {
-            return GetSingleInstance(starter, log);
+            await GetSingleInstance(starter);
         }
 
-        private static async Task<DurableOrchestrationStatus> GetSingleInstance(IDurableOrchestrationClient starter, ILogger log)
+        private static async Task GetSingleInstance(DurableTaskClient starter)
         {
-            var instance = await starter.GetStatusAsync(WatcherInstance);
+            var instance = await starter.GetInstanceAsync(WatcherInstance);
 
-            if (instance?.OrchestrationIsRunning() != true)
+            if (instance == null || instance.RuntimeStatus.OrchestrationIsRunning() != true)
             {
-                log.LogInformation("Starting Watcher orchestration");
-                await starter.StartNewAsync(nameof(WatcherOrchestration.ShareAllTickets), WatcherInstance);
+                await starter.ScheduleNewOrchestrationInstanceAsync(nameof(WatcherOrchestration.ShareAllTickets), WatcherInstance);
             }
-            else
-            {
-                log.LogWarning("Watcher orchestration is already running");
-            }
-
-            return instance;
         }
     }
 }

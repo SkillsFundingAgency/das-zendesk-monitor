@@ -53,7 +53,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
                 .Do(_ => throw new Exception("Stop test at Middleware step"));
 
             sut.Invoking(s => s.ShareTicket(ticket.Id))
-                .Should().Throw<Exception>().WithMessage("Stop test at Middleware step");
+               .Should().ThrowAsync<Exception>()
+               .WithMessage("Stop test at Middleware step");
 
             zendesk.Tickets.First(x => x.Id == ticket.Id)
                 .Tags

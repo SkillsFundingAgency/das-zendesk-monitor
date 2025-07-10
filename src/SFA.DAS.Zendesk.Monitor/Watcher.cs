@@ -34,8 +34,8 @@ namespace SFA.DAS.Zendesk.Monitor
         public async Task ShareTicket(long id)
         {
             var ticket = await zendesk.GetTicketForSharing(id);
-
-            await ticket.IfSomeAsync(ShareTicket);
+            
+            await ticket.IfSomeAsync(ShareTicket);  
         }
 
         private async Task ShareTicket(SharedTicket share)

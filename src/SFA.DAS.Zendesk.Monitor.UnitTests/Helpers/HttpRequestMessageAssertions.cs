@@ -17,9 +17,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests
     public class HttpRequestMessageAssertions :
         ReferenceTypeAssertions<HttpRequestMessage, HttpRequestMessageAssertions>
     {
-        public HttpRequestMessageAssertions(HttpRequestMessage instance)
+        public HttpRequestMessageAssertions(HttpRequestMessage instance) : base(instance)
         {
-            Subject = instance;
         }
 
         protected override string Identifier => "HttpRequestMessage";

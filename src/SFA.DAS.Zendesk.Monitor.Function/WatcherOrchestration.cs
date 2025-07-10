@@ -1,32 +1,69 @@
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using System;
-using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask;
+using Microsoft.Extensions.Logging;
 
 namespace ZenWatchFunction
 {
-    public class WatcherOrchestration
+    public static class WatcherOrchestration
     {
-        private static readonly RetryOptions retry = new RetryOptions(TimeSpan.FromSeconds(1), 5);
+        private static readonly TaskOptions retryOptions = TaskOptions.FromRetryPolicy(
+            new RetryPolicy(
+                firstRetryInterval: TimeSpan.FromSeconds(1),
+                maxNumberOfAttempts: 5));
 
-        [FunctionName(nameof(ShareAllTickets))]
-        public static async Task ShareAllTickets([OrchestrationTrigger] IDurableOrchestrationContext context)
+        [Function(nameof(ShareAllTickets))]
+        public static async Task ShareAllTickets([OrchestrationTrigger] TaskOrchestrationContext context)
         {
-            var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), null);
-            await ShareTickets(context, tickets);
+            var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), string.Empty);
+            await ShareTickets(context,tickets);
         }
 
-        [FunctionName(nameof(ShareListedTickets))]
-        public static async Task ShareListedTickets([OrchestrationTrigger] IDurableOrchestrationContext context)
+        [Function(nameof(ShareListedTickets))]
+        public static async Task ShareListedTickets([OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var tickets = context.GetInput<long[]>();
+            if (tickets == null || tickets.Length == 0)
+            {
+                return;
+            }
             await ShareTickets(context, tickets);
         }
 
-        private static async Task ShareTickets(IDurableOrchestrationContext context, long[] tickets)
+        private static async Task ShareTickets(TaskOrchestrationContext context, long[] ticketIds)
         {
-            foreach (var ticket in tickets)
-                await context.CallActivityWithRetryAsync(nameof(DurableWatcher.ShareTicket), retry, ticket);
+            const int batchSize = 10;
+            var logger = context.CreateReplaySafeLogger(nameof(ShareTickets));
+            int maxConcurrentActivities = 5; 
+
+            for (int i = 0; i < ticketIds.Length; i += batchSize)
+            {
+                var batch = ticketIds.Skip(i).Take(batchSize).ToList();
+
+                var semaphore = new SemaphoreSlim(maxConcurrentActivities, maxConcurrentActivities);
+
+                var tasks = batch.Select(async ticket =>
+                {
+                    try
+                    {
+                        await semaphore.WaitAsync(); 
+
+                        logger.LogInformation($"Starting Activity for ticket {ticket}");
+                        await context.CallActivityAsync(nameof(DurableWatcher.ShareTicket), ticket);
+                        logger.LogInformation($"Completed Activity for ticket {ticket}");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, $"Error processing ticket {ticket}"); 
+                        throw;
+                    }
+                    finally
+                    {
+                        semaphore.Release(); 
+                    }
+                });
+
+                await Task.WhenAll(tasks);
+            }
         }
     }
 }
