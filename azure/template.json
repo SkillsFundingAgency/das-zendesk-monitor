@@ -85,9 +85,13 @@
         "workerAccessRestrictions": {
             "type": "array"
         },
-         "netFrameworkVersion": {
+        "netFrameworkVersion": {
             "type": "string",
             "defaultValue": "v8.0"
+        },
+        "vnetRouteAllEnabled": {
+            "type": "bool",
+            "defaultValue": false
         }
     },
     "variables": {
@@ -97,7 +101,7 @@
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "workerFunctionAppName": "[concat(variables('resourceNamePrefix'),'-wkr-fa')]",
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
-	"configNames": "SFA.DAS.ZendeskMonitor",
+        "configNames": "SFA.DAS.ZendeskMonitor",
         "privateLinkScopeName": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-shared-ampls'))]"
     },
     "resources": [
@@ -107,8 +111,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "location": "[parameters('resourceGroupLocation')]",
             "tags": "[parameters('tags')]",
-            "properties": {
-            }
+            "properties": {}
         },
         {
             "apiVersion": "2020-06-01",
@@ -261,7 +264,7 @@
                     "ipSecurityRestrictions": {
                         "value": "[parameters('workerAccessRestrictions')]"
                     },
-                     "netFrameworkVersion": {
+                    "netFrameworkVersion": {
                         "value": "[parameters('netFrameworkVersion')]"
                     },
                     "functionAppAppSettings": {
@@ -283,7 +286,7 @@
                                     "name": "FUNCTIONS_WORKER_RUNTIME",
                                     "value": "dotnet-isolated"
                                 },
-    				{
+                                {
                                     "name": "ConfigNames",
                                     "value": "[variables('configNames')]"
                                 },
@@ -348,6 +351,9 @@
                                 }
                             ]
                         }
+                    },
+                    "vnetRouteAllEnabled": {
+                        "value": "[parameters('vnetRouteAllEnabled')]"
                     }
                 }
             },
