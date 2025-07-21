@@ -43,7 +43,7 @@ namespace ZenWatchFunction
                 }
                 catch (Exception ex)
                 {
-                    throw new InvalidOperationException($"Error processing ticket {ticketId}", ex);
+                    logger.LogError(ex, "Error processing ticket {TicketId}: {Message}", ticketId, ex.Message);
                 }
             }
         }

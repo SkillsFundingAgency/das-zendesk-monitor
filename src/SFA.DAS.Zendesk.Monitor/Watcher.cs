@@ -34,8 +34,8 @@ namespace SFA.DAS.Zendesk.Monitor
         public async Task ShareTicket(long id)
         {
             var ticket = await zendesk.GetTicketForSharing(id);
-            
-            await ticket.IfSomeAsync(ShareTicket);  
+
+            await ticket.IfSomeAsync(ShareTicket);
         }
 
         private async Task ShareTicket(SharedTicket share)
@@ -63,7 +63,14 @@ namespace SFA.DAS.Zendesk.Monitor
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, $"Error sharing {share.Reason} ticket {share.Id}. Payload: {json}");
+                logger?.LogError(
+                    ex,
+                    "Error sharing {Reason} shareId {ShareId} (TicketId: {TicketId}). Payload: {Payload}",
+                    share.Reason,
+                    share.Id,
+                    wrap.Ticket.Id,
+                    json
+                );
                 throw;
             }
         }
