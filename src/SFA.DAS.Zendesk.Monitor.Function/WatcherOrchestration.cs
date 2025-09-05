@@ -15,7 +15,7 @@ namespace ZenWatchFunction
         public static async Task ShareAllTickets([OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var tickets = await context.CallActivityAsync<long[]>(nameof(DurableWatcher.SearchTickets), string.Empty);
-            await ShareTickets(context,tickets);
+            await ShareTickets(context, tickets);
         }
 
         [Function(nameof(ShareListedTickets))]
@@ -31,38 +31,20 @@ namespace ZenWatchFunction
 
         private static async Task ShareTickets(TaskOrchestrationContext context, long[] ticketIds)
         {
-            const int batchSize = 10;
             var logger = context.CreateReplaySafeLogger(nameof(ShareTickets));
-            int maxConcurrentActivities = 5; 
 
-            for (int i = 0; i < ticketIds.Length; i += batchSize)
+            foreach (var ticketId in ticketIds)
             {
-                var batch = ticketIds.Skip(i).Take(batchSize).ToList();
-
-                var semaphore = new SemaphoreSlim(maxConcurrentActivities, maxConcurrentActivities);
-
-                var tasks = batch.Select(async ticket =>
+                try
                 {
-                    try
-                    {
-                        await semaphore.WaitAsync(); 
-
-                        logger.LogInformation($"Starting Activity for ticket {ticket}");
-                        await context.CallActivityAsync(nameof(DurableWatcher.ShareTicket), ticket);
-                        logger.LogInformation($"Completed Activity for ticket {ticket}");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, $"Error processing ticket {ticket}"); 
-                        throw;
-                    }
-                    finally
-                    {
-                        semaphore.Release(); 
-                    }
-                });
-
-                await Task.WhenAll(tasks);
+                    logger.LogInformation("Starting Activity for ticket {Ticket}", ticketId);
+                    await context.CallActivityAsync(nameof(DurableWatcher.ShareTicket), ticketId, retryOptions);
+                    logger.LogInformation("Completed Activity for ticket {Ticket}", ticketId);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error processing ticket {TicketId}: {Message}", ticketId, ex.Message);
+                }
             }
         }
     }

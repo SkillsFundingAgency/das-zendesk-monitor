@@ -15,6 +15,7 @@ public class WatcherOrchestrationTests
     {
         var contextMock = new Mock<TaskOrchestrationContext>();
         var tickets = new long[] { 1, 2, 3, 4 };
+
         contextMock
             .Setup(c => c.CallActivityAsync<long[]>(
                 new TaskName(nameof(DurableWatcher.SearchTickets)),
@@ -30,7 +31,7 @@ public class WatcherOrchestrationTests
             .Setup(c => c.CallActivityAsync(
                 new TaskName(nameof(DurableWatcher.ShareTicket)),
                 It.IsAny<object>(),
-                null))
+                It.IsAny<TaskOptions>()))
             .Returns(Task.CompletedTask);
 
         await WatcherOrchestration.ShareAllTickets(contextMock.Object);
@@ -39,10 +40,11 @@ public class WatcherOrchestrationTests
             new TaskName(nameof(DurableWatcher.SearchTickets)),
             It.IsAny<object>(),
             null), Times.Once);
+
         contextMock.Verify(c => c.CallActivityAsync(
             new TaskName(nameof(DurableWatcher.ShareTicket)),
             It.IsAny<object>(),
-            null), Times.Exactly(tickets.Length));
+            It.IsAny<TaskOptions>()), Times.Exactly(tickets.Length));
     }
 
     [Fact]
@@ -82,7 +84,7 @@ public class WatcherOrchestrationTests
             .Setup(c => c.CallActivityAsync(
                 new TaskName(nameof(DurableWatcher.ShareTicket)),
                 It.IsAny<object>(),
-                null))
+                It.IsAny<TaskOptions>()))
             .Returns(Task.CompletedTask);
 
         await WatcherOrchestration.ShareListedTickets(contextMock.Object);
@@ -90,13 +92,15 @@ public class WatcherOrchestrationTests
         contextMock.Verify(c => c.CallActivityAsync(
             new TaskName(nameof(DurableWatcher.ShareTicket)),
             It.IsAny<object>(),
-            null), Times.Exactly(tickets.Length));
+            It.IsAny<TaskOptions>()), Times.Exactly(tickets.Length));
     }
+
     [Fact]
     public async Task ShareAllTickets_WhenNoTicketsFound_DoesNotCallShareTicket()
     {
         var contextMock = new Mock<TaskOrchestrationContext>();
         var tickets = Array.Empty<long>();
+
         contextMock
             .Setup(c => c.CallActivityAsync<long[]>(
                 new TaskName(nameof(DurableWatcher.SearchTickets)),
@@ -114,10 +118,11 @@ public class WatcherOrchestrationTests
             new TaskName(nameof(DurableWatcher.SearchTickets)),
             It.IsAny<object>(),
             null), Times.Once);
+
         contextMock.Verify(c => c.CallActivityAsync(
             new TaskName(nameof(DurableWatcher.ShareTicket)),
             It.IsAny<object>(),
-            null), Times.Never);
+            It.IsAny<TaskOptions>()), Times.Never);
     }
 
     [Fact]
@@ -132,11 +137,12 @@ public class WatcherOrchestrationTests
             .Returns(Mock.Of<ILogger>());
 
         var calledTicketIds = new List<long>();
+
         contextMock
             .Setup(c => c.CallActivityAsync(
                 new TaskName(nameof(DurableWatcher.ShareTicket)),
                 It.IsAny<object>(),
-                null))
+                It.IsAny<TaskOptions>()))
             .Callback<TaskName, object, TaskOptions?>((_, input, __) =>
             {
                 if (input is long id)
@@ -148,6 +154,4 @@ public class WatcherOrchestrationTests
 
         calledTicketIds.Should().BeEquivalentTo(tickets);
     }
-
-
 }

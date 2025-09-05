@@ -34,8 +34,8 @@ namespace SFA.DAS.Zendesk.Monitor
         public async Task ShareTicket(long id)
         {
             var ticket = await zendesk.GetTicketForSharing(id);
-            
-            await ticket.IfSomeAsync(ShareTicket);  
+
+            await ticket.IfSomeAsync(ShareTicket);
         }
 
         private async Task ShareTicket(SharedTicket share)
@@ -45,16 +45,34 @@ namespace SFA.DAS.Zendesk.Monitor
             await zendesk.MarkSharing(share);
 
             var wrap = MapperConfig.Map<Middleware.EventWrapper>(share.Response);
+            string json = string.Empty;
 
-            await share.Switch(
-                solved => middleware.SolveTicket(wrap),
-                handedOff => middleware.HandOffTicket(wrap),
-                escalated => middleware.EscalateTicket(wrap)
+            try
+            {
+                json = wrap.ToString();
+
+                await share.Switch(
+                    solved => middleware.SolveTicket(wrap),
+                    handedOff => middleware.HandOffTicket(wrap),
+                    escalated => middleware.EscalateTicket(wrap)
                 );
 
-            await zendesk.MarkShared(share);
+                await zendesk.MarkShared(share);
 
-            logger?.LogInformation($"Shared {share.Reason} ticket {share.Id}");
+                logger?.LogInformation($"Shared {share.Reason} ticket {share.Id}");
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(
+                    ex,
+                    "Error sharing {Reason} shareId {ShareId} (TicketId: {TicketId}). Payload: {Payload}",
+                    share.Reason,
+                    share.Id,
+                    wrap.Ticket.Id,
+                    json
+                );
+                throw;
+            }
         }
     }
 }

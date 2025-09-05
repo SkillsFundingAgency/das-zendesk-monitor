@@ -30,14 +30,11 @@ namespace SFA.DAS.Zendesk.Monitor.Zendesk
 
             var ticketResponse = await api.GetTicket(ticket.Id);
 
-            if (ticketResponse.Ticket.Status != "closed")
-            {
-                var update = new SafeModifyTags(ticketResponse.Ticket);
-                update.Add(additions ?? Array.Empty<string>());
-                update.Remove(removals ?? Array.Empty<string>());
+            var update = new SafeModifyTags(ticketResponse.Ticket);
+            update.Add(additions ?? Array.Empty<string>());
+            update.Remove(removals ?? Array.Empty<string>());
 
-                await api.UpdateTags(ticket.Id, update);
-            }
+            await api.UpdateTags(ticket.Id, update);
         }
 
         internal static Task<TicketResponse> GetTicketWithRequiredSideloads(this IApi api, long id)
