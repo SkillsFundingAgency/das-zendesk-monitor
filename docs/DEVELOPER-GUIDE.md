@@ -178,7 +178,7 @@ The monitor depends on triggers configured in Zendesk. These are the ones seen i
 **Other**
 - *Remove tags from closed ticket follow-up* – removes monitor tags from follow-up tickets created from closed tickets.
 
-The key triggers – *Solved Tickets notify Zendesk Monitor*, *Confirmed to escalate* and *Notifies Zendesk Monitor* – **ignore updates made by the monitor's own account** (role is not *ESFA Middleware*); the validation triggers don't. Keep that in mind when testing with the monitor's API token – your changes won't fire them.
+The key triggers – *Solved Tickets notify Zendesk Monitor*, *Confirmed to escalate* and *Notifies Zendesk Monitor* – **ignore updates made by the monitor's own account** (role is not *ESFA Middleware*); the validation triggers don't. Keep that in mind when testing with the monitor's API token – your changes won't fire them. (Zendesk's own automatic update to a new ticket, a second or two after it's created, *can* fire them – see [Preparing a test ticket](#2-preparing-a-test-ticket).)
 
 ---
 
@@ -264,7 +264,7 @@ Settings come from two places.
 ## 10. Running it locally
 
 ### What you need
-- .NET 8 SDK and Visual Studio (or VS Code) (will become .NET 10 in the near future)
+- .NET 10 SDK and Visual Studio (or VS Code)
 - Azure Functions Core Tools v4 (`func --version`)
 - Azurite (storage emulator) – no database is needed
 - PP Zendesk API details (from the PP config entry)
@@ -408,6 +408,7 @@ $body = @{ ticket = @{ subject = "MONITOR TEST - please ignore"; assignee_id = $
           comment = @{ body = "Monitor test ticket"; public = $false } } } | ConvertTo-Json -Depth 5
 $id = (Invoke-RestMethod -Method Post "$base/tickets.json" -Headers $h -ContentType "application/json" -Body $body).ticket.id
 $id
+Start-Sleep 5   # let Zendesk finish its own update to the new ticket before tagging it (see "Good to know")
 
 # 2. Put it in the state you want (pick one)
 
@@ -430,7 +431,8 @@ Invoke-RestMethod -Method Put "$base/tickets/$id.json" -Headers $h -ContentType 
 ```
 
 Good to know:
-- **The webhook doesn't fire for these changes.** The API token belongs to the monitor's own account, and the Zendesk triggers ignore that account's changes. You have to get the ticket to the monitor yourself (see 3 and 4).
+- **The webhook doesn't fire for your changes.** The API token belongs to the monitor's own account, and the Zendesk triggers ignore that account's changes. You have to get the ticket to the monitor yourself (see 3 and 4).
+- **Wait a few seconds after creating a ticket before tagging it.** Zendesk makes its own automatic update to a new ticket a second or two after it's created (it adds `ar_suggest_true`). That update is made by the system user, not the monitor's account, so it *does* fire the triggers – and if the ticket is already tagged by then, the webhook sends it to the deployed PP monitor, which processes it within seconds. The create snippet above waits 5 seconds for this reason.
 - **Escalations must be a separate update from the create.** If you create and escalate in one call, the monitor skips the ticket (see Known issues).
 - Set tags by sending the full `tags` list – it replaces all existing tags, so include every tag you want to keep. (`additional_tags` was ignored in testing.)
 - The monitor's account can't change closed tickets.
@@ -474,137 +476,173 @@ For a step-by-step run-through of all of this, see the [worked examples](#5-work
 
 ### 5. Worked examples
 
-Step-by-step tests using your local monitor, the middleware stub and PP Zendesk (approach 4). Run them in order. Each one takes a couple of minutes. **PP only – never PROD.**
+Step-by-step tests using your local monitor, the middleware stub and PP Zendesk (approach 4). Each test has a description, one script to paste, and what to expect. Each takes a couple of minutes. **PP only – never PROD.**
+
+For checking an upgrade or a change to the Functions setup, Tests 2, 3 and 6 are enough. The others cover the monitor's logic, which the unit tests also cover.
 
 #### Before you start
 
 1. Check `local.settings.json` has `"AzureWebJobs.BackgroundTaskEntryPoint.Disabled": "true"` (timer off), and that the quieter logging is in `host.json` (section 10, setup step 6) – without it you won't be able to follow the console.
 2. Start Azurite, the middleware stub and the function (section 10, Run, steps 1–3). Watch the console for a minute: if it starts processing tickets you didn't send, see "Tickets you didn't send appear in the console" below.
-3. Open a PowerShell window and paste the "Connect" lines from [Preparing a test ticket](#2-preparing-a-test-ticket).
-4. Paste these two helpers into the same window. Use this window for all the tests – variables and helpers only exist in the window you set them in.
+3. Open a PowerShell window and paste this once, with the PP values from the PP config entry filled in. Use this window for all the tests – variables and helpers only exist in the window you set them in.
 
    ```powershell
+   # Connect (PP only)
+   $base = "https://<pp-subdomain>.zendesk.com/api/v2"
+   $auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("<ApiUser>:<ApiKey>"))
+   $h    = @{ Authorization = "Basic $auth" }
+   $me   = (Invoke-RestMethod "$base/users/me.json" -Headers $h).user.id
+   $me   # should print a number
+
+   # Create a test ticket and return its number.
+   # Waits 5 seconds afterwards so Zendesk's own automatic update to the new ticket is done
+   # before you tag it (see "Good to know" in Preparing a test ticket).
+   function NewTicket {
+       $body = @{ ticket = @{ subject = "MONITOR TEST - please ignore"; assignee_id = $me; tags = @("monitor_test")
+                 comment = @{ body = "Monitor test ticket"; public = $false } } } | ConvertTo-Json -Depth 5
+       $new = (Invoke-RestMethod -Method Post "$base/tickets.json" -Headers $h -ContentType "application/json" -Body $body -ErrorAction Stop).ticket.id
+       Start-Sleep 5
+       return $new
+   }
+
+   # Update a ticket
+   function Update($id, $ticket) {
+       $body = @{ ticket = $ticket } | ConvertTo-Json -Depth 5
+       Invoke-RestMethod -Method Put "$base/tickets/$id.json" -Headers $h -ContentType "application/json" -Body $body | Out-Null
+   }
+
    # Show a ticket's status and tags
    function Show($id) { (Invoke-RestMethod "$base/tickets/$id.json" -Headers $h).ticket | Select-Object id, status, tags }
 
-   # Send a ticket to the LOCAL monitor (what the webhook does)
-   # (waits 5 seconds so the monitor has finished before you check)
+   # Send a ticket to the LOCAL monitor (what the webhook does), then wait 5 seconds for it to finish
    function Notify($id) { Invoke-RestMethod -Method Post http://localhost:7071/api/NotifyTicket -Body "{`"id`":$id}" -ContentType application/json | Out-Null; Start-Sleep 5 }
+
+   # Clear the stub's call list
+   Invoke-RestMethod -Method Delete "http://localhost:8080/__calls"
    ```
-5. Clear the stub: `Invoke-RestMethod -Method Delete "http://localhost:8080/__calls"`
 
-**About `$id`.** Every command works on the ticket number held in `$id`:
-- **Creating a ticket sets it for you.** The `# 1. Create a test ticket` lines from "Preparing a test ticket" store the new ticket number in `$id` and print it. Each test starts by creating a ticket, so you don't need to type a number.
-- **To work on a ticket you already have**, set it yourself, e.g. `$id = 16420` (the number from the Zendesk URL, the ticket list, or an earlier `$id` output).
-- **Check it before you carry on.** Type `$id` to see which ticket you're on. If a create fails, `$id` keeps its old value – so make sure it's printed a new number.
-- `12345` in the examples elsewhere in this guide is a placeholder – use your own ticket number.
+**About `$id`.** Each test script starts with `$id = NewTicket`, which creates a new ticket and prints its number, so you never need to type one. To re-run something on a ticket you already have, set it yourself (e.g. `$id = 16420`). If `NewTicket` fails you'll see a red error and `$id` will be empty – fix the error (see the table below) before carrying on, as the rest of the script will fail too. `12345` in the examples elsewhere in this guide is a placeholder.
 
-After the `Notify` step in each case, run it **straight away** – the deployed PP monitor runs every 30 minutes and may get there first (see [Run locally against PP](#4-run-locally-against-pp)).
+**Run each script in one go.** Each one tags the ticket and calls `Notify` immediately, so your local monitor gets there before the deployed PP monitor (see [Run locally against PP](#4-run-locally-against-pp)).
 
 ---
 
-#### Test 1 – Stub sanity check (no monitor, no Zendesk)
+#### Test 1 – Stub sanity check
 
-Checks the stub is running and saving payloads.
+**What it checks:** the stub is running and saving payloads. Doesn't use the monitor or Zendesk.
 
 ```powershell
 Invoke-RestMethod -Method Put "http://localhost:8080/ticket?escalate=true&subscription-key=x" -Headers @{ Authorization = "Basic eDp4" } -ContentType application/json -Body '{"ticket":{"id":1,"destination":"itsm","comments":[{"body":"hello"}]}}'
+Invoke-RestMethod -Method Delete "http://localhost:8080/__calls"   # clear it again
 ```
 
 **Expect**
 - Stub window: a green line `PUT escalated ticket=1 -> 200 dest=itsm 1 comment(s) [5 chars]`
 - A file `1-PUT-….json` in `tools/MiddlewareStub/payloads/`
-- `http://localhost:8080/` shows the call
-
-Clear the stub again before Test 2.
 
 ---
 
 #### Test 2 – Escalated ticket is sent
 
-1. Create a test ticket.
-2. Run the `# Escalated` lines from "Preparing a test ticket".
-3. `Notify $id`
+**What it checks:** the full path for an escalation – webhook → orchestration → Zendesk read → payload → `PUT` to the middleware → tags cleared. Only the private note from the escalation update is sent.
+
+```powershell
+$id = NewTicket; $id
+Update $id @{ status = "hold"; comment = @{ body = "Escalation note"; public = $false }
+              tags = @("monitor_test", "escalated_tag", "pending_middleware_escalated") }
+Notify $id
+Show $id
+```
 
 **Expect**
 - Function console: `Sharing ticket …` → `Sharing Escalated ticket …` → `Shared Escalated ticket …`
-- Stub: green `PUT escalated ticket=… -> 200 dest=itsm 1 comment(s)` – the one private escalation note. A real run looked like this:
+- Stub: a green line, e.g.
   ```
   11:59:55  PUT    escalated  ticket=16392    -> 200  dest=itsm  1 comment(s) [15 chars]  description=19 chars
   ```
   15 chars is "Escalation note". The description (19 chars, "Monitor test ticket") is the ticket's first message and is always sent.
-- Payload file: `comments` contains only `"Escalation note"` – the first comment isn't included, because only private notes from updates containing an `escalated_tag` change are sent. (`"Monitor test ticket"` still appears in `description`, which is always the ticket's first message.)
-- `Show $id`: no `pending_…` or `sending_…` tag left – e.g. `{escalated_tag, monitor_test}`
+- Payload file: `comments` contains only `"Escalation note"` – the first comment isn't in an update with an `escalated_tag` change, so it isn't sent. (`"Monitor test ticket"` still appears in `description`.)
+- `Show`: no `pending_…` or `sending_…` tag – e.g. `{escalated_tag, monitor_test}`
 
 ---
 
 #### Test 3 – Solved ticket is sent
 
-1. Create a test ticket.
-2. Run the `# Solved` lines.
-3. `Notify $id`
+**What it checks:** the `DELETE` call for a solved ticket, with no comments.
+
+```powershell
+$id = NewTicket; $id
+Update $id @{ status = "solved"; tags = @("monitor_test", "pending_middleware_solved") }
+Notify $id
+Show $id
+```
 
 **Expect**
-- Console: `Sharing Solved ticket …` → `Shared Solved ticket …`
-- Stub: green `DELETE solved … 0 comments`, e.g.
+- Function console: `Sharing Solved ticket …` → `Shared Solved ticket …`
+- Stub: a green line, e.g.
   ```
   12:01:27  DELETE solved     ticket=16419    -> 200  dest=itsm  0 comments  description=19 chars
   ```
-- `Show $id`: status `solved`, no monitor tags – e.g. `{ar_suggest_true, monitor_test}`. (`ar_suggest_true` is added by Zendesk itself – ignore it.)
+- `Show`: status `solved`, no monitor tags – e.g. `{ar_suggest_true, monitor_test}`. (`ar_suggest_true` is added by Zendesk itself – ignore it.)
 
 ---
 
 #### Test 4 – Handed-off ticket is sent with all comments
 
-1. Create a test ticket.
-2. Add a second comment and the hand-off tag:
-   ```powershell
-   $body = @{ ticket = @{ comment = @{ body = "Second comment"; public = $false }
-             tags = @("monitor_test", "pending_middleware_handedoff") } } | ConvertTo-Json -Depth 5
-   Invoke-RestMethod -Method Put "$base/tickets/$id.json" -Headers $h -ContentType "application/json" -Body $body
-   ```
-3. `Notify $id`
+**What it checks:** the `POST` call for a hand-off, which sends every comment.
+
+```powershell
+$id = NewTicket; $id
+Update $id @{ comment = @{ body = "Second comment"; public = $false }
+              tags = @("monitor_test", "pending_middleware_handedoff") }
+Notify $id
+Show $id
+```
 
 **Expect**
-- Console: `Sharing HandedOff ticket …` → `Shared HandedOff ticket …`
-- Stub: green `POST handedoff … 2 comment(s)`, e.g.
+- Function console: `Sharing HandedOff ticket …` → `Shared HandedOff ticket …`
+- Stub: a green line, e.g.
   ```
   12:08:40  POST   handedoff  ticket=16420    -> 200  dest=itsm  2 comment(s) [19, 14 chars]  description=19 chars
   ```
-- `Show $id`: no monitor tags. The status stays `new` – a hand-off doesn't change the status.
+- `Show`: no monitor tags. The status stays `new` – a hand-off doesn't change the status.
 
 ---
 
 #### Test 5 – Escalation without a private note is skipped
 
-1. Create a test ticket.
-2. Escalate with a **public** comment:
-   ```powershell
-   $body = @{ ticket = @{ status = "hold"; comment = @{ body = "Public reply"; public = $true }
-             tags = @("monitor_test", "escalated_tag", "pending_middleware_escalated") } } | ConvertTo-Json -Depth 5
-   Invoke-RestMethod -Method Put "$base/tickets/$id.json" -Headers $h -ContentType "application/json" -Body $body
-   ```
-3. `Notify $id`
+**What it checks:** an escalation with only a public comment isn't sent, and the tag is left alone. The script removes the tag afterwards so the deployed PP monitor doesn't keep picking the ticket up.
+
+```powershell
+$id = NewTicket; $id
+Update $id @{ status = "hold"; comment = @{ body = "Public reply"; public = $true }
+              tags = @("monitor_test", "escalated_tag", "pending_middleware_escalated") }
+Notify $id
+Show $id
+
+# Clean up
+Update $id @{ tags = @("monitor_test") }
+```
 
 **Expect**
-- Console: only `Sharing ticket …` – no error
+- Function console: only `Sharing ticket …` – no error
 - Stub: nothing
-- `Show $id`: `pending_middleware_escalated` still there, but `escalated_tag` has gone – the *Check comment is private* validation trigger removed it, just as it would for an agent. (Validation triggers don't ignore the monitor's account.)
-
-Remove the tag afterwards so the deployed PP monitor doesn't keep picking it up:
-```powershell
-$body = @{ ticket = @{ tags = @("monitor_test") } } | ConvertTo-Json -Depth 5
-Invoke-RestMethod -Method Put "$base/tickets/$id.json" -Headers $h -ContentType "application/json" -Body $body
-```
+- First `Show`: `pending_middleware_escalated` still there, but `escalated_tag` has gone – the *Check comment is private* validation trigger removed it, just as it would for an agent. (Validation triggers don't ignore the monitor's account.)
 
 ---
 
-#### Test 6 – Middleware fails twice, then succeeds (retries)
+#### Test 6 – Middleware fails twice, then succeeds
 
-1. Create a test ticket and run the `# Solved` lines.
-2. Make the stub fail this ticket twice:
-   `Invoke-RestMethod -Method Post "http://localhost:8080/__fail/$($id)?status=500&times=2"`
-3. `Notify $id`
+**What it checks:** Durable Functions retries – the middleware returns 500 twice, and the third attempt succeeds.
+
+```powershell
+$id = NewTicket; $id
+Invoke-RestMethod -Method Post "http://localhost:8080/__fail/$($id)?status=500&times=2"
+Update $id @{ status = "solved"; tags = @("monitor_test", "pending_middleware_solved") }
+Notify $id
+Start-Sleep 10
+Show $id
+```
 
 **Expect**
 - Stub: two red `-> 500` lines, then a green `-> 200` (the later lines are flagged `DUPLICATE` – expected, they're retries), e.g.
@@ -615,50 +653,53 @@ Invoke-RestMethod -Method Put "$base/tickets/$id.json" -Headers $h -ContentType 
   12:13:18  DELETE solved     ticket=16422    -> 200  dest=itsm  0 comments  description=19 chars
             ! DUPLICATE - received 3 times
   ```
-- Console: two `Error sharing … Payload: …` errors, then `Shared Solved ticket …`
-- `Show $id`: no monitor tags. If it still shows `sending_…`, the retries haven't finished – wait 10 seconds and run `Show $id` again.
+- Function console: two `Error sharing … Payload: …` errors, then `Shared Solved ticket …`. If you're debugging, Visual Studio may stop on each error – press Continue.
+- `Show`: no monitor tags. If it still shows `sending_…`, the retries haven't finished – wait 10 seconds and run `Show $id` again.
 
 ---
 
 #### Test 7 – Middleware keeps failing, then recovers
 
-1. Create a test ticket and run the `# Solved` lines.
-2. `Invoke-RestMethod -Method Post "http://localhost:8080/__fail-all?status=500"`
-3. `Notify $id`, then `Start-Sleep 20` (enough for all five attempts in our runs – if `Show` still shows `sending_…` with fewer than five stub lines, wait and check again), then `Show $id`
+**What it checks:** after five failed attempts the ticket is left on `sending_…`, and a later run picks it up again.
+
+```powershell
+$id = NewTicket; $id
+Invoke-RestMethod -Method Post "http://localhost:8080/__fail-all?status=500"
+Update $id @{ status = "solved"; tags = @("monitor_test", "pending_middleware_solved") }
+Notify $id
+Start-Sleep 20
+Show $id                                                    # expect: stuck on sending_middleware_solved
+
+# Recover - straight away, before the deployed PP monitor picks it up
+Invoke-RestMethod -Method Post "http://localhost:8080/__ok"
+Notify $id
+Show $id                                                    # expect: no monitor tags
+```
 
 **Expect**
-- Stub: five red `-> 500` lines (five attempts – roughly 2 seconds apart in our runs, though only 1 second is configured)
-- Console: `Error sharing …` for each attempt, then `Error processing ticket …`
-- `Show $id`: stuck on `sending_middleware_solved`
-
-4. Put the stub back to normal and re-send **straight away** (otherwise the deployed PP monitor will pick it up and send it to the real PP middleware):
-   ```powershell
-   Invoke-RestMethod -Method Post "http://localhost:8080/__ok"
-   Notify $id
-   ```
-
-**Expect**
-- Stub: green `-> 200` (flagged `DUPLICATE - received 6 times` – fine)
-- `Show $id`: no monitor tags – a ticket stuck on `sending_…` is retried just like `pending_…`
+- Stub: five red `-> 500` lines (roughly 2 seconds apart in our runs, though only 1 second is configured), then a green `-> 200` after recovery (flagged `DUPLICATE - received 6 times` – fine)
+- Function console: `Error sharing …` for each attempt, then `Error processing ticket …`
+- First `Show`: `sending_middleware_solved`. If there are fewer than five stub lines, the attempts haven't finished – wait and check again before recovering.
+- Second `Show`: no monitor tags – a ticket stuck on `sending_…` is retried just like `pending_…`
 
 ---
 
 #### Test 8 – Closed ticket with a tag (known issue) – optional
 
-Only run this if you need to see the 403 for yourself. Closed tickets can't be changed again, so the deployed PP monitor will hit a 403 on this ticket on every run from now on.
+**What it checks:** the closed-ticket 403 from Known issues. Only run this if you need to see it for yourself – closed tickets can't be changed again, so the deployed PP monitor will hit a 403 on this ticket on every run from now on. Note the ticket number for the team.
 
-1. Create a test ticket.
-2. Close it with the solved tag still on:
-   ```powershell
-   $body = @{ ticket = @{ status = "closed"; tags = @("monitor_test", "pending_middleware_solved") } } | ConvertTo-Json -Depth 5
-   Invoke-RestMethod -Method Put "$base/tickets/$id.json" -Headers $h -ContentType "application/json" -Body $body
-   ```
-3. `Notify $id`
+```powershell
+$id = NewTicket; $id
+Update $id @{ status = "closed"; tags = @("monitor_test", "pending_middleware_solved") }
+Notify $id
+Start-Sleep 20
+Show $id
+```
 
 **Expect (current `master`)**
-- Console: `Sharing Solved ticket …`, then a **403 Forbidden** error on each attempt
+- Function console: `Sharing Solved ticket …`, then a **403 Forbidden** error on each attempt, then `Error processing ticket …`
 - Stub: nothing – it fails before the middleware call
-- The ticket can't be changed any more, so the deployed PP monitor will hit the same 403 on every run. Note the ticket number for the team.
+- `Show`: status `closed`, `pending_middleware_solved` still there
 
 ---
 
@@ -667,13 +708,14 @@ Only run this if you need to see the 403 for yourself. Closed tickets can't be c
 | What you see | Why | What to do |
 |---|---|---|
 | **400 Bad Request** when creating or updating a ticket | Windows PowerShell 5.1 doesn't always send the `Content-Type` from `-Headers`, so Zendesk doesn't get JSON | Always pass `-ContentType "application/json"` (the snippets in this guide do) |
-| A create fails but `$id` still prints a number or a GUID | PowerShell keeps the old value when the command fails | Set `$id = $null` before creating (the snippet does), and don't carry on until `$id` prints a new ticket number |
-| `The term 'Notify' is not recognized` | Helpers and variables only exist in the window you created them in | Paste the Connect lines and helpers again, or use the same window throughout |
+| A create fails but `$id` still prints a number or a GUID | PowerShell keeps the old value when a command fails (when using the snippet in Preparing a test ticket) | Set `$id = $null` before creating (the snippet does), or use `$id = NewTicket` from the worked examples. Don't carry on until `$id` prints a new ticket number. |
+| `The term 'NewTicket'` (or `Notify`, `Update`, `Show`) `is not recognized` | Helpers and variables only exist in the window you created them in | Paste the "Before you start" block again, or use the same window throughout |
 | `Notify` prints a block of URLs (`StatusQueryGetUri`, …) | That's Durable Functions confirming the run started – not an error | Use the `Notify` helper above, which hides it |
 | `Show` straight after `Notify` still shows `pending_…` | The monitor runs in the background – `Notify` returns before it's finished | Wait a few seconds and run `Show` again (the helper waits 5 seconds) |
-| **The tag has gone but the stub shows nothing** | The deployed PP monitor got there first and sent it to the **real PP middleware**. Your local monitor then found no tag and skipped the ticket (the console shows only `Sharing ticket …`). | Put the pending tag back and `Notify` straight away (see "Re-run a ticket" in [Preparing a test ticket](#2-preparing-a-test-ticket)) |
+| **The tag has gone but the stub shows nothing** | The deployed PP monitor got there first and sent it to the **real PP middleware** – usually because the ticket was tagged before Zendesk's automatic update to the new ticket, which fired the webhook (see "Good to know" in [Preparing a test ticket](#2-preparing-a-test-ticket)), or via PP's timer. Your local monitor then found no tag and skipped the ticket (the console shows only `Sharing ticket …`). The ticket's audit history shows `sending_…` added and removed within a second or two. | Put the pending tag back and `Notify` straight away (see "Re-run a ticket" in [Preparing a test ticket](#2-preparing-a-test-ticket)) |
 | The ticket is on `sending_…` but your console has nothing for it | The deployed PP monitor is part-way through sending it | Wait for PP to finish, then re-tag and `Notify` |
 | **Tickets you didn't send appear in the console**, usually with 403 errors (e.g. `Error processing ticket 2529 … 403 (Forbidden)`) | A local timer run is processing the tagged PP tickets. Either the timer isn't disabled, or a timer run from an earlier session has resumed – Durable Functions keeps its state in Azurite. The 403s are old closed tickets (see Known issues). | Stop the function. Check `AzureWebJobs.BackgroundTaskEntryPoint.Disabled` is `true`. In Azure Storage Explorer → Emulator, delete everything named `testhubname…` (tables, queues, blob containers). Start again. **Don't leave it running** – it could send real PP tickets to your stub and remove their tags, so they'd never reach PP ServiceNow/PCRM. |
+| **409 Conflict** in the function console straight after creating a ticket | Zendesk makes its own update to a new ticket a second or two after it's created (that's what adds `ar_suggest_true`). If the monitor reads the ticket before that update and writes after it, the safe update is rejected – by design. | Nothing – the retry re-reads the ticket and succeeds. If you're debugging, press Continue. The create snippet's 5-second wait avoids it. |
 | **429 Too Many Requests** from Zendesk | Zendesk is rate-limiting the API account. Your tests, your local monitor and the deployed PP monitor all share it. | Wait a minute and try again. Don't carry on with a test until the call succeeds. |
 | The console is flooded with storage request logging | The quieter logging in `host.json` is missing (e.g. after a `git stash`) | Re-add it (section 10, setup step 6) |
 
