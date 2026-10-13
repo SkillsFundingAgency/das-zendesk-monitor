@@ -11,6 +11,8 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
 {
     public class RecoveryOrchestrationTests
     {
+        private const string WatcherInstance = "{8B2772F1-0A07-4D64-BEBE-1402520C0BD0}";
+
         [Fact]
         public async Task Run_DoesNotThrow_WhenCalled()
         {
@@ -19,6 +21,44 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
 
             var exception = await Record.ExceptionAsync(() => RecoveryOrchestration.Run(timerInfo, fakeClient));
             Assert.Null(exception);
+        }
+
+        [Fact]
+        public async Task Starts_ShareAllTickets_with_the_fixed_instance_id()
+        {
+            var client = new FakeDurableTaskClient();
+
+            await RecoveryOrchestration.Run(CreateTimerInfo(), client);
+
+            Assert.Equal(1, client.ScheduleCount);
+            Assert.Equal(WatcherInstance, client.LastOptions?.InstanceId);
+            Assert.Null(client.LastInput);
+        }
+
+        [Theory]
+        [InlineData(OrchestrationRuntimeStatus.Running)]
+        [InlineData(OrchestrationRuntimeStatus.Pending)]
+        public async Task Does_not_start_a_new_run_while_the_previous_one_is_running(OrchestrationRuntimeStatus status)
+        {
+            var client = new FakeDurableTaskClient { ExistingStatus = status };
+
+            await RecoveryOrchestration.Run(CreateTimerInfo(), client);
+
+            Assert.Equal(0, client.ScheduleCount);
+        }
+
+        [Theory]
+        [InlineData(OrchestrationRuntimeStatus.Completed)]
+        [InlineData(OrchestrationRuntimeStatus.Failed)]
+        [InlineData(OrchestrationRuntimeStatus.Terminated)]
+        public async Task Starts_a_new_run_when_the_previous_one_has_finished(OrchestrationRuntimeStatus status)
+        {
+            var client = new FakeDurableTaskClient { ExistingStatus = status };
+
+            await RecoveryOrchestration.Run(CreateTimerInfo(), client);
+
+            Assert.Equal(1, client.ScheduleCount);
+            Assert.Equal(WatcherInstance, client.LastOptions?.InstanceId);
         }
 
         private static TimerInfo CreateTimerInfo()
@@ -34,8 +74,14 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
         }
     }
 
+
     public class FakeDurableTaskClient : DurableTaskClient
     {
+        public object? LastInput { get; private set; }
+        public StartOrchestrationOptions? LastOptions { get; private set; }
+        public int ScheduleCount { get; private set; }
+        public OrchestrationRuntimeStatus? ExistingStatus { get; set; }   // null = no existing instance
+
         public FakeDurableTaskClient() : base("Fake") { }
 
         public override Task<string> ScheduleNewOrchestrationInstanceAsync(
@@ -43,7 +89,12 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
             object input = null,
             StartOrchestrationOptions options = null,
             CancellationToken cancellation = default)
-            => Task.FromResult("fake-instance-id");
+        {
+            ScheduleCount++;
+            LastInput = input;
+            LastOptions = options;
+            return Task.FromResult(options?.InstanceId ?? "generated-id");
+        }
 
         public override Task RaiseEventAsync(
             string instanceId, string eventName, object eventPayload = null, CancellationToken cancellation = default)
@@ -67,7 +118,10 @@ namespace SFA.DAS.Zendesk.Monitor.UnitTests.Tests
 
         public override Task<OrchestrationMetadata> GetInstancesAsync(
             string instanceId, bool getInputsAndOutputs = false, CancellationToken cancellation = default)
-            => Task.FromResult<OrchestrationMetadata>(null);
+            => Task.FromResult(ExistingStatus is null
+                ? null
+                : new OrchestrationMetadata(nameof(WatcherOrchestration.ShareAllTickets), instanceId)
+                { RuntimeStatus = ExistingStatus.Value });
 
         public override AsyncPageable<OrchestrationMetadata> GetAllInstancesAsync(OrchestrationQuery filter = null)
             => new EmptyAsyncPageable<OrchestrationMetadata>();
