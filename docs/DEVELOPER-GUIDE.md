@@ -37,7 +37,7 @@ Some Zendesk tickets need to be transferred to other systems: **ServiceNow** (Ti
 The monitor then reads the ticket, sends the details to the middleware (which creates or updates the record in ServiceNow/PCRM), and removes the tag so the ticket isn't sent again.
 
 Webhooks alone aren't reliable: a call can fail or be missed, Zendesk won't always retry it, and repeated failures can stop the webhook from sending, so a missed call could go unnoticed. 
-So the monitor also runs on a timer as a safety net. Because the tag stays on the ticket until the send has succeeded, the timer can pick up any ticket that still has a tag – whether the webhook call was missed or an earlier send failed – and try again. (See `README.md` for the original design reasoning.)
+So the monitor also runs on a timer as a safety net. Because the tag stays on the ticket until the send has succeeded, the timer can pick up tickets that still have a tag – whether the webhook call was missed or an earlier send failed – and try again. (There are limits – see Known issues: the timer reads only the first page of search results, and closed tickets can't be updated.) (See `README.md` for the original design reasoning.)
 
 ```
  Agent in Zendesk ──► Zendesk triggers add a tag ──► Zendesk Monitor ──► Middleware ──► ServiceNow / PCRM
@@ -56,12 +56,12 @@ There are two entry points, which perform the same action for one or more ticket
 | Way in | Function | When | What it processes |
 |---|---|---|---|
 | **Webhook** (normal path) | `NotifyTicket` – HTTP `POST /api/NotifyTicket` with body `{"id": 12345}` | Immediately, when a Zendesk trigger calls it | That one ticket |
-| **Timer** (safety net) | `BackgroundTaskEntryPoint` | On the schedule in `MonitorCronSetting` (every 30 minutes in Azure) | Every ticket Zendesk returns for the tag search |
+| **Timer** (safety net) | `BackgroundTaskEntryPoint` | On the schedule in `MonitorCronSetting` (every 30 minutes in Azure) | The tagged tickets returned by the tag search (first page only – see Known issues) |
 
 - The **webhook** is called by Zendesk triggers (see section 6). It starts the `ShareListedTickets` orchestration for the one ticket ID.
-- The **timer** starts the `ShareAllTickets` orchestration, which first searches Zendesk for all tagged tickets. Only one timer run can happen at a time: before starting, the timer checks whether the previous run is still in progress and, if so, skips this one.
+- The **timer** starts the `ShareAllTickets` orchestration, which first searches Zendesk for tagged tickets (one page of results – see Known issues). The timer is meant to allow only one run at a time: before starting, it checks whether the previous run is still in progress and, if so, skips this one. **This check doesn't work** – see Known issues – so overlapping runs are possible.
 
-Both orchestrations are **Azure Durable Functions**. They call the activity `ShareTicket` once per ticket, **one ticket at a time**, with up to **5 attempts** per ticket (first retry after 1 second). If a ticket still fails, the error is logged and the run moves on to the next ticket.
+Both orchestrations are **Azure Durable Functions**. They call the activity `ShareTicket` once per ticket, **one ticket at a time**, with up to **5 attempts** per ticket (a 1-second retry interval with no backoff – in practice the gaps are a little longer because of request and storage overhead). If a ticket still fails, the error is logged and the run moves on to the next ticket.
 
 ---
 
@@ -103,7 +103,7 @@ The reason is `escalated`, `handedoff` or `solved` – the last part of the tick
 
 | Reason | Shared when… | Comments sent |
 |---|---|---|
-| Escalated | it has the tag **and** at least one **private** comment made in the **same Zendesk update** as the `escalated_tag` change | Only those private comments |
+| Escalated | it has the tag **and** at least one **private** comment made in a Zendesk update containing an `escalated_tag` change. All retrieved updates are checked, not just the latest escalation. | Private comments from **all** those updates |
 | Handed off | it has the tag | All comments |
 | Solved | it has the tag | None |
 
@@ -124,7 +124,9 @@ If no reason matches (for example an escalated ticket with no qualifying note), 
 **Step 5 – Mark as shared** (`MarkShared`) – Zendesk write, only if step 4 succeeded
 - Remove `sending_middleware_{reason}`.
 
-**If anything fails** (step 3, 4 or 5), the error is logged together with the full payload, the activity is retried (up to 5 attempts in total), and if it still fails the tag stays on the ticket so it's picked up again on the next timer run.
+**If anything fails**, the activity is retried (up to 5 attempts in total), and if it still fails the tag stays on the ticket so it's picked up again on the next timer run. What gets logged depends on where it failed:
+- **Step 3 (or building the payload) fails** – for example the 403 on a closed ticket. This happens before the send, so there's no `Error sharing … Payload: …` entry; you only see the exception and `Error processing ticket …`.
+- **Step 4 or 5 fails** – the middleware call or the final tag update. The error is logged as `Error sharing … Payload: …`, with the full payload.
 
 ### How tag updates are written
 
@@ -186,10 +188,12 @@ The key triggers – *Solved Tickets notify Zendesk Monitor*, *Confirmed to esca
 |---|---|
 | **Closed tickets with a tag** | The monitor's account can't update closed tickets, so step 3 fails with **403 Forbidden** on every run. It appears the tags are added to closed tickets by the solved trigger when the satisfaction-survey automation runs, but this needs to be confirmed by the Zendesk developer. |
 | **Escalations made when the ticket is created** | If a ticket is created and escalated in the same save, `escalated_tag` is recorded as a `Create` event, not a `Change` event. The escalation check doesn't find it, so the ticket is **silently never sent**. |
-| **Notes saved separately from the escalation** | Only private notes in the "same" update as the escalation are sent. A note saved before escalating is not included. If the escalation update has no private note at all, the ticket isn't sent. |
+| **Escalation notes come from every qualifying update, not just the latest** | The monitor checks all the updates it retrieves and sends private notes from any update that contains an `escalated_tag` change. It doesn't restrict this to the latest escalation or check the tag was newly added. So an older note can be sent again, and a later escalation without a private note can still be sent using an earlier note. A note saved in a separate update from the escalation is not included. The ticket is skipped if none of the retrieved updates contains a qualifying private comment. |
+| **Timer runs can overlap** | `RecoveryOrchestration.cs` (lines 20–24) checks for a running instance with the fixed ID `{8B2772F1-…}`, but then starts `ShareAllTickets` passing that ID as the orchestration's **input**, not its instance ID. Each run gets a generated ID, so the next check never finds it and a new run can start while the previous one is still going. Fix: pass `new StartOrchestrationOptions { InstanceId = WatcherInstance }`. This was introduced by the .NET 8 isolated-worker upgrade (commit `6cc592a`): the old in-process code called `StartNewAsync(name, WatcherInstance)`, where the second argument *was* the instance ID. Overlapping runs can process the same ticket at the same time, so this may contribute to duplicate sends (see below). |
+| **Timer only reads the first page of search results** | `SharingTickets.GetTicketsForSharing` makes one search request and doesn't follow `next_page`. Zendesk returns at most 100 results per page, so if the first page is full of tickets that keep failing or being skipped (e.g. closed tickets), tickets on later pages may never be processed. |
 | **Long tickets** | Only the first page of comments and audits is read. Very long tickets may lose notes. |
-| **Duplicates are possible by design** | If the middleware call succeeds but `MarkShared` fails, the retry sends the ticket again. The middleware is expected to cope with duplicates ("at-least-once" delivery). |
-| **Middleware failures aren't visible in Zendesk** | A ticket stuck on `sending_…` is the only sign in Zendesk that a send failed. The details are in the function logs (`Error sharing … Payload: …`). |
+| **Duplicates are possible by design** | If the middleware call succeeds but `MarkShared` fails, the retry sends the ticket again. The middleware is expected to cope with duplicates ("at-least-once" delivery). Overlapping timer runs (above) make duplicates more likely. |
+| **Middleware failures aren't visible in Zendesk** | A ticket stuck on `sending_…` is the only sign in Zendesk that a send failed. The details are in the function logs (`Error sharing … Payload: …`). Failures before the send don't log the payload: a step 3 failure (e.g. the closed-ticket 403) leaves the tag on `pending_…`; a failure building the payload, after step 3, leaves it on `sending_…`. |
 
 ---
 
@@ -222,7 +226,8 @@ Settings come from two places.
 |---|---|---|
 | `AzureWebJobsStorage` | `UseDevelopmentStorage=true` | Durable Functions state (Azurite locally) |
 | `FUNCTIONS_WORKER_RUNTIME` | `dotnet-isolated` | |
-| `MonitorCronSetting` | `0 */30 * * * *` | Timer schedule (6-field cron). Use `0 0 0 1 1 *` locally to effectively switch the timer off. |
+| `MonitorCronSetting` | `0 */30 * * * *` | Timer schedule (6-field cron). Keep it set even when the timer is disabled. |
+| `AzureWebJobs.BackgroundTaskEntryPoint.Disabled` | `true` | Local only – switches the timer off. Leave out (or `false`) to run it. |
 | `ConfigNames` | `SFA.DAS.ZendeskMonitor` | Which table storage config entry to load |
 | `EnvironmentName` | `LOCAL` | Partition key of the config entry |
 | `ConfigurationStorageConnectionString` | `UseDevelopmentStorage=true` | Where the config table is |
@@ -267,7 +272,7 @@ Settings come from two places.
 
 ### Why do we need a middleware stub?
 When you run the monitor locally, you point it at the middleware stub instead of the real middleware. This:
-- **keeps your test tickets out of ServiceNow and PCRM** – nothing you send locally reaches a real system
+- **keeps your local monitor's calls out of ServiceNow and PCRM** – everything your local monitor sends goes to the stub. But the deployed PP monitor is still running against the same tickets and may send them to the real PP middleware first or as well (see [Run locally against PP](#4-run-locally-against-pp)). This matters most during failure tests and while you're paused on a breakpoint.
 - **shows exactly what your monitor sent** – every call is listed in the stub's window and saved as a payload file. Both the deployed PP monitor and your local one use the same Zendesk account, so the ticket history can't tell you which one sent it. The stub can.
 - **lets you test failures** – you can make it return errors or respond slowly, to check the monitor's retries and error handling
 
@@ -286,7 +291,8 @@ It's a test tool only. It isn't part of the solution and is never deployed. See 
        "EnvironmentName": "LOCAL",
        "ConfigNames": "SFA.DAS.ZendeskMonitor",
        "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true",
-       "MonitorCronSetting": "0 0 0 1 1 *"
+       "MonitorCronSetting": "0 */30 * * * *",
+       "AzureWebJobs.BackgroundTaskEntryPoint.Disabled": "true"
      }
    }
    ```
@@ -322,7 +328,9 @@ It's a test tool only. It isn't part of the solution and is never deployed. See 
    | Ticket history | `+sending_…` then `-sending_…` | Tags updated as expected |
 
 ### Running the timer
-Normally leave the timer off and use `NotifyTicket`. To test the timer itself, set `MonitorCronSetting` to `0 */2 * * * *` (every 2 minutes) and restart. Be aware it then processes **every** ticket in PP with a monitor tag, including old closed ones.
+Normally leave the timer off and use `NotifyTicket`. To test the timer itself, set `AzureWebJobs.BackgroundTaskEntryPoint.Disabled` to `false` and `MonitorCronSetting` to `0 */2 * * * *` (every 2 minutes), and restart. Be aware it then processes the tagged tickets in PP (first page of search results), including old closed ones. Because of the overlapping-runs issue (see Known issues), a short interval can start a new run every 2 minutes while earlier ones are still retrying – stop the function as soon as you've finished.
+
+Disabling the timer doesn't stop a durable orchestration that's already started: a timer run left over from an earlier session resumes when you start the function. See "Tickets you didn't send appear in the console" in the [worked examples](#5-worked-examples).
 
 ### Useful read-only Zendesk API calls
 - `GET /tickets/{id}.json` – status and tags for a specific ticket
@@ -436,7 +444,7 @@ Deploy your branch to PP as normal, after checking no-one else is using it for a
 1. **Put a ticket in the state you want to test**, in one of two ways:
    - **In the Zendesk UI, as a normal agent** (for example, escalate or solve it with the usual macro). This fires the real Zendesk triggers, and the webhook sends the ticket to the monitor within seconds. Use this to test the full end-to-end flow.
    - **Through the API** (see 2). No webhook is sent, so to get the monitor to pick up the ticket, either:
-     - **wait for the timer** – the deployed monitor checks every 30 minutes. To make this quicker, temporarily change the PP Function App's `MonitorCronSetting` app setting (e.g. `0 */2 * * * *` for every 2 minutes) and set it back afterwards. A shorter interval processes every tagged PP ticket, not just yours.
+     - **wait for the timer** – the deployed monitor checks every 30 minutes. To make this quicker, you could temporarily change the PP Function App's `MonitorCronSetting` app setting (e.g. `0 */2 * * * *` for every 2 minutes) and set it back afterwards – but **avoid this until the overlapping-runs issue is fixed** (see Known issues): runs would pile up and could send the same tickets more than once. A shorter interval also processes all the tagged PP tickets (first page), not just yours.
      - **send it yourself** – call the PP monitor's `NotifyTicket` endpoint, just as the webhook would:
        ```powershell
        Invoke-RestMethod -Method Post "<NotifyTicket URL>" -Body '{"id":12345}' -ContentType application/json
@@ -450,7 +458,7 @@ Deploy your branch to PP as normal, after checking no-one else is using it for a
 
 ### 4. Run locally against PP
 
-Use this when you need to see exactly what's sent, force middleware failures, or debug with breakpoints on real PP tickets. Your local monitor reads PP Zendesk but sends to the middleware stub, so nothing reaches ServiceNow or PCRM. Leave the PP Function App running.
+Use this when you need to see exactly what's sent, force middleware failures, or debug with breakpoints on real PP tickets. Your local monitor reads PP Zendesk but sends to the middleware stub. Leave the PP Function App running – but be aware it can still pick up your test tickets and send them to the real PP middleware, before or alongside your local monitor. Sending your ticket "straight away" makes that less likely; it can't rule it out.
 
 1. Set up and start everything as in section 10 (Azurite, the middleware stub, the function).
 2. Prepare a test ticket (see 2).
@@ -470,7 +478,7 @@ Step-by-step tests using your local monitor, the middleware stub and PP Zendesk 
 
 #### Before you start
 
-1. Check `local.settings.json` has `"MonitorCronSetting": "0 0 0 1 1 *"` (timer off), and that the quieter logging is in `host.json` (section 10, setup step 6) – without it you won't be able to follow the console.
+1. Check `local.settings.json` has `"AzureWebJobs.BackgroundTaskEntryPoint.Disabled": "true"` (timer off), and that the quieter logging is in `host.json` (section 10, setup step 6) – without it you won't be able to follow the console.
 2. Start Azurite, the middleware stub and the function (section 10, Run, steps 1–3). Watch the console for a minute: if it starts processing tickets you didn't send, see "Tickets you didn't send appear in the console" below.
 3. Open a PowerShell window and paste the "Connect" lines from [Preparing a test ticket](#2-preparing-a-test-ticket).
 4. Paste these two helpers into the same window. Use this window for all the tests – variables and helpers only exist in the window you set them in.
@@ -525,7 +533,7 @@ Clear the stub again before Test 2.
   11:59:55  PUT    escalated  ticket=16392    -> 200  dest=itsm  1 comment(s) [15 chars]  description=19 chars
   ```
   15 chars is "Escalation note". The description (19 chars, "Monitor test ticket") is the ticket's first message and is always sent.
-- Payload file: `comments` contains only `"Escalation note"` – the first comment isn't included, because only notes from the escalation update are sent. (`"Monitor test ticket"` still appears in `description`, which is always the ticket's first message.)
+- Payload file: `comments` contains only `"Escalation note"` – the first comment isn't included, because only private notes from updates containing an `escalated_tag` change are sent. (`"Monitor test ticket"` still appears in `description`, which is always the ticket's first message.)
 - `Show $id`: no `pending_…` or `sending_…` tag left – e.g. `{escalated_tag, monitor_test}`
 
 ---
@@ -616,10 +624,10 @@ Invoke-RestMethod -Method Put "$base/tickets/$id.json" -Headers $h -ContentType 
 
 1. Create a test ticket and run the `# Solved` lines.
 2. `Invoke-RestMethod -Method Post "http://localhost:8080/__fail-all?status=500"`
-3. `Notify $id`, then `Start-Sleep 20` (the five attempts take about 15 seconds), then `Show $id`
+3. `Notify $id`, then `Start-Sleep 20` (enough for all five attempts in our runs – if `Show` still shows `sending_…` with fewer than five stub lines, wait and check again), then `Show $id`
 
 **Expect**
-- Stub: five red `-> 500` lines (five attempts, about 2 seconds apart)
+- Stub: five red `-> 500` lines (five attempts – roughly 2 seconds apart in our runs, though only 1 second is configured)
 - Console: `Error sharing …` for each attempt, then `Error processing ticket …`
 - `Show $id`: stuck on `sending_middleware_solved`
 
@@ -665,7 +673,7 @@ Only run this if you need to see the 403 for yourself. Closed tickets can't be c
 | `Show` straight after `Notify` still shows `pending_…` | The monitor runs in the background – `Notify` returns before it's finished | Wait a few seconds and run `Show` again (the helper waits 5 seconds) |
 | **The tag has gone but the stub shows nothing** | The deployed PP monitor got there first and sent it to the **real PP middleware**. Your local monitor then found no tag and skipped the ticket (the console shows only `Sharing ticket …`). | Put the pending tag back and `Notify` straight away (see "Re-run a ticket" in [Preparing a test ticket](#2-preparing-a-test-ticket)) |
 | The ticket is on `sending_…` but your console has nothing for it | The deployed PP monitor is part-way through sending it | Wait for PP to finish, then re-tag and `Notify` |
-| **Tickets you didn't send appear in the console**, usually with 403 errors (e.g. `Error processing ticket 2529 … 403 (Forbidden)`) | A local timer run is processing every tagged PP ticket. Either `MonitorCronSetting` isn't switched off, or a timer run from an earlier session has resumed – Durable Functions keeps its state in Azurite. The 403s are old closed tickets (see Known issues). | Stop the function. Check `MonitorCronSetting` is `0 0 0 1 1 *`. In Azure Storage Explorer → Emulator, delete everything named `testhubname…` (tables, queues, blob containers). Start again. **Don't leave it running** – it could send real PP tickets to your stub and remove their tags, so they'd never reach PP ServiceNow/PCRM. |
+| **Tickets you didn't send appear in the console**, usually with 403 errors (e.g. `Error processing ticket 2529 … 403 (Forbidden)`) | A local timer run is processing the tagged PP tickets. Either the timer isn't disabled, or a timer run from an earlier session has resumed – Durable Functions keeps its state in Azurite. The 403s are old closed tickets (see Known issues). | Stop the function. Check `AzureWebJobs.BackgroundTaskEntryPoint.Disabled` is `true`. In Azure Storage Explorer → Emulator, delete everything named `testhubname…` (tables, queues, blob containers). Start again. **Don't leave it running** – it could send real PP tickets to your stub and remove their tags, so they'd never reach PP ServiceNow/PCRM. |
 | **429 Too Many Requests** from Zendesk | Zendesk is rate-limiting the API account. Your tests, your local monitor and the deployed PP monitor all share it. | Wait a minute and try again. Don't carry on with a test until the call succeeds. |
 | The console is flooded with storage request logging | The quieter logging in `host.json` is missing (e.g. after a `git stash`) | Re-add it (section 10, setup step 6) |
 
@@ -678,4 +686,4 @@ Only run this if you need to see the 403 for yourself. Closed tickets can't be c
 
 ### 6. User acceptance tests
 
-`SFA.DAS.Zendesk.Monitor.UserAcceptanceTests` uses a real Zendesk and an in-process WireMock middleware. Most scenarios are marked `@ignore` and they aren't part of the normal test run.
+`SFA.DAS.Zendesk.Monitor.UserAcceptanceTests` uses an in-process WireMock middleware and, by default, a fake Zendesk (`FakeZendesk`). Set `Zendesk:UseLiveInstance` to `true` in `appSettings.json` to use a live Zendesk instead. The feature file (`MiddlewareReceiveTicketUpdates.feature`) has two scenarios; *Share ticket with middleware* is marked `@ignore`.
