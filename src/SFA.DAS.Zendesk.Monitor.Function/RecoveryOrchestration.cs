@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 
 namespace ZenWatchFunction
@@ -21,7 +22,10 @@ namespace ZenWatchFunction
 
             if (instance == null || instance.RuntimeStatus.OrchestrationIsRunning() != true)
             {
-                await starter.ScheduleNewOrchestrationInstanceAsync(nameof(WatcherOrchestration.ShareAllTickets), WatcherInstance);
+                await starter.ScheduleNewOrchestrationInstanceAsync(
+                    nameof(WatcherOrchestration.ShareAllTickets),
+                    input: null,
+                    options: new StartOrchestrationOptions(InstanceId: WatcherInstance));
             }
         }
     }
