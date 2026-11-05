@@ -3,7 +3,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask.Client;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 [assembly: InternalsVisibleTo("SFA.DAS.Zendesk.Monitor.UnitTests")]
 namespace ZenWatchFunction
 {
