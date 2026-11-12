@@ -1,4 +1,5 @@
 Zendesk does not provide guaranteed delivery of messages via its webhooks.  This design attempts to provide after-market features to provide such guarantee.
+> **New to this repo?** Start with the [Developer Guide](docs/DEVELOPER-GUIDE.md) – what the monitor does, how it processes tickets, and how to run and test it locally.
 
 # Integration Overview
 
