@@ -189,7 +189,6 @@ The key triggers – *Solved Tickets notify Zendesk Monitor*, *Confirmed to esca
 | **Closed tickets with a tag** | The monitor's account can't update closed tickets, so step 3 fails with **403 Forbidden** on every run. It appears the tags are added to closed tickets by the solved trigger when the satisfaction-survey automation runs, but this needs to be confirmed by the Zendesk developer. |
 | **Escalations made when the ticket is created** | If a ticket is created and escalated in the same save, `escalated_tag` is recorded as a `Create` event, not a `Change` event. The escalation check doesn't find it, so the ticket is **silently never sent**. |
 | **Escalation notes come from every qualifying update, not just the latest** | The monitor checks all the updates it retrieves and sends private notes from any update that contains an `escalated_tag` change. It doesn't restrict this to the latest escalation or check the tag was newly added. So an older note can be sent again, and a later escalation without a private note can still be sent using an earlier note. A note saved in a separate update from the escalation is not included. The ticket is skipped if none of the retrieved updates contains a qualifying private comment. |
-| **Timer runs can overlap** | `RecoveryOrchestration.cs` (lines 20–24) checks for a running instance with the fixed ID `{8B2772F1-…}`, but then starts `ShareAllTickets` passing that ID as the orchestration's **input**, not its instance ID. Each run gets a generated ID, so the next check never finds it and a new run can start while the previous one is still going. Fix: pass `new StartOrchestrationOptions { InstanceId = WatcherInstance }`. This was introduced by the .NET 8 isolated-worker upgrade (commit `6cc592a`): the old in-process code called `StartNewAsync(name, WatcherInstance)`, where the second argument *was* the instance ID. Overlapping runs can process the same ticket at the same time, so this may contribute to duplicate sends (see below). |
 | **Timer only reads the first page of search results** | `SharingTickets.GetTicketsForSharing` makes one search request and doesn't follow `next_page`. Zendesk returns at most 100 results per page, so if the first page is full of tickets that keep failing or being skipped (e.g. closed tickets), tickets on later pages may never be processed. |
 | **Long tickets** | Only the first page of comments and audits is read. Very long tickets may lose notes. |
 | **Duplicates are possible by design** | If the middleware call succeeds but `MarkShared` fails, the retry sends the ticket again. The middleware is expected to cope with duplicates ("at-least-once" delivery). Overlapping timer runs (above) make duplicates more likely. |
@@ -280,8 +279,7 @@ It's a test tool only. It isn't part of the solution and is never deployed. See 
 
 ### One-off setup
 1. **Clone** `https://github.com/SkillsFundingAgency/das-zendesk-monitor`.
-2. **If the Debug build fails with `NU1903`** (AutoMapper 14 security advisory): the library project treats warnings as errors in Debug. Locally, add `<WarningsNotAsErrors>NU1902;NU1903</WarningsNotAsErrors>` to the Debug `PropertyGroup` in `SFA.DAS.Zendesk.Monitor.csproj`, or build in Release. (A proper fix – upgrading or removing AutoMapper – is a separate piece of work.)
-3. **Create `local.settings.json`** in `src/SFA.DAS.Zendesk.Monitor.Function/` (it's git-ignored):
+2. **Create `local.settings.json`** in `src/SFA.DAS.Zendesk.Monitor.Function/` (it's git-ignored):
    ```json
    {
      "IsEncrypted": false,
@@ -296,7 +294,7 @@ It's a test tool only. It isn't part of the solution and is never deployed. See 
      }
    }
    ```
-4. **Make sure `local.settings.json` is copied to the output folder.** The Function project needs:
+3. **Make sure `local.settings.json` is copied to the output folder.** The Function project needs:
    ```xml
    <ItemGroup>
      <None Update="local.settings.json">
@@ -305,8 +303,8 @@ It's a test tool only. It isn't part of the solution and is never deployed. See 
      </None>
    </ItemGroup>
    ```
-5. **Add the config entry** to Azurite's `Configuration` table (Azure Storage Explorer → Emulator → Tables) as described in section 9, with `MiddlewareUrl` set to `http://localhost:8080/` (the middleware stub).
-6. **Optional – quieter console.** Azurite request logging floods the console. Locally, add `"Azure.Core": "Warning"`, `"DurableTask.AzureStorage": "Warning"` and `"DurableTask.Core": "Warning"` to `logLevel` in `host.json` (don't commit).
+4. **Add the config entry** to Azurite's `Configuration` table (Azure Storage Explorer → Emulator → Tables) as described in section 9, with `MiddlewareUrl` set to `http://localhost:8080/` (the middleware stub).
+5. **Optional – quieter console.** Azurite request logging floods the console. Locally, add `"Azure.Core": "Warning"`, `"DurableTask.AzureStorage": "Warning"` and `"DurableTask.Core": "Warning"` to `logLevel` in `host.json` (don't commit).
 
 ### Run
 1. Start Azurite.
